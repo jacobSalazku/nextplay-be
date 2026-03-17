@@ -1,0 +1,32 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthPayload {
+  accessToken: String!
+  refreshToken: String!
+}
+
+type User {
+  id: ID!
+  email: String!
+  emailVerified: DateTime
+  isBlocked: Boolean!
+  tokenVersion: Float!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  _ping: Boolean!
+  me: User!
+}
+
+type Mutation {
+  login(email: String!): AuthPayload!
+  refresh(refreshToken: String!): AuthPayload!
+  logout: Boolean!
+}

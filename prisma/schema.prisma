@@ -1,0 +1,300 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  dateOfBirth   DateTime?
+  phone         String?   @unique
+  height        Float?
+  weight        Float?
+  dominantHand  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  hasOnBoarded  Boolean   @default(false)
+
+  // 🔐 Auth control
+  tokenVersion Int     @default(1)
+  isBlocked    Boolean @default(false)
+  refreshToken String?
+
+  // Relationships
+  teams   Team[]   @relation("TeamCreator")
+  members Member[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Team {
+  id         String     @id @default(cuid())
+  name       String
+  code       String     @unique
+  ageGroup   String?
+  image      String?
+  creatorId  String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  members    Member[]
+  activities Activity[]
+  plays      Play[]
+
+  // Relationships
+  gamePlans            GamePlan[]
+  practicePreparations PracticePreparation[]
+  creator              User                  @relation("TeamCreator", fields: [creatorId], references: [id])
+
+  @@index([creatorId])
+}
+
+model Member {
+  id          String       @id @default(cuid())
+  userId      String
+  teamId      String
+  role        Role
+  status      Status
+  number      String?
+  position    String?
+  statlines   Statline[]
+  attendances PlayerActivityAttendance[]
+
+  // relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+  @@index([teamId])
+}
+
+model Activity {
+  id        String       @id @default(cuid())
+  title     String
+  time      String
+  type      ActivityType
+  duration  Float?
+  date      DateTime
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  teamId    String
+  attendees PlayerActivityAttendance[]
+
+  // subtype
+  game     Game?
+  practice Practice?
+  meeting  Meeting?
+  film     Film?
+  feedback Feedback?
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model Game {
+  activityId        String             @id
+  location          Location
+  gameplan          GamePlan?
+  statlines         Statline[]
+  opponentStatlines OpponentStatline[]
+
+  activity Activity @relation(fields: [activityId], references: [id])
+}
+
+model Practice {
+  activityId   String                @id
+  facility     String
+  practicetype PracticeType
+  preparation  PracticePreparation[]
+
+  activity Activity @relation(fields: [activityId], references: [id])
+}
+
+model Film {
+  activityId String @id
+  notes      String
+
+  activity Activity @relation(fields: [activityId], references: [id])
+}
+
+model Meeting {
+  activityId String @id
+  notes      String
+
+  activity Activity @relation(fields: [activityId], references: [id])
+}
+
+model Feedback {
+  activityId String @id
+  coach      String
+  notes      String
+
+  activity Activity @relation(fields: [activityId], references: [id])
+}
+
+model Statline {
+  id                  String   @id @default(cuid())
+  memberId            String
+  fieldGoalsMade      Int
+  fieldGoalsMissed    Int
+  threePointersMade   Int
+  threePointersMissed Int
+  freeThrows          Int
+  freeThrowsMissed    Int
+  assists             Int
+  steals              Int
+  turnovers           Int
+  offensiveRebounds   Int      @default(0)
+  defensiveRebounds   Int      @default(0)
+  blocks              Int
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  gameId              String
+
+  // Relationships
+  Member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  Game   Game   @relation(fields: [gameId], references: [activityId], onDelete: Cascade)
+
+  @@unique([memberId, gameId], name: "memberId_gameId")
+}
+
+model PlayerActivityAttendance {
+  id               String           @id @default(cuid())
+  activityId       String
+  memberId         String
+  attendanceStatus AttendanceStatus
+  reason           String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  // Relationships
+  activity Activity @relation(fields: [activityId], references: [id])
+  Member   Member   @relation(fields: [memberId], references: [id])
+
+  @@unique([activityId, memberId]) // Ensure unique attendance per activity and team member
+  @@index([activityId])
+  @@index([memberId])
+}
+
+model OpponentStatline {
+  id                String   @id @default(cuid())
+  name              String
+  gameId            String   @unique
+  fieldGoalsMade    Int      @default(0)
+  threePointersMade Int      @default(0)
+  freeThrowsMade    Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  game Game @relation(fields: [gameId], references: [activityId], onDelete: Cascade)
+}
+
+model Play {
+  id          String   @id @default(cuid())
+  teamId      String
+  name        String
+  category    Category
+  description String
+  canvas      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  team      Team                  @relation(fields: [teamId], references: [id])
+  gamePlans GamePlan[]            @relation("GamePlanPlays")
+  practices PracticePreparation[] @relation("PracticePlays")
+
+  @@index([teamId])
+}
+
+model GamePlan {
+  id        String   @id @default(cuid())
+  gameID    String   @unique
+  teamId    String
+  title     String
+  opponent  String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  team  Team   @relation(fields: [teamId], references: [id])
+  game  Game   @relation(fields: [gameID], references: [activityId])
+  plays Play[] @relation("GamePlanPlays")
+}
+
+model PracticePreparation {
+  id         String   @id @default(cuid())
+  practiceId String?
+  teamId     String
+  name       String
+  focus      String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  team     Team      @relation(fields: [teamId], references: [id])
+  practice Practice? @relation(fields: [practiceId], references: [activityId])
+  plays    Play[]    @relation("PracticePlays")
+}
+
+enum ActivityType {
+  GAME
+  PRACTICE
+  FILM
+  FEEDBACK
+  MEETING
+}
+
+enum Role {
+  COACH
+  PLAYER
+}
+
+enum Status {
+  ACTIVE
+  PENDING
+  INACTIVE
+}
+
+enum AttendanceStatus {
+  ATTENDING
+  NOT_ATTENDING
+  LATE
+}
+
+enum PracticeType {
+  TECHNICAL
+  TACTICAL
+  PHYSICAL
+  MENTAL
+}
+
+enum Location {
+  HOME
+  AWAY
+}
+
+enum Category {
+  OFFENSIVE
+  DEFENSIVE
+  SPECIAL
+}
