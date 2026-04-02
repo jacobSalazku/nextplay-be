@@ -18,6 +18,14 @@ export class AuthResolver {
   async me(@CurrentUser() user: { userId: string }) {
     return await this.prisma.user.findUnique({
       where: { id: user.userId },
+      select: {
+        id: true,
+        email: true,
+        emailVerified: true,
+        isBlocked: true,
+        tokenVersion: true,
+        hasOnBoarded: true,
+      },
     });
   }
 
@@ -31,6 +39,7 @@ export class AuthResolver {
         tokenVersion: true,
         isBlocked: true,
         refreshToken: true,
+        hasOnBoarded: true,
       },
     });
 
@@ -39,12 +48,14 @@ export class AuthResolver {
         data: {
           email,
           emailVerified: new Date(),
+          hasOnBoarded: false,
         },
         select: {
           refreshToken: true,
           id: true,
           tokenVersion: true,
           isBlocked: true,
+          hasOnBoarded: true,
         },
       });
     }
@@ -65,7 +76,12 @@ export class AuthResolver {
       data: { refreshToken },
     });
 
-    return { accessToken, refreshToken };
+    return {
+      accessToken,
+      refreshToken,
+      hasOnBoarded: user.hasOnBoarded,
+      userId: user.id,
+    };
   }
 
   // REFRESH
@@ -77,6 +93,7 @@ export class AuthResolver {
         id: true,
         tokenVersion: true,
         isBlocked: true,
+        hasOnBoarded: true,
       },
     });
 
@@ -93,13 +110,15 @@ export class AuthResolver {
 
     await this.prisma.user.update({
       where: { id: user.id },
-      data: { tokenVersion: { increment: 1 }, refreshToken: newRefreshToken },
-      // increment tokenVersion instead of setting refreshToken (assume no refreshToken col)
+      // Rotate refresh token without invalidating the freshly issued access token.
+      data: { refreshToken: newRefreshToken },
     });
 
     return {
       accessToken,
       refreshToken: newRefreshToken,
+      hasOnBoarded: user.hasOnBoarded,
+      userId: user.id,
     };
   }
 

@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,7 +5,6 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-
 
 model User {
   id            String    @id @default(cuid())
@@ -27,15 +20,11 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   hasOnBoarded  Boolean   @default(false)
-
-  // 🔐 Auth control
-  tokenVersion Int     @default(1)
-  isBlocked    Boolean @default(false)
-  refreshToken String?
-
-  // Relationships
-  teams   Team[]   @relation("TeamCreator")
-  members Member[]
+  isBlocked     Boolean   @default(false)
+  tokenVersion  Int       @default(1)
+  refreshToken  String?
+  members       Member[]
+  teams         Team[]    @relation("TeamCreator")
 }
 
 model VerificationToken {
@@ -47,20 +36,18 @@ model VerificationToken {
 }
 
 model Team {
-  id         String     @id @default(cuid())
-  name       String
-  code       String     @unique
-  ageGroup   String?
-  image      String?
-  creatorId  String
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  members    Member[]
-  activities Activity[]
-  plays      Play[]
-
-  // Relationships
+  id                   String                @id @default(cuid())
+  name                 String
+  code                 String                @unique
+  ageGroup             String?
+  image                String?
+  creatorId            String
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  activities           Activity[]
   gamePlans            GamePlan[]
+  members              Member[]
+  plays                Play[]
   practicePreparations PracticePreparation[]
   creator              User                  @relation("TeamCreator", fields: [creatorId], references: [id])
 
@@ -68,90 +55,79 @@ model Team {
 }
 
 model Member {
-  id          String       @id @default(cuid())
+  id          String                     @id @default(cuid())
   userId      String
   teamId      String
   role        Role
   status      Status
   number      String?
   position    String?
-  statlines   Statline[]
+  team        Team                       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user        User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
   attendances PlayerActivityAttendance[]
-
-  // relationships
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  statlines   Statline[]
 
   @@unique([userId, teamId])
   @@index([teamId])
 }
 
 model Activity {
-  id        String       @id @default(cuid())
+  id        String                     @id @default(cuid())
   title     String
   time      String
   type      ActivityType
   duration  Float?
   date      DateTime
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  createdAt DateTime                   @default(now())
+  updatedAt DateTime                   @updatedAt
   teamId    String
+  team      Team                       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  feedback  Feedback?
+  film      Film?
+  game      Game?
+  meeting   Meeting?
   attendees PlayerActivityAttendance[]
-
-  // subtype
-  game     Game?
-  practice Practice?
-  meeting  Meeting?
-  film     Film?
-  feedback Feedback?
-
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  practice  Practice?
 }
 
 model Game {
-  activityId        String             @id
+  activityId        String            @id
   location          Location
+  activity          Activity          @relation(fields: [activityId], references: [id])
   gameplan          GamePlan?
+  opponentStatlines OpponentStatline?
   statlines         Statline[]
-  opponentStatlines OpponentStatline[]
-
-  activity Activity @relation(fields: [activityId], references: [id])
 }
 
 model Practice {
   activityId   String                @id
   facility     String
   practicetype PracticeType
+  activity     Activity              @relation(fields: [activityId], references: [id])
   preparation  PracticePreparation[]
-
-  activity Activity @relation(fields: [activityId], references: [id])
 }
 
 model Film {
-  activityId String @id
+  activityId String   @id
   notes      String
-
-  activity Activity @relation(fields: [activityId], references: [id])
+  activity   Activity @relation(fields: [activityId], references: [id])
 }
 
 model Meeting {
-  activityId String @id
+  activityId String   @id
   notes      String
-
-  activity Activity @relation(fields: [activityId], references: [id])
+  activity   Activity @relation(fields: [activityId], references: [id])
 }
 
 model Feedback {
-  activityId String @id
+  activityId String   @id
   coach      String
   notes      String
-
-  activity Activity @relation(fields: [activityId], references: [id])
+  activity   Activity @relation(fields: [activityId], references: [id])
 }
 
 model Statline {
   id                  String   @id @default(cuid())
-  memberId            String
   fieldGoalsMade      Int
   fieldGoalsMissed    Int
   threePointersMade   Int
@@ -167,10 +143,9 @@ model Statline {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   gameId              String
-
-  // Relationships
-  Member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  Game   Game   @relation(fields: [gameId], references: [activityId], onDelete: Cascade)
+  memberId            String
+  Game                Game     @relation(fields: [gameId], references: [activityId], onDelete: Cascade)
+  Member              Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@unique([memberId, gameId], name: "memberId_gameId")
 }
@@ -183,12 +158,10 @@ model PlayerActivityAttendance {
   reason           String?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
+  activity         Activity         @relation(fields: [activityId], references: [id])
+  Member           Member           @relation(fields: [memberId], references: [id])
 
-  // Relationships
-  activity Activity @relation(fields: [activityId], references: [id])
-  Member   Member   @relation(fields: [memberId], references: [id])
-
-  @@unique([activityId, memberId]) // Ensure unique attendance per activity and team member
+  @@unique([activityId, memberId])
   @@index([activityId])
   @@index([memberId])
 }
@@ -202,24 +175,21 @@ model OpponentStatline {
   freeThrowsMade    Int      @default(0)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-
-  game Game @relation(fields: [gameId], references: [activityId], onDelete: Cascade)
+  game              Game     @relation(fields: [gameId], references: [activityId], onDelete: Cascade)
 }
 
 model Play {
-  id          String   @id @default(cuid())
+  id          String                @id @default(cuid())
   teamId      String
   name        String
   category    Category
   description String
   canvas      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  team      Team                  @relation(fields: [teamId], references: [id])
-  gamePlans GamePlan[]            @relation("GamePlanPlays")
-  practices PracticePreparation[] @relation("PracticePlays")
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  team        Team                  @relation(fields: [teamId], references: [id])
+  gamePlans   GamePlan[]            @relation("GamePlanPlays")
+  practices   PracticePreparation[] @relation("PracticePlays")
 
   @@index([teamId])
 }
@@ -233,27 +203,23 @@ model GamePlan {
   notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  team  Team   @relation(fields: [teamId], references: [id])
-  game  Game   @relation(fields: [gameID], references: [activityId])
-  plays Play[] @relation("GamePlanPlays")
+  game      Game     @relation(fields: [gameID], references: [activityId])
+  team      Team     @relation(fields: [teamId], references: [id])
+  plays     Play[]   @relation("GamePlanPlays")
 }
 
 model PracticePreparation {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   practiceId String?
   teamId     String
   name       String
   focus      String?
   notes      String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // Relations
-  team     Team      @relation(fields: [teamId], references: [id])
-  practice Practice? @relation(fields: [practiceId], references: [activityId])
-  plays    Play[]    @relation("PracticePlays")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  practice   Practice? @relation(fields: [practiceId], references: [activityId])
+  team       Team      @relation(fields: [teamId], references: [id])
+  plays      Play[]    @relation("PracticePlays")
 }
 
 enum ActivityType {

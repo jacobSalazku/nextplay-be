@@ -5,14 +5,23 @@
 type AuthPayload {
   accessToken: String!
   refreshToken: String!
+  hasOnBoarded: Boolean!
+  userId: String!
 }
 
 type User {
   id: ID!
+  name: String
   email: String!
   emailVerified: DateTime
+  dateOfBirth: DateTime
+  phone: String
+  height: Float
+  weight: Float
+  dominantHand: String
   isBlocked: Boolean!
   tokenVersion: Float!
+  hasOnBoarded: Boolean!
 }
 
 """
@@ -20,13 +29,98 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type Activity {
+  id: ID!
+  title: String!
+  time: String!
+  type: ActivityType!
+  duration: Float
+  date: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  teamId: String!
+}
+
+enum ActivityType {
+  GAME
+  PRACTICE
+  FILM
+  FEEDBACK
+  MEETING
+}
+
+type TeamMemberUser {
+  id: ID!
+  name: String
+  image: String
+}
+
+type Member {
+  id: ID!
+  userId: String!
+  teamId: String!
+  role: Role!
+  status: Status!
+  number: String
+  position: String
+  user: TeamMemberUser!
+}
+
+enum Role {
+  COACH
+  PLAYER
+}
+
+enum Status {
+  ACTIVE
+  PENDING
+  INACTIVE
+}
+
+type Team {
+  id: String!
+  name: String!
+  code: String!
+  ageGroup: String
+  image: String
+  creatorId: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type TeamDashboard {
+  id: ID!
+  name: String!
+  ageGroup: String
+  members: [Member!]!
+  activities: [Activity!]!
+}
+
 type Query {
   _ping: Boolean!
   me: User!
+  getDashboardTeams: [TeamDashboard!]!
 }
 
 type Mutation {
   login(email: String!): AuthPayload!
   refresh(refreshToken: String!): AuthPayload!
   logout: Boolean!
+  updateUser(input: UpdateUserInput!): User!
+  createTeam(input: CreateTeamInput!): Team!
+}
+
+input UpdateUserInput {
+  name: String!
+  dateOfBirth: String!
+  phone: String!
+  height: Float!
+  weight: Float!
+  dominantHand: String!
+}
+
+input CreateTeamInput {
+  name: String!
+  image: String
+  ageGroup: String!
 }
