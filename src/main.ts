@@ -6,6 +6,8 @@ import {
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
 
+import 'reflect-metadata';
+
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -16,8 +18,10 @@ async function bootstrap() {
   logger.log('GraphQL schema & types will be generated on startup');
 
   app.enableCors({
-    origin: 'http://localhost:3001',
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'OPTIONS'],
   });
 
   const port = Number(process.env.PORT) || 3001;

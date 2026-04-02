@@ -3,9 +3,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
-import { RootResolver } from './root.resolver';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { TeamModule } from './modules/team/team.module';
+import { UserModule } from './modules/user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { RootResolver } from './root.resolver';
 
 @Module({
   imports: [
@@ -20,9 +22,11 @@ import { PrismaModule } from './prisma/prisma.module';
       //code first schema output
       autoSchemaFile: join(process.cwd(), 'graphql/schema.graphql'),
       introspection: true,
-      context: ({ req }) => ({
-        req,
-      }),
+      context: (context: { req?: unknown; request?: unknown }) => {
+        return {
+          req: context.req ?? context.request,
+        };
+      },
 
       // plugins:
       //   process.env.NODE_ENV !== 'production'
@@ -38,6 +42,8 @@ import { PrismaModule } from './prisma/prisma.module';
       },
     }),
     AuthModule,
+    UserModule,
+    TeamModule,
     PrismaModule,
   ],
   providers: [RootResolver],
