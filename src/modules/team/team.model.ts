@@ -46,3 +46,17 @@ export class TeamDashboard {
   @Field(() => [Activity])
   activities: Activity[];
 }
+
+@ObjectType()
+export class JoinTeamResult {
+  @Field()
+  teamCode: string;
+
+  @Field({ nullable: true })
+  position?: string;
+
+  @Field({ nullable: true })
+  number?: string;
+
+  createdAt;
+}

@@ -8,6 +8,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
+export enum Status {
+    ACTIVE = "ACTIVE",
+    PENDING = "PENDING",
+    INACTIVE = "INACTIVE"
+}
+
 export enum ActivityType {
     GAME = "GAME",
     PRACTICE = "PRACTICE",
@@ -19,12 +25,6 @@ export enum ActivityType {
 export enum Role {
     COACH = "COACH",
     PLAYER = "PLAYER"
-}
-
-export enum Status {
-    ACTIVE = "ACTIVE",
-    PENDING = "PENDING",
-    INACTIVE = "INACTIVE"
 }
 
 export class UpdateUserInput {
@@ -40,6 +40,16 @@ export class CreateTeamInput {
     name: string;
     image?: Nullable<string>;
     ageGroup: string;
+}
+
+export class JoinTeamInput {
+    teamCode: string;
+    position: string;
+    number: string;
+}
+
+export class ApproveJoinRequestInput {
+    memberId: string;
 }
 
 export class AuthPayload {
@@ -62,6 +72,18 @@ export class User {
     isBlocked: boolean;
     tokenVersion: number;
     hasOnBoarded: boolean;
+}
+
+export class ModerateJoinRequestResult {
+    memberId: string;
+    teamId: string;
+    status: Status;
+}
+
+export class JoinTeamResponse {
+    teamCode: string;
+    position: string;
+    number: string;
 }
 
 export class Activity {
@@ -130,6 +152,12 @@ export abstract class IMutation {
     abstract updateUser(input: UpdateUserInput): User | Promise<User>;
 
     abstract createTeam(input: CreateTeamInput): Team | Promise<Team>;
+
+    abstract joinTeam(input: JoinTeamInput): JoinTeamResponse | Promise<JoinTeamResponse>;
+
+    abstract approveJoinRequest(input: ApproveJoinRequestInput): ModerateJoinRequestResult | Promise<ModerateJoinRequestResult>;
+
+    abstract rejectJoinRequest(input: ApproveJoinRequestInput): ModerateJoinRequestResult | Promise<ModerateJoinRequestResult>;
 }
 
 export type DateTime = any;
