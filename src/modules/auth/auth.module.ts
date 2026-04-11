@@ -46,6 +46,6 @@ import { JwtStrategy } from './jwt-strategy';
     }),
   ],
   providers: [JwtStrategy, GqlJwtAuthGuard, AuthResolver],
-  exports: [GqlJwtAuthGuard],
+  exports: [GqlJwtAuthGuard, JwtModule],
 })
 export class AuthModule {}
