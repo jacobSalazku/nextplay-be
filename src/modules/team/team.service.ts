@@ -262,6 +262,11 @@ export class TeamService {
             },
           });
 
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { hasOnBoarded: true },
+    });
+
     // Notify all subscribed coach clients for this team in realtime.
     this.teamSocket.emitJoinRequest(team.id, {
       teamId: team.id,
