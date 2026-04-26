@@ -1,4 +1,5 @@
 import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
+import { Member } from '../member/member.model';
 
 @ObjectType()
 export class AuthPayload {
@@ -52,4 +53,7 @@ export class User {
 
   @Field()
   hasOnBoarded: boolean;
+
+  @Field(() => [Member])
+  members: Member[];
 }

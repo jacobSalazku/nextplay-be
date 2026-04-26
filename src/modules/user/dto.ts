@@ -1,5 +1,7 @@
-import { Field, Float, InputType } from '@nestjs/graphql';
+import { Field, Float, InputType, ObjectType } from '@nestjs/graphql';
 import { IsNumber, IsString, MinLength } from 'class-validator';
+import { User } from '../auth/auth.model';
+import { Member } from '../member/member.model';
 
 @InputType()
 export class UpdateUserInput {
@@ -30,4 +32,12 @@ export class UpdateUserInput {
   @IsString()
   @MinLength(1)
   dominantHand: string;
+}
+@ObjectType()
+export class GetUserResponse {
+  @Field(() => User)
+  user: User;
+
+  @Field(() => Member)
+  member: Member;
 }
