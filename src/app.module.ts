@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
 import { ActivityModule } from './modules/activity/activity.module';
+import { AttendanceModule } from './modules/attendance/attendance.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TeamModule } from './modules/team/team.module';
 import { UserModule } from './modules/user/user.module';
@@ -46,6 +47,7 @@ import { RootResolver } from './root.resolver';
     UserModule,
     TeamModule,
     ActivityModule,
+    AttendanceModule,
     PrismaModule,
   ],
   providers: [RootResolver],

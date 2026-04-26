@@ -183,6 +183,18 @@ export class UpdateFeedbackInput {
     notes?: Nullable<string>;
 }
 
+export class GetAttendanceByActivitiesInput {
+    activityId: string;
+    memeberId: string;
+}
+
+export class PlayerActivityAttendanceInput {
+    activityId: string;
+    memeberId: string;
+    reason: string;
+    attendanceStatus: AttendanceStatus;
+}
+
 export class TeamMemberUser {
     id: string;
     userId: string;
@@ -386,6 +398,10 @@ export abstract class IMutation {
     abstract createFeedback(input: CreateFeedbackInput): Activity | Promise<Activity>;
 
     abstract updateFeedback(input: UpdateFeedbackInput): Activity | Promise<Activity>;
+
+    abstract getAttendanceByActivities(input: GetAttendanceByActivitiesInput): PlayerActivityAttendance | Promise<PlayerActivityAttendance>;
+
+    abstract submitAttendance(input: PlayerActivityAttendanceInput): PlayerActivityAttendance | Promise<PlayerActivityAttendance>;
 }
 
 export type DateTime = any;
