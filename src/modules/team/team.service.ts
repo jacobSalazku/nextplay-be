@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Role, Status } from '@prisma/client';
+import { randomBytes } from 'crypto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ApproveJoinRequestInput, CreateTeamInput, JoinTeamInput } from './dto';
 import { TeamGateway } from './team.gateway';
@@ -18,6 +19,9 @@ export class TeamService {
 
   async createTeam(input: CreateTeamInput, creatorId: string) {
     const code = await this.generateUniqueCode();
+    const shortId = await this.generateUniqueShortId();
+    const slug = this.slugify(input.name);
+    const routeKey = `${slug}-${shortId}`;
 
     return await this.prisma.$transaction(async (prisma) => {
       const team = await prisma.team.create({
@@ -26,6 +30,9 @@ export class TeamService {
           image: input.image,
           ageGroup: input.ageGroup,
           code,
+          shortId,
+          slug,
+          routeKey,
           creatorId,
           members: {
             create: {
@@ -60,6 +67,8 @@ export class TeamService {
         id: true,
         name: true,
         code: true,
+        slug: true,
+        shortId: true,
         ageGroup: true,
         image: true,
         creatorId: true,
@@ -112,6 +121,9 @@ export class TeamService {
       select: {
         id: true,
         name: true,
+        slug: true,
+        shortId: true,
+        routeKey: true,
         ageGroup: true,
         members: {
           select: {
@@ -136,20 +148,25 @@ export class TeamService {
     return teams;
   }
 
-  async getTeam(teamId: string) {
-    const team = await this.prisma.team.findFirst({
+  async getTeam(teamRef: string) {
+    const team = await this.prisma.team.findUnique({
       where: {
-        id: teamId,
+        routeKey: teamRef,
       },
       select: {
         id: true,
         name: true,
         code: true,
+        slug: true,
+        shortId: true,
+        routeKey: true,
         image: true,
         ageGroup: true,
         members: {
           select: {
+            id: true,
             userId: true,
+            teamId: true,
             role: true,
             status: true,
             user: {
@@ -170,12 +187,15 @@ export class TeamService {
             date: true,
             time: true,
             type: true,
+            teamId: true,
+            createdAt: true,
+            updatedAt: true,
             attendees: {
               select: {
                 id: true,
                 activityId: true,
                 attendanceStatus: true,
-                Member: {
+                member: {
                   select: {
                     id: true,
                     user: {
@@ -194,7 +214,7 @@ export class TeamService {
     });
 
     if (!team) {
-      throw new NotFoundException('Team isnot found');
+      throw new NotFoundException('Team is not found');
     }
 
     return team;
@@ -402,5 +422,44 @@ export class TeamService {
     }
 
     throw new Error('Unable to generate a unique team code');
+  }
+
+  private slugify(value: string): string {
+    const slug = value
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    return slug.length > 0 ? slug : 'team';
+  }
+
+  private generateShortId(length = 8): string {
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const bytes = randomBytes(length);
+    let shortId = '';
+
+    for (let index = 0; index < length; index += 1) {
+      shortId += alphabet[bytes[index] % alphabet.length];
+    }
+
+    return shortId;
+  }
+
+  private async generateUniqueShortId(): Promise<string> {
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      const shortId = this.generateShortId();
+      const existingTeam = await this.prisma.team.findUnique({
+        where: { shortId },
+        select: { id: true },
+      });
+
+      if (!existingTeam) {
+        return shortId;
+      }
+    }
+
+    throw new Error('Unable to generate a unique team shortId');
   }
 }

@@ -39,7 +39,10 @@ model Team {
   id                   String                @id @default(cuid())
   name                 String
   code                 String                @unique
-  ageGroup             String?
+  slug                 String
+  shortId              String                @unique
+  routeKey             String?               @unique
+  ageGroup             String?  
   image                String?
   creatorId            String
   createdAt            DateTime              @default(now())
@@ -52,11 +55,12 @@ model Team {
   creator              User                  @relation("TeamCreator", fields: [creatorId], references: [id])
 
   @@index([creatorId])
+  @@index([slug])
 }
 
 model Member {
   id          String                     @id @default(cuid())
-  userId      String
+  userId      String  
   teamId      String
   role        Role
   status      Status
@@ -95,7 +99,7 @@ model Activity {
 model Game {
   activityId        String            @id
   location          Location
-  activity          Activity          @relation(fields: [activityId], references: [id])
+  activity          Activity          @relation(fields: [activityId], references: [id], onDelete: Cascade)
   gameplan          GamePlan?
   opponentStatlines OpponentStatline?
   statlines         Statline[]
@@ -105,27 +109,27 @@ model Practice {
   activityId   String                @id
   facility     String
   practicetype PracticeType
-  activity     Activity              @relation(fields: [activityId], references: [id])
+  activity     Activity              @relation(fields: [activityId], references: [id], onDelete: Cascade)
   preparation  PracticePreparation[]
 }
 
 model Film {
   activityId String   @id
   notes      String
-  activity   Activity @relation(fields: [activityId], references: [id])
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 }
 
 model Meeting {
   activityId String   @id
   notes      String
-  activity   Activity @relation(fields: [activityId], references: [id])
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 }
 
 model Feedback {
   activityId String   @id
   coach      String
   notes      String
-  activity   Activity @relation(fields: [activityId], references: [id])
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 }
 
 model Statline {
@@ -160,8 +164,8 @@ model PlayerActivityAttendance {
   reason           String?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
-  activity         Activity         @relation(fields: [activityId], references: [id])
-  Member           Member           @relation(fields: [memberId], references: [id])
+  activity         Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  member           Member           @relation(fields: [memberId], references: [id],onDelete: Cascade)
 
   @@unique([activityId, memberId])
   @@index([activityId])
@@ -189,7 +193,7 @@ model Play {
   canvas      String
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @updatedAt
-  team        Team                  @relation(fields: [teamId], references: [id])
+  team        Team                  @relation(fields: [teamId], references: [id], onDelete: Cascade )
   gamePlans   GamePlan[]            @relation("GamePlanPlays")
   practices   PracticePreparation[] @relation("PracticePlays")
 
@@ -205,8 +209,8 @@ model GamePlan {
   notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  game      Game     @relation(fields: [gameID], references: [activityId])
-  team      Team     @relation(fields: [teamId], references: [id])
+  game      Game     @relation(fields: [gameID], references: [activityId], onDelete: Cascade)
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   plays     Play[]   @relation("GamePlanPlays")
 }
 
@@ -219,8 +223,8 @@ model PracticePreparation {
   notes      String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  practice   Practice? @relation(fields: [practiceId], references: [activityId])
-  team       Team      @relation(fields: [teamId], references: [id])
+  practice   Practice? @relation(fields: [practiceId], references: [activityId], onDelete: Cascade)
+  team       Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
   plays      Play[]    @relation("PracticePlays")
 }
 
@@ -250,10 +254,10 @@ enum AttendanceStatus {
 }
 
 enum PracticeType {
-  TECHNICAL
-  TACTICAL
+  TEAM
+  SPECIALISATION
   PHYSICAL
-  MENTAL
+  SHOOTING
 }
 
 enum Location {

@@ -1,5 +1,5 @@
-import { Role, Status } from '@prisma/client';
 import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Role, Status } from '@prisma/client';
 
 registerEnumType(Role, {
   name: 'Role',
@@ -10,9 +10,26 @@ registerEnumType(Status, {
 });
 
 @ObjectType()
-export class TeamMemberUser {
-  @Field(() => ID)
+export class UserDetail {
+  @Field()
   id: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  email: string;
+}
+@ObjectType()
+export class TeamMemberUser {
+  @Field()
+  id: string;
+
+  @Field()
+  userId: string;
+
+  @Field()
+  teamId: string;
 
   @Field({ nullable: true })
   name?: string;
@@ -43,7 +60,4 @@ export class Member {
 
   @Field({ nullable: true })
   position?: string;
-
-  @Field(() => TeamMemberUser)
-  user: TeamMemberUser;
 }
