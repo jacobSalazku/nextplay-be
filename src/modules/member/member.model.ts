@@ -60,7 +60,4 @@ export class Member {
 
   @Field({ nullable: true })
   position?: string;
-
-  @Field(() => UserDetail, { nullable: true })
-  user?: UserDetail;
 }

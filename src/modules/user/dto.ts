@@ -1,8 +1,36 @@
-import { Field, Float, InputType, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ID, InputType, ObjectType } from '@nestjs/graphql';
 import { IsNumber, IsString, MinLength } from 'class-validator';
-import { User } from '../auth/auth.model';
 import { Member } from '../member/member.model';
 
+@ObjectType()
+export class UserProfile {
+  @Field(() => ID)
+  id: string;
+
+  @Field({ nullable: true })
+  name?: string;
+
+  @Field()
+  email: string;
+
+  @Field({ nullable: true })
+  dateOfBirth?: Date;
+
+  @Field({ nullable: true })
+  phone?: string;
+
+  @Field(() => Float, { nullable: true })
+  height?: number;
+
+  @Field(() => Float, { nullable: true })
+  weight?: number;
+
+  @Field({ nullable: true })
+  dominantHand?: string;
+
+  @Field()
+  hasOnBoarded: boolean;
+}
 @InputType()
 export class UpdateUserInput {
   @Field()
@@ -35,8 +63,8 @@ export class UpdateUserInput {
 }
 @ObjectType()
 export class GetUserResponse {
-  @Field(() => User)
-  user: User;
+  @Field(() => UserProfile)
+  user: UserProfile;
 
   @Field(() => Member)
   member: Member;

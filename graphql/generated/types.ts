@@ -183,12 +183,6 @@ export class UpdateFeedbackInput {
     notes?: Nullable<string>;
 }
 
-export class UserDetail {
-    id: string;
-    name: string;
-    email: string;
-}
-
 export class TeamMemberUser {
     id: string;
     userId: string;
@@ -205,7 +199,6 @@ export class Member {
     status: Status;
     number?: Nullable<string>;
     position?: Nullable<string>;
-    user?: Nullable<UserDetail>;
 }
 
 export class AuthPayload {
@@ -324,8 +317,20 @@ export class TeamDashboard {
     activities: Activity[];
 }
 
+export class UserProfile {
+    id: string;
+    name?: Nullable<string>;
+    email: string;
+    dateOfBirth?: Nullable<DateTime>;
+    phone?: Nullable<string>;
+    height?: Nullable<number>;
+    weight?: Nullable<number>;
+    dominantHand?: Nullable<string>;
+    hasOnBoarded: boolean;
+}
+
 export class GetUserResponse {
-    user: User;
+    user: UserProfile;
     member: Member;
 }
 
