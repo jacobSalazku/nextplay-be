@@ -1,4 +1,10 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateUserInput } from './dto';
@@ -6,6 +12,70 @@ import { UpdateUserInput } from './dto';
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async getUserById(currentUserId: string, teamShortIdOrRef: string) {
+    const teamShortId = this.extractTeamShortId(teamShortIdOrRef);
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: currentUserId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        dominantHand: true,
+        dateOfBirth: true,
+        phone: true,
+        height: true,
+        weight: true,
+        createdAt: true,
+        updatedAt: true,
+        hasOnBoarded: true,
+        members: true,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User is not logged in');
+    }
+
+    const team = await this.prisma.team.findUnique({
+      where: { shortId: teamShortId },
+      select: { id: true },
+    });
+
+    if (!team) {
+      throw new ForbiddenException('Team not found');
+    }
+
+    const member = await this.prisma.member.findFirst({
+      where: { teamId: team.id, userId: currentUserId },
+      select: {
+        id: true,
+        userId: true,
+        teamId: true,
+        status: true,
+        role: true,
+        number: true,
+        position: true,
+        attendances: {
+          select: {
+            attendanceStatus: true,
+            reason: true,
+            activity: {
+              select: { id: true, title: true, time: true, date: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!member || member.userId !== currentUserId) {
+      throw new ForbiddenException('Not a member of this team');
+    }
+
+    return { user, member };
+  }
 
   async updateUser(input: UpdateUserInput, userId: string) {
     try {
@@ -71,5 +141,18 @@ export class UserService {
       meta?.driverAdapterError?.cause?.constraint?.fields ?? [];
 
     return [...new Set([...targetFields, ...constraintFields])];
+  }
+
+  private extractTeamShortId(teamRef: string): string {
+    const normalizedTeamRef = teamRef.trim().toLowerCase();
+    const segments = normalizedTeamRef.split('-');
+    const possibleShortId = segments.at(-1) ?? normalizedTeamRef;
+    const validShortIdPattern = /^[a-z0-9]{6,12}$/;
+
+    if (!validShortIdPattern.test(possibleShortId)) {
+      throw new BadRequestException('Invalid team reference');
+    }
+
+    return possibleShortId;
   }
 }

@@ -1,14 +1,23 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from '../auth/auth.model';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
 import { GqlJwtAuthGuard } from '../auth/jwt-guard';
-import { UpdateUserInput } from './dto';
+import { GetUserResponse, UpdateUserInput } from './dto';
 import { UserService } from './user.service';
 
 @Resolver()
 export class UserResolver {
   constructor(private readonly user: UserService) {}
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Query(() => GetUserResponse)
+  async getUserById(
+    @Args('teamShortId') teamShortId: string,
+    @CurrentUser() currentUser: { userId: string },
+  ) {
+    return this.user.getUserById(currentUser.userId, teamShortId);
+  }
 
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => User, { name: 'updateUser' })
