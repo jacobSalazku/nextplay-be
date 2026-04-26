@@ -2,6 +2,42 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type UserDetail {
+  id: String!
+  name: String!
+  email: String!
+}
+
+type TeamMemberUser {
+  id: String!
+  userId: String!
+  teamId: String!
+  name: String
+  image: String
+}
+
+type Member {
+  id: ID!
+  userId: String!
+  teamId: String!
+  role: Role!
+  status: Status!
+  number: String
+  position: String
+  user: UserDetail
+}
+
+enum Role {
+  COACH
+  PLAYER
+}
+
+enum Status {
+  ACTIVE
+  PENDING
+  INACTIVE
+}
+
 type AuthPayload {
   accessToken: String!
   refreshToken: String!
@@ -22,6 +58,7 @@ type User {
   isBlocked: Boolean!
   tokenVersion: Float!
   hasOnBoarded: Boolean!
+  members: [Member!]!
 }
 
 """
@@ -29,22 +66,51 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type ModerateJoinRequestResult {
+type PlayerActivityAttendance {
+  id: ID!
   memberId: String!
-  teamId: String!
-  status: Status!
+  reason: String
+  attendanceStatus: AttendanceStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
-enum Status {
-  ACTIVE
-  PENDING
-  INACTIVE
+enum AttendanceStatus {
+  ATTENDING
+  NOT_ATTENDING
+  LATE
 }
 
-type JoinTeamResponse {
-  teamCode: String!
-  position: String!
-  number: String!
+type Game {
+  activityId: String!
+  location: Location!
+}
+
+enum Location {
+  HOME
+  AWAY
+}
+
+type Practice {
+  activityId: String!
+  facility: String!
+  practicetype: String!
+}
+
+type Film {
+  activityId: String!
+  notes: String!
+}
+
+type Meeting {
+  activityId: String!
+  notes: String!
+}
+
+type Feedback {
+  activityId: String!
+  coach: String!
+  notes: String!
 }
 
 type Activity {
@@ -53,10 +119,16 @@ type Activity {
   time: String!
   type: ActivityType!
   duration: Float
+  attendees: [PlayerActivityAttendance!]!
   date: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
   teamId: String!
+  game: Game
+  practice: Practice
+  film: Film
+  meeting: Meeting
+  feedback: Feedback
 }
 
 enum ActivityType {
@@ -67,51 +139,57 @@ enum ActivityType {
   MEETING
 }
 
-type TeamMemberUser {
-  id: ID!
-  name: String
-  image: String
-}
-
-type Member {
-  id: ID!
-  userId: String!
+type ModerateJoinRequestResult {
+  memberId: String!
   teamId: String!
-  role: Role!
   status: Status!
-  number: String
-  position: String
-  user: TeamMemberUser!
 }
 
-enum Role {
-  COACH
-  PLAYER
+type JoinTeamResponse {
+  teamCode: String!
+  position: String!
+  number: String!
 }
 
 type Team {
-  id: String!
+  id: ID!
   name: String!
   code: String!
+  slug: String!
+  shortId: String!
+  routeKey: String!
   ageGroup: String
   image: String
-  creatorId: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  members: [TeamMemberUser!]!
+  activities: [Activity!]!
+  creatorId: String
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
 type TeamDashboard {
   id: ID!
   name: String!
+  slug: String!
+  shortId: String!
+  routeKey: String!
   ageGroup: String
   members: [Member!]!
   activities: [Activity!]!
 }
 
+type GetUserResponse {
+  user: User!
+  member: Member!
+}
+
 type Query {
   _ping: Boolean!
   me: User!
+  getUserById(teamShortId: String!): GetUserResponse!
   getDashboardTeams: [TeamDashboard!]!
+  getTeamActivities(teamRef: String!): Team!
+  getActivities(teamShortId: String!): [Activity!]!
 }
 
 type Mutation {
@@ -123,6 +201,17 @@ type Mutation {
   joinTeam(input: JoinTeamInput!): JoinTeamResponse!
   approveJoinRequest(input: ApproveJoinRequestInput!): ModerateJoinRequestResult!
   rejectJoinRequest(input: ApproveJoinRequestInput!): ModerateJoinRequestResult!
+  deleteActivity(input: DeleteActivity!): Activity!
+  createGame(input: CreateGameInput!): Activity!
+  updateGame(input: UpdateGameInput!): Activity!
+  createPractice(input: CreatePracticeInput!): Activity!
+  updatePractice(input: UpdatePracticeInput!): Activity!
+  createMeeting(input: CreateMeetingInput!): Activity!
+  updateMeeting(input: UpdateMeetingInput!): Activity!
+  createFilm(input: CreateFilmInput!): Activity!
+  updateFilm(input: UpdateFilmInput!): Activity!
+  createFeedback(input: CreateFeedbackInput!): Activity!
+  updateFeedback(input: UpdateFeedbackInput!): Activity!
 }
 
 input UpdateUserInput {
@@ -148,4 +237,124 @@ input JoinTeamInput {
 
 input ApproveJoinRequestInput {
   memberId: String!
+}
+
+input DeleteActivity {
+  id: ID!
+}
+
+input CreateGameInput {
+  title: String!
+  time: String!
+  duration: Float!
+  date: DateTime!
+  teamId: String!
+  location: Location!
+  type: ActivityType!
+}
+
+input UpdateGameInput {
+  id: ID!
+  title: String
+  time: String
+  date: DateTime
+  duration: Float
+  type: ActivityType!
+  teamId: String!
+  location: Location
+}
+
+input CreatePracticeInput {
+  title: String!
+  time: String!
+  duration: Float!
+  date: DateTime!
+  teamId: String!
+  facility: String!
+  practiceType: PracticeType!
+  type: ActivityType!
+}
+
+enum PracticeType {
+  TEAM
+  SPECIALISATION
+  PHYSICAL
+  SHOOTING
+}
+
+input UpdatePracticeInput {
+  id: ID!
+  title: String
+  time: String
+  date: DateTime
+  duration: Float
+  type: ActivityType!
+  teamId: String!
+  facility: String
+  practiceType: PracticeType
+}
+
+input CreateMeetingInput {
+  title: String!
+  time: String!
+  duration: Float!
+  date: DateTime!
+  teamId: String!
+  notes: String!
+  type: ActivityType!
+}
+
+input UpdateMeetingInput {
+  id: ID!
+  title: String
+  time: String
+  date: DateTime
+  duration: Float
+  type: ActivityType!
+  teamId: String!
+  notes: String
+}
+
+input CreateFilmInput {
+  title: String!
+  time: String!
+  duration: Float!
+  date: DateTime!
+  teamId: String!
+  notes: String!
+  type: ActivityType!
+}
+
+input UpdateFilmInput {
+  id: ID!
+  title: String
+  time: String
+  date: DateTime
+  duration: Float
+  type: ActivityType!
+  teamId: String!
+  notes: String
+}
+
+input CreateFeedbackInput {
+  title: String!
+  time: String!
+  duration: Float!
+  date: DateTime!
+  teamId: String!
+  coach: String!
+  notes: String!
+  type: ActivityType!
+}
+
+input UpdateFeedbackInput {
+  id: ID!
+  title: String
+  time: String
+  date: DateTime
+  duration: Float
+  type: ActivityType!
+  teamId: String!
+  coach: String
+  notes: String
 }
