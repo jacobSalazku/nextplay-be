@@ -217,6 +217,7 @@ type Mutation {
   updateFilm(input: UpdateFilmInput!): Activity!
   createFeedback(input: CreateFeedbackInput!): Activity!
   updateFeedback(input: UpdateFeedbackInput!): Activity!
+  getAttendanceByActivities(input: GetAttendanceByActivitiesInput!): PlayerActivityAttendance!
   submitAttendance(input: PlayerActivityAttendanceInput!): PlayerActivityAttendance!
 }
 
@@ -365,7 +366,13 @@ input UpdateFeedbackInput {
   notes: String
 }
 
+input GetAttendanceByActivitiesInput {
+  activityId: String!
+  memeberId: String!
+}
+
 input PlayerActivityAttendanceInput {
+  activityId: String!
   memeberId: String!
   reason: String!
   attendanceStatus: AttendanceStatus!

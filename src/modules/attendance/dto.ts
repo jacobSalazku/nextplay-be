@@ -7,6 +7,7 @@ registerEnumType(AttendanceStatus, {
 
 @InputType()
 export class PlayerActivityAttendanceInput {
+  @Field()
   activityId: string;
 
   @Field()
@@ -17,4 +18,13 @@ export class PlayerActivityAttendanceInput {
 
   @Field(() => AttendanceStatus)
   attendanceStatus: AttendanceStatus;
+}
+
+@InputType()
+export class GetAttendanceByActivitiesInput {
+  @Field()
+  activityId: string;
+
+  @Field()
+  memeberId: string;
 }

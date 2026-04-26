@@ -17,6 +17,7 @@ export class ActivityService {
   async createActivity(input: ActivityTypes): Promise<Activity> {
     return await this.builder.create(input);
   }
+
   async updateActivity(input: UpdateActivityTypes): Promise<Activity> {
     return await this.builder.update(input.id, input);
   }
