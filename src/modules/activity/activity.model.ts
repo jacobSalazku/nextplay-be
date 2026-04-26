@@ -1,9 +1,65 @@
 import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { ActivityType as PrismaActivityType } from '@prisma/client';
+import { ActivityType, Location } from '@prisma/client';
+import { PlayerActivityAttendance } from '../attendance/attendance.model';
 
-registerEnumType(PrismaActivityType, {
+registerEnumType(ActivityType, {
   name: 'ActivityType',
 });
+
+registerEnumType(Location, {
+  name: 'Location',
+});
+
+@ObjectType()
+export class Game {
+  @Field()
+  activityId: string;
+
+  @Field(() => Location)
+  location: Location;
+}
+
+@ObjectType()
+export class Practice {
+  @Field()
+  activityId: string;
+
+  @Field()
+  facility: string;
+
+  @Field()
+  practicetype: string;
+}
+
+@ObjectType()
+export class Film {
+  @Field()
+  activityId: string;
+
+  @Field()
+  notes: string;
+}
+
+@ObjectType()
+export class Meeting {
+  @Field()
+  activityId: string;
+
+  @Field()
+  notes: string;
+}
+
+@ObjectType()
+export class Feedback {
+  @Field()
+  activityId: string;
+
+  @Field()
+  coach: string;
+
+  @Field()
+  notes: string;
+}
 
 @ObjectType()
 export class Activity {
@@ -16,11 +72,14 @@ export class Activity {
   @Field()
   time: string;
 
-  @Field(() => PrismaActivityType)
-  type: PrismaActivityType;
+  @Field(() => ActivityType)
+  type: ActivityType;
 
   @Field({ nullable: true })
-  duration?: number;
+  duration: number;
+
+  @Field(() => [PlayerActivityAttendance])
+  attendees: PlayerActivityAttendance[];
 
   @Field()
   date: Date;
@@ -33,4 +92,19 @@ export class Activity {
 
   @Field()
   teamId: string;
+
+  @Field(() => Game, { nullable: true })
+  game?: Game;
+
+  @Field(() => Practice, { nullable: true })
+  practice?: Practice;
+
+  @Field(() => Film, { nullable: true })
+  film?: Film;
+
+  @Field(() => Meeting, { nullable: true })
+  meeting?: Meeting;
+
+  @Field(() => Feedback, { nullable: true })
+  feedback?: Feedback;
 }
