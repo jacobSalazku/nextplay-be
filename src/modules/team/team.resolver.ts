@@ -22,13 +22,19 @@ export class TeamResolver {
     @Args('input') input: CreateTeamInput,
     @CurrentUser() user: { userId: string },
   ) {
-    return this.team.createTeam(input, user.userId);
+    return await this.team.createTeam(input, user.userId);
   }
 
   @UseGuards(GqlJwtAuthGuard)
   @Query(() => [TeamDashboard])
   async getDashboardTeams(@CurrentUser() user: { userId: string }) {
     return this.team.getTeamsForDashboard(user.userId);
+  }
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Query(() => Team)
+  async getTeamActivities(@Args('teamRef') teamRef: string) {
+    return this.team.getTeam(teamRef);
   }
 
   @UseGuards(GqlJwtAuthGuard)

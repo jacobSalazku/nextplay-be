@@ -1,10 +1,10 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Activity } from '../activity/activity.model';
-import { Member } from '../member/member.model';
+import { Member, TeamMemberUser } from '../member/member.model';
 
 @ObjectType()
 export class Team {
-  @Field()
+  @Field(() => ID)
   id: string;
 
   @Field()
@@ -13,19 +13,34 @@ export class Team {
   @Field()
   code: string;
 
+  @Field()
+  slug: string;
+
+  @Field()
+  shortId: string;
+
+  @Field()
+  routeKey: string;
+
   @Field({ nullable: true })
   ageGroup?: string;
 
   @Field({ nullable: true })
   image?: string;
 
-  @Field()
+  @Field(() => [TeamMemberUser])
+  members: TeamMemberUser[];
+
+  @Field(() => [Activity])
+  activities: Activity[];
+
+  @Field({ nullable: true })
   creatorId: string;
 
-  @Field()
+  @Field({ nullable: true })
   createdAt: Date;
 
-  @Field()
+  @Field({ nullable: true })
   updatedAt: Date;
 }
 
@@ -36,6 +51,15 @@ export class TeamDashboard {
 
   @Field()
   name: string;
+
+  @Field()
+  slug: string;
+
+  @Field()
+  shortId: string;
+
+  @Field()
+  routeKey: string;
 
   @Field({ nullable: true })
   ageGroup?: string;
@@ -57,6 +81,6 @@ export class JoinTeamResult {
 
   @Field({ nullable: true })
   number?: string;
-
-  createdAt;
+  @Field()
+  createdAt: Date;
 }
