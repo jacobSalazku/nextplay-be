@@ -58,15 +58,6 @@ export class UserService {
         role: true,
         number: true,
         position: true,
-        attendances: {
-          select: {
-            attendanceStatus: true,
-            reason: true,
-            activity: {
-              select: { id: true, title: true, time: true, date: true },
-            },
-          },
-        },
       },
     });
 

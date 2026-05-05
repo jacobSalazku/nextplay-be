@@ -10,7 +10,7 @@ export class UserProfile {
   @Field({ nullable: true })
   name?: string;
 
-  @Field()
+  @Field({ nullable: true })
   email: string;
 
   @Field({ nullable: true })
@@ -28,7 +28,7 @@ export class UserProfile {
   @Field({ nullable: true })
   dominantHand?: string;
 
-  @Field()
+  @Field({ nullable: true })
   hasOnBoarded: boolean;
 }
 @InputType()

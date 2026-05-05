@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthPayload, User } from './auth.model';
 import { CurrentUser } from './decorator/current-user.decorator';
-import { GqlJwtAuthGuard } from './jwt-guard';
+import { GqlJwtAuthGuard } from './guards/jwt-guard';
 
 @Resolver()
 export class AuthResolver {

@@ -4,7 +4,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { AuthResolver } from './auth.resolver';
-import { GqlJwtAuthGuard } from './jwt-guard';
+import { CoachGuard } from './guards/coach-guard';
+import { GqlJwtAuthGuard } from './guards/jwt-guard';
 import { JwtStrategy } from './jwt-strategy';
 
 @Module({
@@ -45,7 +46,7 @@ import { JwtStrategy } from './jwt-strategy';
       },
     }),
   ],
-  providers: [JwtStrategy, GqlJwtAuthGuard, AuthResolver],
-  exports: [GqlJwtAuthGuard, JwtModule],
+  providers: [JwtStrategy, GqlJwtAuthGuard, AuthResolver, CoachGuard],
+  exports: [GqlJwtAuthGuard, JwtModule, CoachGuard],
 })
 export class AuthModule {}
