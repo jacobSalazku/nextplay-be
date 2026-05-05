@@ -12,8 +12,8 @@ export class AttendanceService {
   async getAttendance(input: GetAttendanceByActivitiesInput) {
     const attendance = await this.prisma.playerActivityAttendance.findFirst({
       where: {
-        id: input.activityId,
-        memberId: input.memeberId,
+        activityId: input.activityId,
+        memberId: input.memberId,
       },
       include: {
         member: {
@@ -31,7 +31,7 @@ export class AttendanceService {
       where: {
         activityId_memberId: {
           activityId: input.activityId,
-          memberId: input.memeberId,
+          memberId: input.memberId,
         },
       },
       update: {
@@ -40,7 +40,7 @@ export class AttendanceService {
       },
       create: {
         activityId: input.activityId,
-        memberId: input.memeberId,
+        memberId: input.memberId,
         attendanceStatus: input.attendanceStatus,
         reason: input.reason,
       },
