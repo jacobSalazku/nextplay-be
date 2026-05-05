@@ -8,6 +8,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
+export enum AttendanceStatus {
+    ATTENDING = "ATTENDING",
+    NOT_ATTENDING = "NOT_ATTENDING",
+    LATE = "LATE"
+}
+
 export enum Role {
     COACH = "COACH",
     PLAYER = "PLAYER"
@@ -17,12 +23,6 @@ export enum Status {
     ACTIVE = "ACTIVE",
     PENDING = "PENDING",
     INACTIVE = "INACTIVE"
-}
-
-export enum AttendanceStatus {
-    ATTENDING = "ATTENDING",
-    NOT_ATTENDING = "NOT_ATTENDING",
-    LATE = "LATE"
 }
 
 export enum Location {
@@ -45,29 +45,12 @@ export enum PracticeType {
     SHOOTING = "SHOOTING"
 }
 
-export class UpdateUserInput {
-    name: string;
-    dateOfBirth: string;
-    phone: string;
-    height: number;
-    weight: number;
-    dominantHand: string;
+export class MembersInput {
+    teamRef: string;
 }
 
-export class CreateTeamInput {
-    name: string;
-    image?: Nullable<string>;
-    ageGroup: string;
-}
-
-export class JoinTeamInput {
-    teamCode: string;
-    position: string;
-    number: string;
-}
-
-export class ApproveJoinRequestInput {
-    memberId: string;
+export class GetTeamInput {
+    teamRef: string;
 }
 
 export class DeleteActivity {
@@ -85,13 +68,6 @@ export class CreateGameInput {
 }
 
 export class UpdateGameInput {
-    id: string;
-    title?: Nullable<string>;
-    time?: Nullable<string>;
-    date?: Nullable<DateTime>;
-    duration?: Nullable<number>;
-    type: ActivityType;
-    teamId: string;
     location?: Nullable<Location>;
 }
 
@@ -107,13 +83,6 @@ export class CreatePracticeInput {
 }
 
 export class UpdatePracticeInput {
-    id: string;
-    title?: Nullable<string>;
-    time?: Nullable<string>;
-    date?: Nullable<DateTime>;
-    duration?: Nullable<number>;
-    type: ActivityType;
-    teamId: string;
     facility?: Nullable<string>;
     practiceType?: Nullable<PracticeType>;
 }
@@ -129,13 +98,6 @@ export class CreateMeetingInput {
 }
 
 export class UpdateMeetingInput {
-    id: string;
-    title?: Nullable<string>;
-    time?: Nullable<string>;
-    date?: Nullable<DateTime>;
-    duration?: Nullable<number>;
-    type: ActivityType;
-    teamId: string;
     notes?: Nullable<string>;
 }
 
@@ -150,13 +112,6 @@ export class CreateFilmInput {
 }
 
 export class UpdateFilmInput {
-    id: string;
-    title?: Nullable<string>;
-    time?: Nullable<string>;
-    date?: Nullable<DateTime>;
-    duration?: Nullable<number>;
-    type: ActivityType;
-    teamId: string;
     notes?: Nullable<string>;
 }
 
@@ -172,27 +127,85 @@ export class CreateFeedbackInput {
 }
 
 export class UpdateFeedbackInput {
-    id: string;
-    title?: Nullable<string>;
-    time?: Nullable<string>;
-    date?: Nullable<DateTime>;
-    duration?: Nullable<number>;
-    type: ActivityType;
-    teamId: string;
     coach?: Nullable<string>;
     notes?: Nullable<string>;
 }
 
 export class GetAttendanceByActivitiesInput {
     activityId: string;
-    memeberId: string;
+    memberId: string;
 }
 
 export class PlayerActivityAttendanceInput {
     activityId: string;
-    memeberId: string;
+    memberId: string;
     reason: string;
     attendanceStatus: AttendanceStatus;
+}
+
+export class DeleteMemberInput {
+    id: string;
+}
+
+export class CreateTeamInput {
+    name: string;
+    image?: Nullable<string>;
+    ageGroup: string;
+}
+
+export class JoinTeamInput {
+    teamCode: string;
+    position: string;
+    number: string;
+}
+
+export class AcceptTeamRequestInput {
+    memberId: string;
+    teamRef: string;
+}
+
+export class TeamRequestInput {
+    memberId: string;
+}
+
+export class UpdateUserInput {
+    name: string;
+    dateOfBirth: string;
+    phone: string;
+    height: number;
+    weight: number;
+    dominantHand: string;
+}
+
+export class AttendanceActivity {
+    id: string;
+    title: string;
+    time: string;
+    date: DateTime;
+}
+
+export class PlayerActivityAttendance {
+    id: string;
+    activityId: string;
+    memberId: string;
+    reason?: Nullable<string>;
+    attendanceStatus: AttendanceStatus;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+    activity?: Nullable<AttendanceActivity>;
+}
+
+export class UserDetail {
+    id: string;
+    name?: Nullable<string>;
+    email?: Nullable<string>;
+    image?: Nullable<string>;
+    dateOfBirth?: Nullable<DateTime>;
+    phone?: Nullable<string>;
+    height?: Nullable<number>;
+    weight?: Nullable<number>;
+    dominantHand?: Nullable<string>;
+    hasOnBoarded: boolean;
 }
 
 export class TeamMemberUser {
@@ -211,6 +224,27 @@ export class Member {
     status: Status;
     number?: Nullable<string>;
     position?: Nullable<string>;
+    name?: Nullable<string>;
+    user?: Nullable<UserDetail>;
+}
+
+export class MemberWithAttendances {
+    id: string;
+    userId: string;
+    teamId: string;
+    role: Role;
+    status: Status;
+    number?: Nullable<string>;
+    position?: Nullable<string>;
+    name?: Nullable<string>;
+    user?: Nullable<UserDetail>;
+    attendances: PlayerActivityAttendance[];
+}
+
+export class PendingMember {
+    id: string;
+    name?: Nullable<string>;
+    email?: Nullable<string>;
 }
 
 export class AuthPayload {
@@ -234,15 +268,6 @@ export class User {
     tokenVersion: number;
     hasOnBoarded: boolean;
     members: Member[];
-}
-
-export class PlayerActivityAttendance {
-    id: string;
-    memberId: string;
-    reason?: Nullable<string>;
-    attendanceStatus: AttendanceStatus;
-    createdAt: DateTime;
-    updatedAt: DateTime;
 }
 
 export class Game {
@@ -290,6 +315,31 @@ export class Activity {
     feedback?: Nullable<Feedback>;
 }
 
+export class TeamMemberInfo {
+    id: string;
+    name?: Nullable<string>;
+    image?: Nullable<string>;
+    number?: Nullable<string>;
+    position?: Nullable<string>;
+    teamId: string;
+    user: UserDetail;
+}
+
+export class TeamInformation {
+    id: string;
+    name: string;
+    code: string;
+    slug: string;
+    routeKey: string;
+    shortId: string;
+    image?: Nullable<string>;
+    ageGroup?: Nullable<string>;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+    creatorId: string;
+    members: TeamMemberInfo[];
+}
+
 export class ModerateJoinRequestResult {
     memberId: string;
     teamId: string;
@@ -300,6 +350,10 @@ export class JoinTeamResponse {
     teamCode: string;
     position: string;
     number: string;
+}
+
+export class MemberId {
+    id: string;
 }
 
 export class Team {
@@ -325,20 +379,20 @@ export class TeamDashboard {
     shortId: string;
     routeKey: string;
     ageGroup?: Nullable<string>;
-    members: Member[];
+    members: MemberId[];
     activities: Activity[];
 }
 
 export class UserProfile {
     id: string;
     name?: Nullable<string>;
-    email: string;
+    email?: Nullable<string>;
     dateOfBirth?: Nullable<DateTime>;
     phone?: Nullable<string>;
     height?: Nullable<number>;
     weight?: Nullable<number>;
     dominantHand?: Nullable<string>;
-    hasOnBoarded: boolean;
+    hasOnBoarded?: Nullable<boolean>;
 }
 
 export class GetUserResponse {
@@ -349,34 +403,24 @@ export class GetUserResponse {
 export abstract class IQuery {
     abstract _ping(): boolean | Promise<boolean>;
 
+    abstract getActivities(teamShortId: string): Activity[] | Promise<Activity[]>;
+
     abstract me(): User | Promise<User>;
 
-    abstract getUserById(teamShortId: string): GetUserResponse | Promise<GetUserResponse>;
+    abstract getMembers(input: MembersInput): MemberWithAttendances[] | Promise<MemberWithAttendances[]>;
+
+    abstract getPendingMembers(input: MembersInput): PendingMember[] | Promise<PendingMember[]>;
+
+    abstract getTeam(input: GetTeamInput): TeamInformation | Promise<TeamInformation>;
 
     abstract getDashboardTeams(): TeamDashboard[] | Promise<TeamDashboard[]>;
 
     abstract getTeamActivities(teamRef: string): Team | Promise<Team>;
 
-    abstract getActivities(teamShortId: string): Activity[] | Promise<Activity[]>;
+    abstract getUserById(teamShortId: string): GetUserResponse | Promise<GetUserResponse>;
 }
 
 export abstract class IMutation {
-    abstract login(email: string): AuthPayload | Promise<AuthPayload>;
-
-    abstract refresh(refreshToken: string): AuthPayload | Promise<AuthPayload>;
-
-    abstract logout(): boolean | Promise<boolean>;
-
-    abstract updateUser(input: UpdateUserInput): User | Promise<User>;
-
-    abstract createTeam(input: CreateTeamInput): Team | Promise<Team>;
-
-    abstract joinTeam(input: JoinTeamInput): JoinTeamResponse | Promise<JoinTeamResponse>;
-
-    abstract approveJoinRequest(input: ApproveJoinRequestInput): ModerateJoinRequestResult | Promise<ModerateJoinRequestResult>;
-
-    abstract rejectJoinRequest(input: ApproveJoinRequestInput): ModerateJoinRequestResult | Promise<ModerateJoinRequestResult>;
-
     abstract deleteActivity(input: DeleteActivity): Activity | Promise<Activity>;
 
     abstract createGame(input: CreateGameInput): Activity | Promise<Activity>;
@@ -399,9 +443,27 @@ export abstract class IMutation {
 
     abstract updateFeedback(input: UpdateFeedbackInput): Activity | Promise<Activity>;
 
+    abstract login(email: string): AuthPayload | Promise<AuthPayload>;
+
+    abstract refresh(refreshToken: string): AuthPayload | Promise<AuthPayload>;
+
+    abstract logout(): boolean | Promise<boolean>;
+
     abstract getAttendanceByActivities(input: GetAttendanceByActivitiesInput): PlayerActivityAttendance | Promise<PlayerActivityAttendance>;
 
     abstract submitAttendance(input: PlayerActivityAttendanceInput): PlayerActivityAttendance | Promise<PlayerActivityAttendance>;
+
+    abstract deleteMember(input: DeleteMemberInput): boolean | Promise<boolean>;
+
+    abstract createTeam(input: CreateTeamInput): Team | Promise<Team>;
+
+    abstract joinTeam(input: JoinTeamInput): JoinTeamResponse | Promise<JoinTeamResponse>;
+
+    abstract acceptTeamRequest(input: AcceptTeamRequestInput): ModerateJoinRequestResult | Promise<ModerateJoinRequestResult>;
+
+    abstract rejectJoinRequest(input: TeamRequestInput): ModerateJoinRequestResult | Promise<ModerateJoinRequestResult>;
+
+    abstract updateUser(input: UpdateUserInput): User | Promise<User>;
 }
 
 export type DateTime = any;

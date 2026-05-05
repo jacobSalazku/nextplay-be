@@ -2,6 +2,48 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AttendanceActivity {
+  id: String!
+  title: String!
+  time: String!
+  date: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type PlayerActivityAttendance {
+  id: ID!
+  activityId: String!
+  memberId: String!
+  reason: String
+  attendanceStatus: AttendanceStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  activity: AttendanceActivity
+}
+
+enum AttendanceStatus {
+  ATTENDING
+  NOT_ATTENDING
+  LATE
+}
+
+type UserDetail {
+  id: String!
+  name: String
+  email: String
+  image: String
+  dateOfBirth: DateTime
+  phone: String
+  height: Float
+  weight: Float
+  dominantHand: String
+  hasOnBoarded: Boolean!
+}
+
 type TeamMemberUser {
   id: String!
   userId: String!
@@ -18,6 +60,8 @@ type Member {
   status: Status!
   number: String
   position: String
+  name: String
+  user: UserDetail
 }
 
 enum Role {
@@ -29,6 +73,25 @@ enum Status {
   ACTIVE
   PENDING
   INACTIVE
+}
+
+type MemberWithAttendances {
+  id: ID!
+  userId: String!
+  teamId: String!
+  role: Role!
+  status: Status!
+  number: String
+  position: String
+  name: String
+  user: UserDetail
+  attendances: [PlayerActivityAttendance!]!
+}
+
+type PendingMember {
+  id: ID!
+  name: String
+  email: String
 }
 
 type AuthPayload {
@@ -52,26 +115,6 @@ type User {
   tokenVersion: Float!
   hasOnBoarded: Boolean!
   members: [Member!]!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
-type PlayerActivityAttendance {
-  id: ID!
-  memberId: String!
-  reason: String
-  attendanceStatus: AttendanceStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-enum AttendanceStatus {
-  ATTENDING
-  NOT_ATTENDING
-  LATE
 }
 
 type Game {
@@ -132,6 +175,31 @@ enum ActivityType {
   MEETING
 }
 
+type TeamMemberInfo {
+  id: ID!
+  name: String
+  image: String
+  number: String
+  position: String
+  teamId: String!
+  user: UserDetail!
+}
+
+type TeamInformation {
+  id: ID!
+  name: String!
+  code: String!
+  slug: String!
+  routeKey: String!
+  shortId: String!
+  image: String
+  ageGroup: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  creatorId: String!
+  members: [TeamMemberInfo!]!
+}
+
 type ModerateJoinRequestResult {
   memberId: String!
   teamId: String!
@@ -142,6 +210,10 @@ type JoinTeamResponse {
   teamCode: String!
   position: String!
   number: String!
+}
+
+type MemberId {
+  id: String!
 }
 
 type Team {
@@ -167,20 +239,20 @@ type TeamDashboard {
   shortId: String!
   routeKey: String!
   ageGroup: String
-  members: [Member!]!
+  members: [MemberId!]!
   activities: [Activity!]!
 }
 
 type UserProfile {
   id: ID!
   name: String
-  email: String!
+  email: String
   dateOfBirth: DateTime
   phone: String
   height: Float
   weight: Float
   dominantHand: String
-  hasOnBoarded: Boolean!
+  hasOnBoarded: Boolean
 }
 
 type GetUserResponse {
@@ -190,22 +262,25 @@ type GetUserResponse {
 
 type Query {
   _ping: Boolean!
+  getActivities(teamShortId: String!): [Activity!]!
   me: User!
-  getUserById(teamShortId: String!): GetUserResponse!
+  getMembers(input: MembersInput!): [MemberWithAttendances!]!
+  getPendingMembers(input: MembersInput!): [PendingMember!]!
+  getTeam(input: GetTeamInput!): TeamInformation!
   getDashboardTeams: [TeamDashboard!]!
   getTeamActivities(teamRef: String!): Team!
-  getActivities(teamShortId: String!): [Activity!]!
+  getUserById(teamShortId: String!): GetUserResponse!
+}
+
+input MembersInput {
+  teamRef: String!
+}
+
+input GetTeamInput {
+  teamRef: String!
 }
 
 type Mutation {
-  login(email: String!): AuthPayload!
-  refresh(refreshToken: String!): AuthPayload!
-  logout: Boolean!
-  updateUser(input: UpdateUserInput!): User!
-  createTeam(input: CreateTeamInput!): Team!
-  joinTeam(input: JoinTeamInput!): JoinTeamResponse!
-  approveJoinRequest(input: ApproveJoinRequestInput!): ModerateJoinRequestResult!
-  rejectJoinRequest(input: ApproveJoinRequestInput!): ModerateJoinRequestResult!
   deleteActivity(input: DeleteActivity!): Activity!
   createGame(input: CreateGameInput!): Activity!
   updateGame(input: UpdateGameInput!): Activity!
@@ -217,33 +292,17 @@ type Mutation {
   updateFilm(input: UpdateFilmInput!): Activity!
   createFeedback(input: CreateFeedbackInput!): Activity!
   updateFeedback(input: UpdateFeedbackInput!): Activity!
+  login(email: String!): AuthPayload!
+  refresh(refreshToken: String!): AuthPayload!
+  logout: Boolean!
   getAttendanceByActivities(input: GetAttendanceByActivitiesInput!): PlayerActivityAttendance!
   submitAttendance(input: PlayerActivityAttendanceInput!): PlayerActivityAttendance!
-}
-
-input UpdateUserInput {
-  name: String!
-  dateOfBirth: String!
-  phone: String!
-  height: Float!
-  weight: Float!
-  dominantHand: String!
-}
-
-input CreateTeamInput {
-  name: String!
-  image: String
-  ageGroup: String!
-}
-
-input JoinTeamInput {
-  teamCode: String!
-  position: String!
-  number: String!
-}
-
-input ApproveJoinRequestInput {
-  memberId: String!
+  deleteMember(input: DeleteMemberInput!): Boolean!
+  createTeam(input: CreateTeamInput!): Team!
+  joinTeam(input: JoinTeamInput!): JoinTeamResponse!
+  acceptTeamRequest(input: AcceptTeamRequestInput!): ModerateJoinRequestResult!
+  rejectJoinRequest(input: TeamRequestInput!): ModerateJoinRequestResult!
+  updateUser(input: UpdateUserInput!): User!
 }
 
 input DeleteActivity {
@@ -261,13 +320,6 @@ input CreateGameInput {
 }
 
 input UpdateGameInput {
-  id: ID!
-  title: String
-  time: String
-  date: DateTime
-  duration: Float
-  type: ActivityType!
-  teamId: String!
   location: Location
 }
 
@@ -290,13 +342,6 @@ enum PracticeType {
 }
 
 input UpdatePracticeInput {
-  id: ID!
-  title: String
-  time: String
-  date: DateTime
-  duration: Float
-  type: ActivityType!
-  teamId: String!
   facility: String
   practiceType: PracticeType
 }
@@ -312,13 +357,6 @@ input CreateMeetingInput {
 }
 
 input UpdateMeetingInput {
-  id: ID!
-  title: String
-  time: String
-  date: DateTime
-  duration: Float
-  type: ActivityType!
-  teamId: String!
   notes: String
 }
 
@@ -333,13 +371,6 @@ input CreateFilmInput {
 }
 
 input UpdateFilmInput {
-  id: ID!
-  title: String
-  time: String
-  date: DateTime
-  duration: Float
-  type: ActivityType!
-  teamId: String!
   notes: String
 }
 
@@ -355,25 +386,52 @@ input CreateFeedbackInput {
 }
 
 input UpdateFeedbackInput {
-  id: ID!
-  title: String
-  time: String
-  date: DateTime
-  duration: Float
-  type: ActivityType!
-  teamId: String!
   coach: String
   notes: String
 }
 
 input GetAttendanceByActivitiesInput {
   activityId: String!
-  memeberId: String!
+  memberId: String!
 }
 
 input PlayerActivityAttendanceInput {
   activityId: String!
-  memeberId: String!
+  memberId: String!
   reason: String!
   attendanceStatus: AttendanceStatus!
+}
+
+input DeleteMemberInput {
+  id: String!
+}
+
+input CreateTeamInput {
+  name: String!
+  image: String
+  ageGroup: String!
+}
+
+input JoinTeamInput {
+  teamCode: String!
+  position: String!
+  number: String!
+}
+
+input AcceptTeamRequestInput {
+  memberId: String!
+  teamRef: String!
+}
+
+input TeamRequestInput {
+  memberId: String!
+}
+
+input UpdateUserInput {
+  name: String!
+  dateOfBirth: String!
+  phone: String!
+  height: Float!
+  weight: Float!
+  dominantHand: String!
 }
