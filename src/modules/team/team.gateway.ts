@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -67,7 +66,6 @@ function isAccessTokenPayload(payload: unknown): payload is AccessTokenPayload {
     credentials: true,
   },
 })
-@Injectable()
 export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly prisma: PrismaService,

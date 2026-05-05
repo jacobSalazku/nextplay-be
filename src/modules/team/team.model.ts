@@ -1,6 +1,12 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Activity } from '../activity/activity.model';
-import { Member, TeamMemberUser } from '../member/member.model';
+import { TeamMemberUser } from '../member/member.model';
+
+@ObjectType()
+class MemberId {
+  @Field()
+  id: string;
+}
 
 @ObjectType()
 export class Team {
@@ -64,8 +70,8 @@ export class TeamDashboard {
   @Field({ nullable: true })
   ageGroup?: string;
 
-  @Field(() => [Member])
-  members: Member[];
+  @Field(() => [MemberId])
+  members: MemberId;
 
   @Field(() => [Activity])
   activities: Activity[];

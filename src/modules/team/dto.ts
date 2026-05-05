@@ -1,13 +1,46 @@
-import {
-  Field,
-  InputType,
-  ObjectType,
-  registerEnumType,
-} from '@nestjs/graphql';
+import { Field, ID, InputType, ObjectType } from '@nestjs/graphql';
 import { Status } from '@prisma/client';
 import { IsOptional, IsString, MinLength } from 'class-validator';
+import { TeamMemberInfo } from '../member/dto';
 
-registerEnumType(Status, { name: 'Status' });
+@ObjectType()
+export class TeamInformation {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  code: string;
+
+  @Field()
+  slug: string;
+
+  @Field()
+  routeKey: string;
+
+  @Field()
+  shortId: string;
+
+  @Field({ nullable: true })
+  image?: string;
+
+  @Field({ nullable: true })
+  ageGroup?: string;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
+
+  @Field()
+  creatorId: string;
+
+  @Field(() => [TeamMemberInfo])
+  members: TeamMemberInfo[];
+}
 @InputType()
 export class CreateTeamInput {
   @Field()
@@ -69,13 +102,27 @@ export class JoinTeamResponse {
 }
 
 @InputType()
-export class ApproveJoinRequestInput {
+export class TeamRequestInput {
   @Field()
   memberId: string;
+}
+
+@InputType()
+export class AcceptTeamRequestInput extends TeamRequestInput {
+  @Field()
+  teamRef: string;
 }
 
 @InputType()
 export class RejectJoinRequestInput {
   @Field()
   memberId: string;
+}
+
+@InputType()
+export class GetTeamInput {
+  @Field()
+  @IsString()
+  @MinLength(1)
+  teamRef: string;
 }

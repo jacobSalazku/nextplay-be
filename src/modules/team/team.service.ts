@@ -7,7 +7,7 @@ import {
 import { Role, Status } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ApproveJoinRequestInput, CreateTeamInput, JoinTeamInput } from './dto';
+import { CreateTeamInput, JoinTeamInput, TeamRequestInput } from './dto';
 import { TeamGateway } from './team.gateway';
 
 @Injectable()
@@ -162,6 +162,79 @@ export class TeamService {
         routeKey: true,
         image: true,
         ageGroup: true,
+        creatorId: true,
+        createdAt: true,
+        updatedAt: true,
+        members: {
+          where: {
+            role: Role.PLAYER,
+            status: Status.ACTIVE,
+          },
+          select: {
+            id: true,
+            userId: true,
+            teamId: true,
+            number: true,
+            position: true,
+            role: true,
+            status: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                email: true,
+                dateOfBirth: true,
+                phone: true,
+                height: true,
+                weight: true,
+                dominantHand: true,
+                hasOnBoarded: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!team) {
+      throw new NotFoundException('Team is not found');
+    }
+
+    return {
+      ...team,
+      members: team.members.map((member) => ({
+        id: member.id,
+        userId: member.userId,
+        teamId: member.teamId,
+        name: member.user.name,
+        number: member.number,
+        position: member.position,
+        image: member.user.image,
+        user: {
+          ...member.user,
+        },
+      })),
+    };
+  }
+
+  async getTeamActivities(teamRef: string) {
+    const team = await this.prisma.team.findUnique({
+      where: {
+        routeKey: teamRef,
+      },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        slug: true,
+        shortId: true,
+        routeKey: true,
+        image: true,
+        ageGroup: true,
+        creatorId: true,
+        createdAt: true,
+        updatedAt: true,
         members: {
           select: {
             id: true,
@@ -179,35 +252,17 @@ export class TeamService {
           },
         },
         activities: {
-          orderBy: { date: 'desc' },
           select: {
             id: true,
             title: true,
-            duration: true,
-            date: true,
             time: true,
             type: true,
-            teamId: true,
+            duration: true,
+            attendees: true,
+            date: true,
             createdAt: true,
             updatedAt: true,
-            attendees: {
-              select: {
-                id: true,
-                activityId: true,
-                attendanceStatus: true,
-                member: {
-                  select: {
-                    id: true,
-                    user: {
-                      select: {
-                        id: true,
-                        name: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
+            teamId: true,
           },
         },
       },
@@ -217,7 +272,16 @@ export class TeamService {
       throw new NotFoundException('Team is not found');
     }
 
-    return team;
+    return {
+      ...team,
+      members: team.members.map((member) => ({
+        id: member.id,
+        userId: member.userId,
+        teamId: member.teamId,
+        name: member.user.name,
+        image: member.user.image,
+      })),
+    };
   }
 
   async requestToJoinTeam(input: JoinTeamInput, userId: string) {
@@ -305,26 +369,14 @@ export class TeamService {
     };
   }
 
-  async approveJoinRequest(input: ApproveJoinRequestInput, userId: string) {
+  async acceptTeamRequest(input: TeamRequestInput, teamId: string) {
     const member = await this.prisma.member.findUnique({
-      where: { id: input.memberId },
+      where: { id: input.memberId, teamId },
       select: { id: true, teamId: true, status: true },
     });
 
     if (!member) {
       throw new NotFoundException('Join request not found.');
-    }
-
-    const coachMembership = await this.getMembership(userId, member.teamId);
-
-    if (
-      !coachMembership ||
-      coachMembership.status !== Status.ACTIVE ||
-      coachMembership.role !== Role.COACH
-    ) {
-      throw new ForbiddenException(
-        'Only an active coach can approve requests.',
-      );
     }
 
     if (member.status !== Status.PENDING) {

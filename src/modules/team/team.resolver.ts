@@ -1,13 +1,18 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
-import { GqlJwtAuthGuard } from '../auth/jwt-guard';
+import { CoachGuard } from '../auth/guards/coach-guard';
+import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
+import { CurrentTeamId } from './decorator/current-team.decorator';
 import {
-  ApproveJoinRequestInput,
+  AcceptTeamRequestInput,
   CreateTeamInput,
+  GetTeamInput,
   JoinTeamInput,
   JoinTeamResponse,
   ModerateJoinRequestResult,
+  TeamInformation,
+  TeamRequestInput,
 } from './dto';
 import { Team, TeamDashboard } from './team.model';
 import { TeamService } from './team.service';
@@ -15,6 +20,12 @@ import { TeamService } from './team.service';
 @Resolver(() => Team)
 export class TeamResolver {
   constructor(private readonly team: TeamService) {}
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Query(() => TeamInformation)
+  async getTeam(@Args('input') input: GetTeamInput) {
+    return this.team.getTeam(input.teamRef);
+  }
 
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Team)
@@ -34,7 +45,7 @@ export class TeamResolver {
   @UseGuards(GqlJwtAuthGuard)
   @Query(() => Team)
   async getTeamActivities(@Args('teamRef') teamRef: string) {
-    return this.team.getTeam(teamRef);
+    return this.team.getTeamActivities(teamRef);
   }
 
   @UseGuards(GqlJwtAuthGuard)
@@ -46,19 +57,19 @@ export class TeamResolver {
     return this.team.requestToJoinTeam(input, user.userId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlJwtAuthGuard, CoachGuard)
   @Mutation(() => ModerateJoinRequestResult)
-  approveJoinRequest(
-    @Args('input') input: ApproveJoinRequestInput,
-    @CurrentUser() user: { userId: string },
+  acceptTeamRequest(
+    @Args('input') input: AcceptTeamRequestInput,
+    @CurrentTeamId() taemId: string,
   ): Promise<ModerateJoinRequestResult> {
-    return this.team.approveJoinRequest(input, user.userId);
+    return this.team.acceptTeamRequest(input, taemId);
   }
 
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => ModerateJoinRequestResult)
   rejectJoinRequest(
-    @Args('input') input: ApproveJoinRequestInput,
+    @Args('input') input: TeamRequestInput,
     @CurrentUser() user: { userId: string },
   ): Promise<ModerateJoinRequestResult> {
     return this.team.rejectJoinRequest(input, user.userId);
