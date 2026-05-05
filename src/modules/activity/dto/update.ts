@@ -1,19 +1,6 @@
-import { Field, ID, InputType, registerEnumType } from '@nestjs/graphql';
+import { Field, ID, InputType } from '@nestjs/graphql';
 import { ActivityType, Location, PracticeType } from '@prisma/client';
 
-registerEnumType(ActivityType, {
-  name: 'ActivityType',
-});
-
-registerEnumType(PracticeType, {
-  name: 'PracticeType',
-});
-
-registerEnumType(Location, {
-  name: 'Location',
-});
-
-@InputType()
 export class UpdateActivityBaseInput {
   @Field(() => ID)
   id: string;
