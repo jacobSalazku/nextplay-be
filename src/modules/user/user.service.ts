@@ -13,7 +13,7 @@ import { UpdateUserInput } from './dto';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserById(currentUserId: string, teamShortIdOrRef: string) {
+  async getCurrentUser(currentUserId: string, teamShortIdOrRef: string) {
     const teamShortId = this.extractTeamShortId(teamShortIdOrRef);
 
     const user = await this.prisma.user.findUnique({
@@ -31,7 +31,6 @@ export class UserService {
         createdAt: true,
         updatedAt: true,
         hasOnBoarded: true,
-        members: true,
       },
     });
 
@@ -58,6 +57,39 @@ export class UserService {
         role: true,
         number: true,
         position: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            email: true,
+            dateOfBirth: true,
+            phone: true,
+            height: true,
+            weight: true,
+            dominantHand: true,
+            hasOnBoarded: true,
+          },
+        },
+        attendances: {
+          select: {
+            id: true,
+            activityId: true,
+            memberId: true,
+            attendanceStatus: true,
+            reason: true,
+            createdAt: true,
+            updatedAt: true,
+            activity: {
+              select: {
+                id: true,
+                title: true,
+                time: true,
+                date: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -65,7 +97,13 @@ export class UserService {
       throw new ForbiddenException('Not a member of this team');
     }
 
-    return { user, member };
+    return {
+      user,
+      member: {
+        ...member,
+        name: member.user.name,
+      },
+    };
   }
 
   async updateUser(input: UpdateUserInput, userId: string) {

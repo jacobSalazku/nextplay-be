@@ -45,6 +45,11 @@ export enum PracticeType {
     SHOOTING = "SHOOTING"
 }
 
+export class GetMemberProfileInput {
+    id: string;
+    teamShortId: string;
+}
+
 export class MembersInput {
     teamRef: string;
 }
@@ -397,7 +402,7 @@ export class UserProfile {
 
 export class GetUserResponse {
     user: UserProfile;
-    member: Member;
+    member: MemberWithAttendances;
 }
 
 export abstract class IQuery {
@@ -406,6 +411,8 @@ export abstract class IQuery {
     abstract getActivities(teamShortId: string): Activity[] | Promise<Activity[]>;
 
     abstract me(): User | Promise<User>;
+
+    abstract getMemberProfile(input: GetMemberProfileInput): MemberWithAttendances | Promise<MemberWithAttendances>;
 
     abstract getMembers(input: MembersInput): MemberWithAttendances[] | Promise<MemberWithAttendances[]>;
 
@@ -417,7 +424,7 @@ export abstract class IQuery {
 
     abstract getTeamActivities(teamRef: string): Team | Promise<Team>;
 
-    abstract getUserById(teamShortId: string): GetUserResponse | Promise<GetUserResponse>;
+    abstract getCurrentUser(teamShortId: string): GetUserResponse | Promise<GetUserResponse>;
 }
 
 export abstract class IMutation {

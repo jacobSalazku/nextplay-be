@@ -1,4 +1,5 @@
 import { Field, ID, InputType, ObjectType } from '@nestjs/graphql';
+import { IsString, MinLength } from 'class-validator';
 import { UserDetail } from './member.model';
 
 @InputType()
@@ -35,4 +36,16 @@ export class TeamMemberInfo {
 
   @Field(() => UserDetail)
   user: UserDetail;
+}
+
+@InputType()
+export class GetMemberProfileInput {
+  @Field()
+  @MinLength(1)
+  id: string;
+
+  @Field()
+  @IsString()
+  @MinLength(1)
+  teamShortId: string;
 }

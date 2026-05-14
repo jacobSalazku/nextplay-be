@@ -257,19 +257,25 @@ type UserProfile {
 
 type GetUserResponse {
   user: UserProfile!
-  member: Member!
+  member: MemberWithAttendances!
 }
 
 type Query {
   _ping: Boolean!
   getActivities(teamShortId: String!): [Activity!]!
   me: User!
+  getMemberProfile(input: GetMemberProfileInput!): MemberWithAttendances!
   getMembers(input: MembersInput!): [MemberWithAttendances!]!
   getPendingMembers(input: MembersInput!): [PendingMember!]!
   getTeam(input: GetTeamInput!): TeamInformation!
   getDashboardTeams: [TeamDashboard!]!
   getTeamActivities(teamRef: String!): Team!
-  getUserById(teamShortId: String!): GetUserResponse!
+  getCurrentUser(teamShortId: String!): GetUserResponse!
+}
+
+input GetMemberProfileInput {
+  id: String!
+  teamShortId: String!
 }
 
 input MembersInput {

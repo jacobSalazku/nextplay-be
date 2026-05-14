@@ -6,10 +6,79 @@ import {
 import { Role, Status } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
+import { GetMemberProfileInput } from './dto';
 
 @Injectable()
 export class MemberService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async getMemberProfile(input: GetMemberProfileInput) {
+    const teamShortId = this.extractTeamShortId(input.teamShortId);
+
+    const team = await this.prisma.team.findUnique({
+      where: { shortId: teamShortId },
+      select: { id: true },
+    });
+
+    if (!team) {
+      throw new ForbiddenException('Team not found');
+    }
+
+    const member = await this.prisma.member.findFirst({
+      where: { teamId: team.id, userId: input.id },
+      select: {
+        id: true,
+        userId: true,
+        teamId: true,
+        status: true,
+        role: true,
+        number: true,
+        position: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            email: true,
+            dateOfBirth: true,
+            phone: true,
+            height: true,
+            weight: true,
+            dominantHand: true,
+            hasOnBoarded: true,
+          },
+        },
+        attendances: {
+          select: {
+            id: true,
+            activityId: true,
+            memberId: true,
+            attendanceStatus: true,
+            reason: true,
+            createdAt: true,
+            updatedAt: true,
+            activity: {
+              select: {
+                id: true,
+                title: true,
+                time: true,
+                date: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!member || member.userId !== input.id) {
+      throw new ForbiddenException('Not a member of this team');
+    }
+
+    return {
+      ...member,
+      name: member.user.name,
+    };
+  }
 
   async getActiveMembers(teamRef: string) {
     const teamShortId = this.extractTeamShortId(teamRef);

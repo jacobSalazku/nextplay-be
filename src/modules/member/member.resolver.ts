@@ -2,13 +2,19 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CoachGuard } from '../auth/guards/coach-guard';
 import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
-import { DeleteMemberInput, MembersInput } from './dto';
+import { DeleteMemberInput, GetMemberProfileInput, MembersInput } from './dto';
 import { MemberWithAttendances, PendingMember } from './member.model';
 import { MemberService } from './member.service';
 
 @Resolver(() => MemberWithAttendances)
 export class MemberResolver {
   constructor(private readonly member: MemberService) {}
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Query(() => MemberWithAttendances)
+  async getMemberProfile(@Args('input') input: GetMemberProfileInput) {
+    return await this.member.getMemberProfile(input);
+  }
 
   @UseGuards(GqlJwtAuthGuard)
   @Query(() => [MemberWithAttendances])

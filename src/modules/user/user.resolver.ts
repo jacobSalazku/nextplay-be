@@ -12,11 +12,11 @@ export class UserResolver {
 
   @UseGuards(GqlJwtAuthGuard)
   @Query(() => GetUserResponse)
-  async getUserById(
+  async getCurrentUser(
     @Args('teamShortId') teamShortId: string,
     @CurrentUser() currentUser: { userId: string },
   ) {
-    return this.user.getUserById(currentUser.userId, teamShortId);
+    return this.user.getCurrentUser(currentUser.userId, teamShortId);
   }
 
   @UseGuards(GqlJwtAuthGuard)
