@@ -1,14 +1,28 @@
-import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { AttendanceStatus } from '@prisma/client';
 
-registerEnumType(AttendanceStatus, {
-  name: 'AttendanceStatus',
-});
+@ObjectType()
+export class AttendanceActivity {
+  @Field()
+  id: string;
+
+  @Field()
+  title: string;
+
+  @Field()
+  time: string;
+
+  @Field()
+  date: Date;
+}
 
 @ObjectType()
 export class PlayerActivityAttendance {
   @Field(() => ID)
   id: string;
+
+  @Field()
+  activityId: string;
 
   @Field()
   memberId: string;
@@ -24,4 +38,7 @@ export class PlayerActivityAttendance {
 
   @Field()
   updatedAt: Date;
+
+  @Field(() => AttendanceActivity, { nullable: true })
+  activity?: AttendanceActivity;
 }

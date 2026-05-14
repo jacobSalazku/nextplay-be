@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { GqlJwtAuthGuard } from '../auth/jwt-guard';
+import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
 import { PlayerActivityAttendance } from './attendance.model';
 import { AttendanceService } from './attendance.service';
 import {

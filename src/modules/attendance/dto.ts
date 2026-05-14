@@ -1,9 +1,5 @@
-import { Field, InputType, registerEnumType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { AttendanceStatus } from '@prisma/client';
-
-registerEnumType(AttendanceStatus, {
-  name: 'AttendanceStatus',
-});
 
 @InputType()
 export class PlayerActivityAttendanceInput {
@@ -11,7 +7,7 @@ export class PlayerActivityAttendanceInput {
   activityId: string;
 
   @Field()
-  memeberId: string;
+  memberId: string;
 
   @Field()
   reason: string;
@@ -26,5 +22,5 @@ export class GetAttendanceByActivitiesInput {
   activityId: string;
 
   @Field()
-  memeberId: string;
+  memberId: string;
 }

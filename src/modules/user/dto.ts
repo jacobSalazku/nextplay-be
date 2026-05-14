@@ -1,6 +1,6 @@
 import { Field, Float, ID, InputType, ObjectType } from '@nestjs/graphql';
 import { IsNumber, IsString, MinLength } from 'class-validator';
-import { Member } from '../member/member.model';
+import { MemberWithAttendances } from '../member/member.model';
 
 @ObjectType()
 export class UserProfile {
@@ -10,7 +10,7 @@ export class UserProfile {
   @Field({ nullable: true })
   name?: string;
 
-  @Field()
+  @Field({ nullable: true })
   email: string;
 
   @Field({ nullable: true })
@@ -28,9 +28,10 @@ export class UserProfile {
   @Field({ nullable: true })
   dominantHand?: string;
 
-  @Field()
+  @Field({ nullable: true })
   hasOnBoarded: boolean;
 }
+
 @InputType()
 export class UpdateUserInput {
   @Field()
@@ -66,6 +67,6 @@ export class GetUserResponse {
   @Field(() => UserProfile)
   user: UserProfile;
 
-  @Field(() => Member)
-  member: Member;
+  @Field(() => MemberWithAttendances)
+  member: MemberWithAttendances;
 }

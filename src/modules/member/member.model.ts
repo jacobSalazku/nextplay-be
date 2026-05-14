@@ -1,25 +1,40 @@
-import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Role, Status } from '@prisma/client';
-
-registerEnumType(Role, {
-  name: 'Role',
-});
-
-registerEnumType(Status, {
-  name: 'Status',
-});
+import { PlayerActivityAttendance } from '../attendance/attendance.model';
 
 @ObjectType()
 export class UserDetail {
   @Field()
   id: string;
 
-  @Field()
-  name: string;
+  @Field({ nullable: true })
+  name?: string;
+
+  @Field({ nullable: true })
+  email: string;
+
+  @Field({ nullable: true })
+  image?: string;
+
+  @Field({ nullable: true })
+  dateOfBirth?: Date;
+
+  @Field({ nullable: true })
+  phone?: string;
+
+  @Field({ nullable: true })
+  height?: number;
+
+  @Field({ nullable: true })
+  weight?: number;
+
+  @Field({ nullable: true })
+  dominantHand?: string;
 
   @Field()
-  email: string;
+  hasOnBoarded: boolean;
 }
+
 @ObjectType()
 export class TeamMemberUser {
   @Field()
@@ -60,4 +75,28 @@ export class Member {
 
   @Field({ nullable: true })
   position?: string;
+
+  @Field({ nullable: true })
+  name?: string;
+
+  @Field(() => UserDetail, { nullable: true })
+  user?: UserDetail;
+}
+
+@ObjectType()
+export class MemberWithAttendances extends Member {
+  @Field(() => [PlayerActivityAttendance])
+  attendances: PlayerActivityAttendance[];
+}
+
+@ObjectType()
+export class PendingMember {
+  @Field(() => ID)
+  id: string;
+
+  @Field({ nullable: true })
+  name?: string;
+
+  @Field({ nullable: true })
+  email?: string;
 }

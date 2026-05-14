@@ -1,6 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { GqlJwtAuthGuard } from '../auth/jwt-guard';
+import { CoachGuard } from '../auth/guards/coach-guard';
+import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
 import { Activity } from './activity.model';
 import { ActivityService } from './activity.service';
 import {
@@ -29,7 +30,7 @@ export class ActivityResolver {
     return await this.activity.getActivities(teamShortId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlJwtAuthGuard, CoachGuard)
   @Mutation(() => Activity)
   async deleteActivity(@Args('input') input: DeleteActivity) {
     return await this.activity.deleteActivity(input.id);

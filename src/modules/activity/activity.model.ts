@@ -1,14 +1,6 @@
-import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { ActivityType, Location } from '@prisma/client';
 import { PlayerActivityAttendance } from '../attendance/attendance.model';
-
-registerEnumType(ActivityType, {
-  name: 'ActivityType',
-});
-
-registerEnumType(Location, {
-  name: 'Location',
-});
 
 @ObjectType()
 export class Game {

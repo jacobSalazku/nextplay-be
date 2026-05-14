@@ -6,10 +6,12 @@ import { join } from 'path';
 import { ActivityModule } from './modules/activity/activity.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { MemberModule } from './modules/member/member.module';
 import { TeamModule } from './modules/team/team.module';
 import { UserModule } from './modules/user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RootResolver } from './root.resolver';
+import './graphql/enums';
 
 @Module({
   imports: [
@@ -43,12 +45,13 @@ import { RootResolver } from './root.resolver';
         outputAs: 'class',
       },
     }),
-    AuthModule,
-    UserModule,
-    TeamModule,
     ActivityModule,
     AttendanceModule,
+    AuthModule,
+    MemberModule,
     PrismaModule,
+    TeamModule,
+    UserModule,
   ],
   providers: [RootResolver],
 })
