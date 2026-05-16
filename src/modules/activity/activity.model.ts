@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
 import { ActivityType, Location } from '@prisma/client';
 import { PlayerActivityAttendance } from '../attendance/attendance.model';
 
@@ -88,7 +88,7 @@ export class Activity {
   @Field(() => ActivityType)
   type: ActivityType;
 
-  @Field({ nullable: true })
+  @Field(() => Float, { nullable: true })
   duration?: number | null;
 
   @Field(() => [PlayerActivityAttendance])
