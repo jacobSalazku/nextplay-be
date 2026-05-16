@@ -45,6 +45,11 @@ export enum PracticeType {
     SHOOTING = "SHOOTING"
 }
 
+export class GetActivityInput {
+    teamRef: string;
+    activityId: string;
+}
+
 export class GetMemberProfileInput {
     id: string;
     teamShortId: string;
@@ -52,6 +57,22 @@ export class GetMemberProfileInput {
 
 export class MembersInput {
     teamRef: string;
+}
+
+export class ActiveAttendedMembersInput {
+    teamRef: string;
+    activityId: string;
+}
+
+export class TeamStatlineInput {
+    teamRef: string;
+}
+
+export class StatsPerGameInput {
+    teamRef: string;
+    memberId: string;
+    year: number;
+    month: number;
 }
 
 export class GetTeamInput {
@@ -152,6 +173,41 @@ export class DeleteMemberInput {
     id: string;
 }
 
+export class SubmitStatlinesInput {
+    teamRef: string;
+    players: PlayerStatlineEntryInput[];
+    opponentStatline?: Nullable<OpponentStatlineInput>;
+}
+
+export class PlayerStatlineEntryInput {
+    memberId: string;
+    activityId: string;
+    statlines: StatlineValueInput[];
+}
+
+export class StatlineValueInput {
+    fieldGoalsMade?: Nullable<number>;
+    fieldGoalsMissed?: Nullable<number>;
+    threePointersMade?: Nullable<number>;
+    threePointersMissed?: Nullable<number>;
+    freeThrows?: Nullable<number>;
+    freeThrowsMissed?: Nullable<number>;
+    assists?: Nullable<number>;
+    steals?: Nullable<number>;
+    turnovers?: Nullable<number>;
+    offensiveRebounds?: Nullable<number>;
+    defensiveRebounds?: Nullable<number>;
+    blocks?: Nullable<number>;
+}
+
+export class OpponentStatlineInput {
+    activityId: string;
+    name: string;
+    fieldGoalsMade: number;
+    threePointersMade: number;
+    freeThrowsMade: number;
+}
+
 export class CreateTeamInput {
     name: string;
     image?: Nullable<string>;
@@ -246,6 +302,36 @@ export class MemberWithAttendances {
     attendances: PlayerActivityAttendance[];
 }
 
+export class MemberStatline {
+    id: string;
+    activityId: string;
+    fieldGoalsMade: number;
+    fieldGoalsMissed: number;
+    threePointersMade: number;
+    threePointersMissed: number;
+    freeThrows: number;
+    missedFreeThrows: number;
+    assists: number;
+    steals: number;
+    turnovers: number;
+    offensiveRebounds: number;
+    defensiveRebounds: number;
+    blocks: number;
+}
+
+export class MemberWithStatlines {
+    id: string;
+    userId: string;
+    teamId: string;
+    role: Role;
+    status: Status;
+    number?: Nullable<string>;
+    position?: Nullable<string>;
+    name?: Nullable<string>;
+    user?: Nullable<UserDetail>;
+    statlines: MemberStatline[];
+}
+
 export class PendingMember {
     id: string;
     name?: Nullable<string>;
@@ -275,9 +361,18 @@ export class User {
     members: Member[];
 }
 
+export class OpponentStatline {
+    name: string;
+    fieldGoalsMade: number;
+    threePointersMade: number;
+    freeThrowsMade: number;
+    activityId: string;
+}
+
 export class Game {
     activityId: string;
     location: Location;
+    opponentStatline?: Nullable<OpponentStatline>;
 }
 
 export class Practice {
@@ -328,6 +423,161 @@ export class TeamMemberInfo {
     position?: Nullable<string>;
     teamId: string;
     user: UserDetail;
+}
+
+export class PlayerStatlineAverageValues {
+    pointsPerGame: number;
+    fieldGoalPercentage: number;
+    threePointPercentage: number;
+    freeThrowPercentage: number;
+    assists: number;
+    offensiveRebound: number;
+    defensiveRebound: number;
+    blocks: number;
+    steals: number;
+    turnovers: number;
+}
+
+export class PlayerStatlineAverage {
+    memberId: string;
+    name?: Nullable<string>;
+    totalPoints: number;
+    gamesPlayed: number;
+    averages: PlayerStatlineAverageValues;
+}
+
+export class TeamAverageValues {
+    pointsPerGame: number;
+    fieldGoalPercentage: number;
+    threePointPercentage: number;
+    freeThrowPercentage: number;
+    assists: number;
+    rebounds: number;
+    steals: number;
+    blocks: number;
+    turnovers: number;
+}
+
+export class TeamAdvancedValues {
+    offensiveRating: number;
+    trueShootingPercentage: number;
+    assistToTurnoverRatio: number;
+    netRating: number;
+    effectiveFieldGoalPercentage: number;
+}
+
+export class TeamStats {
+    totalGames: number;
+    totalFieldGoalsMade: number;
+    totalFieldGoalsMissed: number;
+    totalThreePointersMade: number;
+    totalThreePointersMissed: number;
+    totalFreeThrows: number;
+    totalFreeThrowsMissed: number;
+    totalAssists: number;
+    totalRebounds: number;
+    totalSteals: number;
+    totalBlocks: number;
+    totalTurnovers: number;
+    totalPoints: number;
+    totalOpponentPoints: number;
+    averages: TeamAverageValues;
+    advanced: TeamAdvancedValues;
+}
+
+export class WeeklyTeamAverageValues {
+    pointsPerGame: number;
+    assistsPerGame: number;
+    reboundsPerGame: number;
+    blocksPerGame: number;
+    stealsPerGame: number;
+    turnoversPerGame: number;
+}
+
+export class WeeklyTeamAverage {
+    weekStart: string;
+    gamesPlayed: number;
+    totalPoints: number;
+    fieldGoalsMade: number;
+    fieldGoalsMissed: number;
+    threePointersMade: number;
+    threePointersMissed: number;
+    freeThrows: number;
+    freeThrowsMissed: number;
+    assists: number;
+    rebounds: number;
+    steals: number;
+    blocks: number;
+    turnovers: number;
+    averages: WeeklyTeamAverageValues;
+}
+
+export class StatsPerGame {
+    gameTitle: string;
+    date?: Nullable<DateTime>;
+    points: number;
+    assists: number;
+    rebounds: number;
+    steals: number;
+}
+
+export class TeamTotalsBoxScore {
+    fieldGoalsMade: number;
+    threePointersMade: number;
+    freeThrows: number;
+    assists: number;
+    offensiveRebounds: number;
+    defensiveRebounds: number;
+    steals: number;
+    blocks: number;
+    turnovers: number;
+    points: number;
+}
+
+export class OpponentTotalsBoxScore {
+    fieldGoalsMade: number;
+    threePointersMade: number;
+    freeThrowsMade: number;
+    points: number;
+}
+
+export class PlayerBoxScore {
+    memberId: string;
+    name?: Nullable<string>;
+    fieldGoalsMade: number;
+    threePointersMade: number;
+    freeThrows: number;
+    assists: number;
+    offensiveRebounds: number;
+    defensiveRebounds: number;
+    steals: number;
+    blocks: number;
+    turnovers: number;
+    points: number;
+}
+
+export class GameWithBoxScore {
+    activityId: string;
+    title: string;
+    date: DateTime;
+    opponentName: string;
+    opponentStats: OpponentTotalsBoxScore;
+    teamTotals: TeamTotalsBoxScore;
+    playerStats: PlayerBoxScore[];
+}
+
+export class SavedOpponentStatline {
+    gameId: string;
+    name: string;
+    fieldGoalsMade: number;
+    threePointersMade: number;
+    freeThrowsMade: number;
+}
+
+export class SubmitStatlinesResult {
+    success: boolean;
+    count: number;
+    opponentStatline?: Nullable<SavedOpponentStatline>;
 }
 
 export class TeamInformation {
@@ -410,6 +660,8 @@ export abstract class IQuery {
 
     abstract getActivities(teamShortId: string): Activity[] | Promise<Activity[]>;
 
+    abstract getActivity(input: GetActivityInput): Activity | Promise<Activity>;
+
     abstract me(): User | Promise<User>;
 
     abstract getMemberProfile(input: GetMemberProfileInput): MemberWithAttendances | Promise<MemberWithAttendances>;
@@ -417,6 +669,18 @@ export abstract class IQuery {
     abstract getMembers(input: MembersInput): MemberWithAttendances[] | Promise<MemberWithAttendances[]>;
 
     abstract getPendingMembers(input: MembersInput): PendingMember[] | Promise<PendingMember[]>;
+
+    abstract getActiveAttendedMembers(input: ActiveAttendedMembersInput): MemberWithStatlines[] | Promise<MemberWithStatlines[]>;
+
+    abstract getStatlineAverages(input: TeamStatlineInput): PlayerStatlineAverage[] | Promise<PlayerStatlineAverage[]>;
+
+    abstract getWeeklyTeamAverages(input: TeamStatlineInput): WeeklyTeamAverage[] | Promise<WeeklyTeamAverage[]>;
+
+    abstract getTeamStats(input: TeamStatlineInput): TeamStats | Promise<TeamStats>;
+
+    abstract getStatsPerGame(input: StatsPerGameInput): StatsPerGame[] | Promise<StatsPerGame[]>;
+
+    abstract getGamesWithBoxScores(input: TeamStatlineInput): GameWithBoxScore[] | Promise<GameWithBoxScore[]>;
 
     abstract getTeam(input: GetTeamInput): TeamInformation | Promise<TeamInformation>;
 
@@ -461,6 +725,8 @@ export abstract class IMutation {
     abstract submitAttendance(input: PlayerActivityAttendanceInput): PlayerActivityAttendance | Promise<PlayerActivityAttendance>;
 
     abstract deleteMember(input: DeleteMemberInput): boolean | Promise<boolean>;
+
+    abstract submitStatlines(input: SubmitStatlinesInput): SubmitStatlinesResult | Promise<SubmitStatlinesResult>;
 
     abstract createTeam(input: CreateTeamInput): Team | Promise<Team>;
 

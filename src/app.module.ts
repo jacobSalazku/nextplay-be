@@ -7,6 +7,7 @@ import { ActivityModule } from './modules/activity/activity.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MemberModule } from './modules/member/member.module';
+import { StatlineModule } from './modules/statline/statline.module';
 import { TeamModule } from './modules/team/team.module';
 import { UserModule } from './modules/user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -50,6 +51,7 @@ import './graphql/enums';
     AuthModule,
     MemberModule,
     PrismaModule,
+    StatlineModule,
     TeamModule,
     UserModule,
   ],

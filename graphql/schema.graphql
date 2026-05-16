@@ -88,6 +88,36 @@ type MemberWithAttendances {
   attendances: [PlayerActivityAttendance!]!
 }
 
+type MemberStatline {
+  id: ID!
+  activityId: String!
+  fieldGoalsMade: Float!
+  fieldGoalsMissed: Float!
+  threePointersMade: Float!
+  threePointersMissed: Float!
+  freeThrows: Float!
+  missedFreeThrows: Float!
+  assists: Float!
+  steals: Float!
+  turnovers: Float!
+  offensiveRebounds: Float!
+  defensiveRebounds: Float!
+  blocks: Float!
+}
+
+type MemberWithStatlines {
+  id: ID!
+  userId: String!
+  teamId: String!
+  role: Role!
+  status: Status!
+  number: String
+  position: String
+  name: String
+  user: UserDetail
+  statlines: [MemberStatline!]!
+}
+
 type PendingMember {
   id: ID!
   name: String
@@ -117,9 +147,18 @@ type User {
   members: [Member!]!
 }
 
+type OpponentStatline {
+  name: String!
+  fieldGoalsMade: Float!
+  threePointersMade: Float!
+  freeThrowsMade: Float!
+  activityId: String!
+}
+
 type Game {
   activityId: String!
   location: Location!
+  opponentStatline: OpponentStatline
 }
 
 enum Location {
@@ -183,6 +222,161 @@ type TeamMemberInfo {
   position: String
   teamId: String!
   user: UserDetail!
+}
+
+type PlayerStatlineAverageValues {
+  pointsPerGame: Float!
+  fieldGoalPercentage: Float!
+  threePointPercentage: Float!
+  freeThrowPercentage: Float!
+  assists: Float!
+  offensiveRebound: Float!
+  defensiveRebound: Float!
+  blocks: Float!
+  steals: Float!
+  turnovers: Float!
+}
+
+type PlayerStatlineAverage {
+  memberId: String!
+  name: String
+  totalPoints: Float!
+  gamesPlayed: Int!
+  averages: PlayerStatlineAverageValues!
+}
+
+type TeamAverageValues {
+  pointsPerGame: Float!
+  fieldGoalPercentage: Float!
+  threePointPercentage: Float!
+  freeThrowPercentage: Float!
+  assists: Float!
+  rebounds: Float!
+  steals: Float!
+  blocks: Float!
+  turnovers: Float!
+}
+
+type TeamAdvancedValues {
+  offensiveRating: Float!
+  trueShootingPercentage: Float!
+  assistToTurnoverRatio: Float!
+  netRating: Float!
+  effectiveFieldGoalPercentage: Float!
+}
+
+type TeamStats {
+  totalGames: Int!
+  totalFieldGoalsMade: Float!
+  totalFieldGoalsMissed: Float!
+  totalThreePointersMade: Float!
+  totalThreePointersMissed: Float!
+  totalFreeThrows: Float!
+  totalFreeThrowsMissed: Float!
+  totalAssists: Float!
+  totalRebounds: Float!
+  totalSteals: Float!
+  totalBlocks: Float!
+  totalTurnovers: Float!
+  totalPoints: Float!
+  totalOpponentPoints: Float!
+  averages: TeamAverageValues!
+  advanced: TeamAdvancedValues!
+}
+
+type WeeklyTeamAverageValues {
+  pointsPerGame: Float!
+  assistsPerGame: Float!
+  reboundsPerGame: Float!
+  blocksPerGame: Float!
+  stealsPerGame: Float!
+  turnoversPerGame: Float!
+}
+
+type WeeklyTeamAverage {
+  weekStart: String!
+  gamesPlayed: Int!
+  totalPoints: Float!
+  fieldGoalsMade: Float!
+  fieldGoalsMissed: Float!
+  threePointersMade: Float!
+  threePointersMissed: Float!
+  freeThrows: Float!
+  freeThrowsMissed: Float!
+  assists: Float!
+  rebounds: Float!
+  steals: Float!
+  blocks: Float!
+  turnovers: Float!
+  averages: WeeklyTeamAverageValues!
+}
+
+type StatsPerGame {
+  gameTitle: String!
+  date: DateTime
+  points: Float!
+  assists: Float!
+  rebounds: Float!
+  steals: Float!
+}
+
+type TeamTotalsBoxScore {
+  fieldGoalsMade: Float!
+  threePointersMade: Float!
+  freeThrows: Float!
+  assists: Float!
+  offensiveRebounds: Float!
+  defensiveRebounds: Float!
+  steals: Float!
+  blocks: Float!
+  turnovers: Float!
+  points: Float!
+}
+
+type OpponentTotalsBoxScore {
+  fieldGoalsMade: Float!
+  threePointersMade: Float!
+  freeThrowsMade: Float!
+  points: Float!
+}
+
+type PlayerBoxScore {
+  memberId: String!
+  name: String
+  fieldGoalsMade: Float!
+  threePointersMade: Float!
+  freeThrows: Float!
+  assists: Float!
+  offensiveRebounds: Float!
+  defensiveRebounds: Float!
+  steals: Float!
+  blocks: Float!
+  turnovers: Float!
+  points: Float!
+}
+
+type GameWithBoxScore {
+  activityId: String!
+  title: String!
+  date: DateTime!
+  opponentName: String!
+  opponentStats: OpponentTotalsBoxScore!
+  teamTotals: TeamTotalsBoxScore!
+  playerStats: [PlayerBoxScore!]!
+}
+
+type SavedOpponentStatline {
+  gameId: String!
+  name: String!
+  fieldGoalsMade: Float!
+  threePointersMade: Float!
+  freeThrowsMade: Float!
+}
+
+type SubmitStatlinesResult {
+  success: Boolean!
+  count: Int!
+  opponentStatline: SavedOpponentStatline
 }
 
 type TeamInformation {
@@ -263,14 +457,26 @@ type GetUserResponse {
 type Query {
   _ping: Boolean!
   getActivities(teamShortId: String!): [Activity!]!
+  getActivity(input: GetActivityInput!): Activity!
   me: User!
   getMemberProfile(input: GetMemberProfileInput!): MemberWithAttendances!
   getMembers(input: MembersInput!): [MemberWithAttendances!]!
   getPendingMembers(input: MembersInput!): [PendingMember!]!
+  getActiveAttendedMembers(input: ActiveAttendedMembersInput!): [MemberWithStatlines!]!
+  getStatlineAverages(input: TeamStatlineInput!): [PlayerStatlineAverage!]!
+  getWeeklyTeamAverages(input: TeamStatlineInput!): [WeeklyTeamAverage!]!
+  getTeamStats(input: TeamStatlineInput!): TeamStats!
+  getStatsPerGame(input: StatsPerGameInput!): [StatsPerGame!]!
+  getGamesWithBoxScores(input: TeamStatlineInput!): [GameWithBoxScore!]!
   getTeam(input: GetTeamInput!): TeamInformation!
   getDashboardTeams: [TeamDashboard!]!
   getTeamActivities(teamRef: String!): Team!
   getCurrentUser(teamShortId: String!): GetUserResponse!
+}
+
+input GetActivityInput {
+  teamRef: String!
+  activityId: String!
 }
 
 input GetMemberProfileInput {
@@ -280,6 +486,22 @@ input GetMemberProfileInput {
 
 input MembersInput {
   teamRef: String!
+}
+
+input ActiveAttendedMembersInput {
+  teamRef: String!
+  activityId: String!
+}
+
+input TeamStatlineInput {
+  teamRef: String!
+}
+
+input StatsPerGameInput {
+  teamRef: String!
+  memberId: String!
+  year: Int!
+  month: Int!
 }
 
 input GetTeamInput {
@@ -304,6 +526,7 @@ type Mutation {
   getAttendanceByActivities(input: GetAttendanceByActivitiesInput!): PlayerActivityAttendance!
   submitAttendance(input: PlayerActivityAttendanceInput!): PlayerActivityAttendance!
   deleteMember(input: DeleteMemberInput!): Boolean!
+  submitStatlines(input: SubmitStatlinesInput!): SubmitStatlinesResult!
   createTeam(input: CreateTeamInput!): Team!
   joinTeam(input: JoinTeamInput!): JoinTeamResponse!
   acceptTeamRequest(input: AcceptTeamRequestInput!): ModerateJoinRequestResult!
@@ -410,6 +633,41 @@ input PlayerActivityAttendanceInput {
 
 input DeleteMemberInput {
   id: String!
+}
+
+input SubmitStatlinesInput {
+  teamRef: String!
+  players: [PlayerStatlineEntryInput!]!
+  opponentStatline: OpponentStatlineInput
+}
+
+input PlayerStatlineEntryInput {
+  memberId: String!
+  activityId: String!
+  statlines: [StatlineValueInput!]!
+}
+
+input StatlineValueInput {
+  fieldGoalsMade: Int
+  fieldGoalsMissed: Int
+  threePointersMade: Int
+  threePointersMissed: Int
+  freeThrows: Int
+  freeThrowsMissed: Int
+  assists: Int
+  steals: Int
+  turnovers: Int
+  offensiveRebounds: Int
+  defensiveRebounds: Int
+  blocks: Int
+}
+
+input OpponentStatlineInput {
+  activityId: String!
+  name: String!
+  fieldGoalsMade: Int!
+  threePointersMade: Int!
+  freeThrowsMade: Int!
 }
 
 input CreateTeamInput {
