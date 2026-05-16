@@ -2,8 +2,17 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CoachGuard } from '../auth/guards/coach-guard';
 import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
-import { DeleteMemberInput, GetMemberProfileInput, MembersInput } from './dto';
-import { MemberWithAttendances, PendingMember } from './member.model';
+import {
+  ActiveAttendedMembersInput,
+  DeleteMemberInput,
+  GetMemberProfileInput,
+  MembersInput,
+} from './dto';
+import {
+  MemberWithAttendances,
+  MemberWithStatlines,
+  PendingMember,
+} from './member.model';
 import { MemberService } from './member.service';
 
 @Resolver(() => MemberWithAttendances)
@@ -26,6 +35,14 @@ export class MemberResolver {
   @Query(() => [PendingMember])
   async getPendingMembers(@Args('input') input: MembersInput) {
     return await this.member.getPendingMembers(input.teamRef);
+  }
+
+  @UseGuards(GqlJwtAuthGuard, CoachGuard)
+  @Query(() => [MemberWithStatlines])
+  async getActiveAttendedMembers(
+    @Args('input') input: ActiveAttendedMembersInput,
+  ) {
+    return this.member.getActiveAttendedMembers(input);
   }
 
   @UseGuards(GqlJwtAuthGuard, CoachGuard)

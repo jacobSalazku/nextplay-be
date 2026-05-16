@@ -14,6 +14,19 @@ export class DeleteMemberInput {
   id: string;
 }
 
+@InputType()
+export class ActiveAttendedMembersInput {
+  @Field()
+  @IsString()
+  @MinLength(1)
+  teamRef: string;
+
+  @Field()
+  @IsString()
+  @MinLength(1)
+  activityId: string;
+}
+
 @ObjectType()
 export class TeamMemberInfo {
   @Field(() => ID)
