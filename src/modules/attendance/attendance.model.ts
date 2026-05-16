@@ -27,7 +27,7 @@ export class PlayerActivityAttendance {
   @Field()
   memberId: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   reason?: string | null;
 
   @Field(() => AttendanceStatus)

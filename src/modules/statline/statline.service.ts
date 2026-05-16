@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ActivityType, AttendanceStatus, Role, Status } from '@prisma/client';
@@ -13,6 +14,8 @@ import {
 
 @Injectable()
 export class StatlineService {
+  private readonly logger = new Logger(StatlineService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async getStatlineAverages(input: TeamStatlineInput, userId: string) {
@@ -780,6 +783,10 @@ export class StatlineService {
   }
 
   async submitStatlines(input: SubmitStatlinesInput, userId: string) {
+    this.logger.log(
+      `submitStatlines received: teamRef=${input.teamRef}, userId=${userId}, players=${input.players.length}, opponentStatline=${Boolean(input.opponentStatline)}`,
+    );
+
     const team = await this.resolveTeam(input.teamRef);
     await this.assertActiveMembership(team.id, userId, Role.COACH);
 
@@ -928,6 +935,10 @@ export class StatlineService {
         ),
       );
     });
+
+    this.logger.log(
+      `submitStatlines saved: teamId=${team.id}, userId=${userId}, upserts=${upsertPayloads.length}, opponentStatlineSaved=${Boolean(savedOpponentStatline)}`,
+    );
 
     return {
       success: true,
