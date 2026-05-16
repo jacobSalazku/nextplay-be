@@ -2,11 +2,12 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
-import { Role, Status } from '@prisma/client';
+import { AttendanceStatus, Role, Status } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GetMemberProfileInput } from './dto';
+import { ActiveAttendedMembersInput, GetMemberProfileInput } from './dto';
 
 @Injectable()
 export class MemberService {
@@ -109,6 +110,7 @@ export class MemberService {
                 },
               },
             },
+
             user: {
               select: {
                 id: true,
@@ -185,6 +187,110 @@ export class MemberService {
       email: member.user.email,
     }));
   }
+
+  async getActiveAttendedMembers(input: ActiveAttendedMembersInput) {
+    const teamShortId = this.extractTeamShortId(input.teamRef);
+
+    const team = await this.prisma.team.findUnique({
+      where: { shortId: teamShortId },
+      select: {
+        id: true,
+        members: {
+          where: {
+            status: Status.ACTIVE,
+            role: Role.PLAYER,
+            attendances: {
+              some: {
+                activityId: input.activityId,
+                attendanceStatus: AttendanceStatus.ATTENDING,
+              },
+            },
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                email: true,
+                dateOfBirth: true,
+                phone: true,
+                height: true,
+                weight: true,
+                dominantHand: true,
+                hasOnBoarded: true,
+              },
+            },
+            statlines: {
+              where: {
+                gameId: input.activityId,
+              },
+              select: {
+                id: true,
+                gameId: true,
+                fieldGoalsMade: true,
+                fieldGoalsMissed: true,
+                threePointersMade: true,
+                threePointersMissed: true,
+                freeThrows: true,
+                freeThrowsMissed: true,
+                assists: true,
+                steals: true,
+                turnovers: true,
+                offensiveRebounds: true,
+                defensiveRebounds: true,
+                blocks: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!team) {
+      throw new NotFoundException('Team not found.');
+    }
+
+    return team.members.map((member) => ({
+      id: member.id,
+      userId: member.userId,
+      teamId: member.teamId,
+      name: member.user.name,
+      role: member.role,
+      status: member.status,
+      number: member.number,
+      position: member.position,
+      user: {
+        id: member.user.id,
+        name: member.user.name,
+        image: member.user.image,
+        email: member.user.email,
+        dateOfBirth: member.user.dateOfBirth,
+        phone: member.user.phone,
+        height: member.user.height,
+        weight: member.user.weight,
+        dominantHand: member.user.dominantHand,
+        hasOnBoarded: member.user.hasOnBoarded,
+      },
+      statlines: member.statlines.map((statline) => ({
+        id: statline.id,
+        activityId: statline.gameId,
+        fieldGoalsMade: statline.fieldGoalsMade,
+        fieldGoalsMissed: statline.fieldGoalsMissed,
+        threePointersMade: statline.threePointersMade,
+        threePointersMissed: statline.threePointersMissed,
+        freeThrows: statline.freeThrows,
+        missedFreeThrows: statline.freeThrowsMissed,
+        assists: statline.assists,
+        steals: statline.steals,
+        turnovers: statline.turnovers,
+        offensiveRebounds: statline.offensiveRebounds,
+        defensiveRebounds: statline.defensiveRebounds,
+        blocks: statline.blocks,
+      })),
+    }));
+  }
+
   async deleteMember(id: string) {
     await this.prisma.statline.deleteMany({
       where: { memberId: id },

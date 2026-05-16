@@ -3,12 +3,33 @@ import { ActivityType, Location } from '@prisma/client';
 import { PlayerActivityAttendance } from '../attendance/attendance.model';
 
 @ObjectType()
+export class OpponentStatline {
+  @Field()
+  name: string;
+
+  @Field()
+  fieldGoalsMade: number;
+
+  @Field()
+  threePointersMade: number;
+
+  @Field()
+  freeThrowsMade: number;
+
+  @Field()
+  activityId: string;
+}
+
+@ObjectType()
 export class Game {
   @Field()
   activityId: string;
 
   @Field(() => Location)
   location: Location;
+
+  @Field(() => OpponentStatline, { nullable: true })
+  opponentStatline?: OpponentStatline;
 }
 
 @ObjectType()
@@ -68,7 +89,7 @@ export class Activity {
   type: ActivityType;
 
   @Field({ nullable: true })
-  duration: number;
+  duration?: number | null;
 
   @Field(() => [PlayerActivityAttendance])
   attendees: PlayerActivityAttendance[];

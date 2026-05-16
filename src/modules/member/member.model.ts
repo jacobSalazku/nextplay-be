@@ -90,6 +90,57 @@ export class MemberWithAttendances extends Member {
 }
 
 @ObjectType()
+export class MemberStatline {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  activityId: string;
+
+  @Field()
+  fieldGoalsMade: number;
+
+  @Field()
+  fieldGoalsMissed: number;
+
+  @Field()
+  threePointersMade: number;
+
+  @Field()
+  threePointersMissed: number;
+
+  @Field()
+  freeThrows: number;
+
+  @Field()
+  missedFreeThrows: number;
+
+  @Field()
+  assists: number;
+
+  @Field()
+  steals: number;
+
+  @Field()
+  turnovers: number;
+
+  @Field()
+  offensiveRebounds: number;
+
+  @Field()
+  defensiveRebounds: number;
+
+  @Field()
+  blocks: number;
+}
+
+@ObjectType()
+export class MemberWithStatlines extends Member {
+  @Field(() => [MemberStatline])
+  statlines: MemberStatline[];
+}
+
+@ObjectType()
 export class PendingMember {
   @Field(() => ID)
   id: string;
