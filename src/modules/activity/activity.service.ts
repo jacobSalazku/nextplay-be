@@ -128,7 +128,7 @@ export class ActivityService {
     input: GetActivityInput,
     userId: string,
   ): Promise<ActivityModel> {
-    const team = await this.resolveTeamByRef(input.teamRef);
+    const team = await this.resolveTeamByRef(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
 
     const activity = await this.prisma.activity.findFirst({
@@ -151,7 +151,7 @@ export class ActivityService {
     input: GetActivitiesInput,
     userId: string,
   ): Promise<ActivityModel[]> {
-    const team = await this.resolveTeamByRef(input.teamRef);
+    const team = await this.resolveTeamByRef(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
     const startOfToday = this.getStartOfToday();
 
@@ -172,7 +172,7 @@ export class ActivityService {
     input: GetActivitiesInput,
     userId: string,
   ): Promise<ActivityModel[]> {
-    const team = await this.resolveTeamByRef(input.teamRef);
+    const team = await this.resolveTeamByRef(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
     const startOfToday = this.getStartOfToday();
 
@@ -189,10 +189,10 @@ export class ActivityService {
     return activities.map((activity) => this.mapActivity(activity));
   }
 
-  private extractTeamShortId(teamRef: string): string {
-    const normalizedTeamRef = teamRef.trim().toLowerCase();
-    const segments = normalizedTeamRef.split('-');
-    const possibleShortId = segments.at(-1) ?? normalizedTeamRef;
+  private extractTeamShortId(routeKey: string): string {
+    const normalizedRouteKey = routeKey.trim().toLowerCase();
+    const segments = normalizedRouteKey.split('-');
+    const possibleShortId = segments.at(-1) ?? normalizedRouteKey;
     const validShortIdPattern = /^[a-z0-9]{6,12}$/;
 
     if (!validShortIdPattern.test(possibleShortId)) {
@@ -202,8 +202,8 @@ export class ActivityService {
     return possibleShortId;
   }
 
-  private async resolveTeamByRef(teamRef: string): Promise<{ id: string }> {
-    const teamShortId = this.extractTeamShortId(teamRef);
+  private async resolveTeamByRef(routeKey: string): Promise<{ id: string }> {
+    const teamShortId = this.extractTeamShortId(routeKey);
 
     const team = await this.prisma.team.findUnique({
       where: { shortId: teamShortId },

@@ -6,7 +6,7 @@ export class GetActivityInput {
   @Field()
   @IsString()
   @MinLength(1)
-  teamRef: string;
+  routeKey: string;
 
   @Field()
   @IsString()
@@ -19,5 +19,5 @@ export class GetActivitiesInput {
   @Field()
   @IsString()
   @MinLength(1)
-  teamRef: string;
+  routeKey: string;
 }

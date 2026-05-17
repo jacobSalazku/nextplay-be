@@ -18,7 +18,7 @@ export class PlayResolver {
   @UseGuards(GqlJwtAuthGuard)
   @Query(() => [Play])
   async getPlays(@Args('input') input: GetPlaysInput) {
-    return this.play.getPlays(input.teamRef);
+    return this.play.getPlays(input.routeKey);
   }
 
   @UseGuards(GqlJwtAuthGuard)

@@ -148,10 +148,10 @@ export class TeamService {
     return teams;
   }
 
-  async getTeam(teamRef: string) {
+  async getTeam(routeKey: string) {
     const team = await this.prisma.team.findUnique({
       where: {
-        routeKey: teamRef,
+        routeKey: routeKey,
       },
       select: {
         id: true,
@@ -218,10 +218,10 @@ export class TeamService {
     };
   }
 
-  async getTeamActivities(teamRef: string) {
+  async getTeamActivities(routeKey: string) {
     const team = await this.prisma.team.findUnique({
       where: {
-        routeKey: teamRef,
+        routeKey: routeKey,
       },
       select: {
         id: true,

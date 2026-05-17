@@ -110,7 +110,7 @@ export class TeamRequestInput {
 @InputType()
 export class AcceptTeamRequestInput extends TeamRequestInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 }
 
 @InputType()
@@ -124,5 +124,5 @@ export class GetTeamInput {
   @Field()
   @IsString()
   @MinLength(1)
-  teamRef: string;
+  routeKey: string;
 }

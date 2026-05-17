@@ -24,7 +24,7 @@ export class TeamResolver {
   @UseGuards(GqlJwtAuthGuard)
   @Query(() => TeamInformation)
   async getTeam(@Args('input') input: GetTeamInput) {
-    return this.team.getTeam(input.teamRef);
+    return this.team.getTeam(input.routeKey);
   }
 
   @UseGuards(GqlJwtAuthGuard)
@@ -44,8 +44,8 @@ export class TeamResolver {
 
   @UseGuards(GqlJwtAuthGuard)
   @Query(() => Team)
-  async getTeamActivities(@Args('teamRef') teamRef: string) {
-    return this.team.getTeamActivities(teamRef);
+  async getTeamActivities(@Args('routeKey') routeKey: string) {
+    return this.team.getTeamActivities(routeKey);
   }
 
   @UseGuards(GqlJwtAuthGuard)

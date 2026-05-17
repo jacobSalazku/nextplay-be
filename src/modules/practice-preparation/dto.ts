@@ -3,7 +3,7 @@ import { Field, InputType } from '@nestjs/graphql';
 @InputType()
 export class CreatePracticePreparationInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 
   @Field()
   name: string;
@@ -24,13 +24,13 @@ export class CreatePracticePreparationInput {
 @InputType()
 export class GetPracticePreparationsInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 }
 
 @InputType()
 export class GetPracticePreparationByIdInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 
   @Field()
   id: string;
@@ -39,7 +39,7 @@ export class GetPracticePreparationByIdInput {
 @InputType()
 export class DeletePracticePreparationInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 
   @Field()
   practicePreparationId: string;

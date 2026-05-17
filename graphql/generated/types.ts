@@ -52,20 +52,20 @@ export enum PracticeType {
 }
 
 export class GetActivityInput {
-    teamRef: string;
+    routeKey: string;
     activityId: string;
 }
 
 export class GetActivitiesInput {
-    teamRef: string;
+    routeKey: string;
 }
 
 export class GetGamePlansInput {
-    teamRef: string;
+    routeKey: string;
 }
 
 export class GetGamePlanByIdInput {
-    teamRef: string;
+    routeKey: string;
     id: string;
 }
 
@@ -75,16 +75,16 @@ export class GetMemberProfileInput {
 }
 
 export class MembersInput {
-    teamRef: string;
+    routeKey: string;
 }
 
 export class ActiveAttendedMembersInput {
-    teamRef: string;
+    routeKey: string;
     activityId: string;
 }
 
 export class GetPlaysInput {
-    teamRef: string;
+    routeKey: string;
 }
 
 export class GetPlayInput {
@@ -92,27 +92,27 @@ export class GetPlayInput {
 }
 
 export class GetPracticePreparationsInput {
-    teamRef: string;
+    routeKey: string;
 }
 
 export class GetPracticePreparationByIdInput {
-    teamRef: string;
+    routeKey: string;
     id: string;
 }
 
 export class TeamStatlineInput {
-    teamRef: string;
+    routeKey: string;
 }
 
 export class StatsPerGameInput {
-    teamRef: string;
+    routeKey: string;
     memberId: string;
     year: number;
     month: number;
 }
 
 export class GetTeamInput {
-    teamRef: string;
+    routeKey: string;
 }
 
 export class DeleteActivity {
@@ -206,7 +206,7 @@ export class PlayerActivityAttendanceInput {
 }
 
 export class CreateGamePlanInput {
-    teamRef: string;
+    routeKey: string;
     name: string;
     opponent?: Nullable<string>;
     notes?: Nullable<string>;
@@ -215,7 +215,7 @@ export class CreateGamePlanInput {
 }
 
 export class DeleteGamePlanInput {
-    teamRef: string;
+    routeKey: string;
     gamePlanId: string;
 }
 
@@ -224,7 +224,7 @@ export class DeleteMemberInput {
 }
 
 export class CreatePlayInput {
-    teamRef: string;
+    routeKey: string;
     name: string;
     description: string;
     category: Category;
@@ -233,11 +233,11 @@ export class CreatePlayInput {
 
 export class DeletePlayInput {
     id: string;
-    teamRef: string;
+    routeKey: string;
 }
 
 export class CreatePracticePreparationInput {
-    teamRef: string;
+    routeKey: string;
     name: string;
     focus?: Nullable<string>;
     notes?: Nullable<string>;
@@ -246,12 +246,12 @@ export class CreatePracticePreparationInput {
 }
 
 export class DeletePracticePreparationInput {
-    teamRef: string;
+    routeKey: string;
     practicePreparationId: string;
 }
 
 export class SubmitStatlinesInput {
-    teamRef: string;
+    routeKey: string;
     players: PlayerStatlineEntryInput[];
     opponentStatline?: Nullable<OpponentStatlineInput>;
 }
@@ -299,7 +299,7 @@ export class JoinTeamInput {
 
 export class AcceptTeamRequestInput {
     memberId: string;
-    teamRef: string;
+    routeKey: string;
 }
 
 export class TeamRequestInput {
@@ -538,7 +538,7 @@ export class TeamMemberInfo {
 
 export class Play {
     id: string;
-    teamRef: string;
+    routeKey: string;
     name: string;
     category: Category;
     description: string;
@@ -850,7 +850,7 @@ export abstract class IQuery {
 
     abstract getDashboardTeams(): TeamDashboard[] | Promise<TeamDashboard[]>;
 
-    abstract getTeamActivities(teamRef: string): Team | Promise<Team>;
+    abstract getTeamActivities(routeKey: string): Team | Promise<Team>;
 
     abstract getCurrentUser(teamShortId: string): GetUserResponse | Promise<GetUserResponse>;
 }

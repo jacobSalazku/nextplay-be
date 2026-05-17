@@ -81,8 +81,8 @@ export class MemberService {
     };
   }
 
-  async getActiveMembers(teamRef: string) {
-    const teamShortId = this.extractTeamShortId(teamRef);
+  async getActiveMembers(routeKey: string) {
+    const teamShortId = this.extractTeamShortId(routeKey);
 
     const team = await this.prisma.team.findUnique({
       where: { shortId: teamShortId },
@@ -161,11 +161,11 @@ export class MemberService {
     return members;
   }
 
-  async getPendingMembers(teamRef: string) {
+  async getPendingMembers(routeKey: string) {
     const members = await this.prisma.member.findMany({
       where: {
         team: {
-          routeKey: teamRef,
+          routeKey: routeKey,
         },
         role: Role.PLAYER,
         status: Status.PENDING,
@@ -189,7 +189,7 @@ export class MemberService {
   }
 
   async getActiveAttendedMembers(input: ActiveAttendedMembersInput) {
-    const teamShortId = this.extractTeamShortId(input.teamRef);
+    const teamShortId = this.extractTeamShortId(input.routeKey);
 
     const team = await this.prisma.team.findUnique({
       where: { shortId: teamShortId },
@@ -303,10 +303,10 @@ export class MemberService {
     return true;
   }
 
-  private extractTeamShortId(teamRef: string): string {
-    const normalizedTeamRef = teamRef.trim().toLowerCase();
-    const segments = normalizedTeamRef.split('-');
-    const possibleShortId = segments.at(-1) ?? normalizedTeamRef;
+  private extractTeamShortId(routeKey: string): string {
+    const normalizedRouteKey = routeKey.trim().toLowerCase();
+    const segments = normalizedRouteKey.split('-');
+    const possibleShortId = segments.at(-1) ?? normalizedRouteKey;
     const validShortIdPattern = /^[a-z0-9]{6,12}$/;
 
     if (!validShortIdPattern.test(possibleShortId)) {

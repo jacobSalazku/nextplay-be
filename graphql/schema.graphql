@@ -266,7 +266,7 @@ type TeamMemberInfo {
 
 type Play {
   id: ID!
-  teamRef: String!
+  routeKey: String!
   name: String!
   category: Category!
   description: String!
@@ -555,25 +555,25 @@ type Query {
   getGamesWithBoxScores(input: TeamStatlineInput!): [GameWithBoxScore!]!
   getTeam(input: GetTeamInput!): TeamInformation!
   getDashboardTeams: [TeamDashboard!]!
-  getTeamActivities(teamRef: String!): Team!
+  getTeamActivities(routeKey: String!): Team!
   getCurrentUser(teamShortId: String!): GetUserResponse!
 }
 
 input GetActivityInput {
-  teamRef: String!
+  routeKey: String!
   activityId: String!
 }
 
 input GetActivitiesInput {
-  teamRef: String!
+  routeKey: String!
 }
 
 input GetGamePlansInput {
-  teamRef: String!
+  routeKey: String!
 }
 
 input GetGamePlanByIdInput {
-  teamRef: String!
+  routeKey: String!
   id: String!
 }
 
@@ -583,16 +583,16 @@ input GetMemberProfileInput {
 }
 
 input MembersInput {
-  teamRef: String!
+  routeKey: String!
 }
 
 input ActiveAttendedMembersInput {
-  teamRef: String!
+  routeKey: String!
   activityId: String!
 }
 
 input GetPlaysInput {
-  teamRef: String!
+  routeKey: String!
 }
 
 input GetPlayInput {
@@ -600,27 +600,27 @@ input GetPlayInput {
 }
 
 input GetPracticePreparationsInput {
-  teamRef: String!
+  routeKey: String!
 }
 
 input GetPracticePreparationByIdInput {
-  teamRef: String!
+  routeKey: String!
   id: String!
 }
 
 input TeamStatlineInput {
-  teamRef: String!
+  routeKey: String!
 }
 
 input StatsPerGameInput {
-  teamRef: String!
+  routeKey: String!
   memberId: String!
   year: Int!
   month: Int!
 }
 
 input GetTeamInput {
-  teamRef: String!
+  routeKey: String!
 }
 
 type Mutation {
@@ -753,7 +753,7 @@ input PlayerActivityAttendanceInput {
 }
 
 input CreateGamePlanInput {
-  teamRef: String!
+  routeKey: String!
   name: String!
   opponent: String
   notes: String
@@ -762,7 +762,7 @@ input CreateGamePlanInput {
 }
 
 input DeleteGamePlanInput {
-  teamRef: String!
+  routeKey: String!
   gamePlanId: String!
 }
 
@@ -771,7 +771,7 @@ input DeleteMemberInput {
 }
 
 input CreatePlayInput {
-  teamRef: String!
+  routeKey: String!
   name: String!
   description: String!
   category: Category!
@@ -780,11 +780,11 @@ input CreatePlayInput {
 
 input DeletePlayInput {
   id: String!
-  teamRef: String!
+  routeKey: String!
 }
 
 input CreatePracticePreparationInput {
-  teamRef: String!
+  routeKey: String!
   name: String!
   focus: String
   notes: String
@@ -793,12 +793,12 @@ input CreatePracticePreparationInput {
 }
 
 input DeletePracticePreparationInput {
-  teamRef: String!
+  routeKey: String!
   practicePreparationId: String!
 }
 
 input SubmitStatlinesInput {
-  teamRef: String!
+  routeKey: String!
   players: [PlayerStatlineEntryInput!]!
   opponentStatline: OpponentStatlineInput
 }
@@ -846,7 +846,7 @@ input JoinTeamInput {
 
 input AcceptTeamRequestInput {
   memberId: String!
-  teamRef: String!
+  routeKey: String!
 }
 
 input TeamRequestInput {
