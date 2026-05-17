@@ -3,16 +3,19 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
+import './graphql/enums';
 import { ActivityModule } from './modules/activity/activity.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { GameplanModule } from './modules/gameplan/gameplan.module';
 import { MemberModule } from './modules/member/member.module';
+import { PlayModule } from './modules/play/play.module';
+import { PracticePreparationModule } from './modules/practice-preparation/practice-preparation.module';
 import { StatlineModule } from './modules/statline/statline.module';
 import { TeamModule } from './modules/team/team.module';
 import { UserModule } from './modules/user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RootResolver } from './root.resolver';
-import './graphql/enums';
 
 @Module({
   imports: [
@@ -49,7 +52,10 @@ import './graphql/enums';
     ActivityModule,
     AttendanceModule,
     AuthModule,
+    GameplanModule,
     MemberModule,
+    PlayModule,
+    PracticePreparationModule,
     PrismaModule,
     StatlineModule,
     TeamModule,
