@@ -38,6 +38,12 @@ export enum ActivityType {
     MEETING = "MEETING"
 }
 
+export enum Category {
+    OFFENSIVE = "OFFENSIVE",
+    DEFENSIVE = "DEFENSIVE",
+    SPECIAL = "SPECIAL"
+}
+
 export enum PracticeType {
     TEAM = "TEAM",
     SPECIALISATION = "SPECIALISATION",
@@ -48,6 +54,19 @@ export enum PracticeType {
 export class GetActivityInput {
     teamRef: string;
     activityId: string;
+}
+
+export class GetActivitiesInput {
+    teamRef: string;
+}
+
+export class GetGamePlansInput {
+    teamRef: string;
+}
+
+export class GetGamePlanByIdInput {
+    teamRef: string;
+    id: string;
 }
 
 export class GetMemberProfileInput {
@@ -62,6 +81,23 @@ export class MembersInput {
 export class ActiveAttendedMembersInput {
     teamRef: string;
     activityId: string;
+}
+
+export class GetPlaysInput {
+    teamRef: string;
+}
+
+export class GetPlayInput {
+    id: string;
+}
+
+export class GetPracticePreparationsInput {
+    teamRef: string;
+}
+
+export class GetPracticePreparationByIdInput {
+    teamRef: string;
+    id: string;
 }
 
 export class TeamStatlineInput {
@@ -169,8 +205,49 @@ export class PlayerActivityAttendanceInput {
     attendanceStatus: AttendanceStatus;
 }
 
+export class CreateGamePlanInput {
+    teamRef: string;
+    name: string;
+    opponent?: Nullable<string>;
+    notes?: Nullable<string>;
+    activityId: string;
+    playsId: string[];
+}
+
+export class DeleteGamePlanInput {
+    teamRef: string;
+    gamePlanId: string;
+}
+
 export class DeleteMemberInput {
     id: string;
+}
+
+export class CreatePlayInput {
+    teamRef: string;
+    name: string;
+    description: string;
+    category: Category;
+    canvas: string;
+}
+
+export class DeletePlayInput {
+    id: string;
+    teamRef: string;
+}
+
+export class CreatePracticePreparationInput {
+    teamRef: string;
+    name: string;
+    focus?: Nullable<string>;
+    notes?: Nullable<string>;
+    activityId: string;
+    playsId: string[];
+}
+
+export class DeletePracticePreparationInput {
+    teamRef: string;
+    practicePreparationId: string;
 }
 
 export class SubmitStatlinesInput {
@@ -370,12 +447,20 @@ export class OpponentStatline {
 }
 
 export class Game {
+    id: string;
+    title: string;
+    date: DateTime;
+    time: string;
     activityId: string;
     location: Location;
     opponentStatline?: Nullable<OpponentStatline>;
 }
 
 export class Practice {
+    id: string;
+    title: string;
+    date: DateTime;
+    time: string;
     activityId: string;
     facility: string;
     practicetype: string;
@@ -415,6 +500,32 @@ export class Activity {
     feedback?: Nullable<Feedback>;
 }
 
+export class GamePlanActivity {
+    id: string;
+    title: string;
+    date: DateTime;
+    time: string;
+}
+
+export class GamePlanPlay {
+    id: string;
+    name: string;
+    category: Category;
+}
+
+export class GamePlan {
+    id: string;
+    name: string;
+    opponent?: Nullable<string>;
+    notes?: Nullable<string>;
+    activityId: string;
+    teamId: string;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+    activity?: Nullable<GamePlanActivity>;
+    plays: GamePlanPlay[];
+}
+
 export class TeamMemberInfo {
     id: string;
     name?: Nullable<string>;
@@ -423,6 +534,43 @@ export class TeamMemberInfo {
     position?: Nullable<string>;
     teamId: string;
     user: UserDetail;
+}
+
+export class Play {
+    id: string;
+    teamRef: string;
+    name: string;
+    category: Category;
+    description: string;
+    canvas: string;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+}
+
+export class PracticePreparationActivity {
+    id: string;
+    title: string;
+    date: DateTime;
+    time: string;
+}
+
+export class PracticePreparationPlay {
+    id: string;
+    name: string;
+    category: Category;
+}
+
+export class PracticePreparation {
+    id: string;
+    name: string;
+    focus?: Nullable<string>;
+    notes?: Nullable<string>;
+    activityId?: Nullable<string>;
+    teamId: string;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+    activity?: Nullable<PracticePreparationActivity>;
+    plays: PracticePreparationPlay[];
 }
 
 export class PlayerStatlineAverageValues {
@@ -662,7 +810,15 @@ export abstract class IQuery {
 
     abstract getActivity(input: GetActivityInput): Activity | Promise<Activity>;
 
+    abstract getGames(input: GetActivitiesInput): Activity[] | Promise<Activity[]>;
+
+    abstract getPractices(input: GetActivitiesInput): Activity[] | Promise<Activity[]>;
+
     abstract me(): User | Promise<User>;
+
+    abstract getGameplan(input: GetGamePlansInput): GamePlan[] | Promise<GamePlan[]>;
+
+    abstract getGameplanById(input: GetGamePlanByIdInput): Nullable<GamePlan> | Promise<Nullable<GamePlan>>;
 
     abstract getMemberProfile(input: GetMemberProfileInput): MemberWithAttendances | Promise<MemberWithAttendances>;
 
@@ -671,6 +827,14 @@ export abstract class IQuery {
     abstract getPendingMembers(input: MembersInput): PendingMember[] | Promise<PendingMember[]>;
 
     abstract getActiveAttendedMembers(input: ActiveAttendedMembersInput): MemberWithStatlines[] | Promise<MemberWithStatlines[]>;
+
+    abstract getPlays(input: GetPlaysInput): Play[] | Promise<Play[]>;
+
+    abstract getPlay(input: GetPlayInput): Nullable<Play> | Promise<Nullable<Play>>;
+
+    abstract getPracticePreparations(input: GetPracticePreparationsInput): PracticePreparation[] | Promise<PracticePreparation[]>;
+
+    abstract getPracticePreparationById(input: GetPracticePreparationByIdInput): Nullable<PracticePreparation> | Promise<Nullable<PracticePreparation>>;
 
     abstract getStatlineAverages(input: TeamStatlineInput): PlayerStatlineAverage[] | Promise<PlayerStatlineAverage[]>;
 
@@ -724,7 +888,19 @@ export abstract class IMutation {
 
     abstract submitAttendance(input: PlayerActivityAttendanceInput): PlayerActivityAttendance | Promise<PlayerActivityAttendance>;
 
+    abstract createGamePlan(input: CreateGamePlanInput): GamePlan | Promise<GamePlan>;
+
+    abstract deleteGamePlan(input: DeleteGamePlanInput): GamePlan | Promise<GamePlan>;
+
     abstract deleteMember(input: DeleteMemberInput): boolean | Promise<boolean>;
+
+    abstract createPlay(input: CreatePlayInput): Play | Promise<Play>;
+
+    abstract deletePlay(input: DeletePlayInput): boolean | Promise<boolean>;
+
+    abstract createPracticePreparation(input: CreatePracticePreparationInput): PracticePreparation | Promise<PracticePreparation>;
+
+    abstract deletePracticePreparation(input: DeletePracticePreparationInput): PracticePreparation | Promise<PracticePreparation>;
 
     abstract submitStatlines(input: SubmitStatlinesInput): SubmitStatlinesResult | Promise<SubmitStatlinesResult>;
 
