@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import {
   ActivityType,
+  Prisma,
   Activity as PrismaActivity,
   Status,
 } from '@prisma/client';
@@ -16,7 +17,56 @@ import {
   UpdateActivityTypes,
 } from './activity.builder';
 import { Activity as ActivityModel } from './activity.model';
-import { GetActivityInput } from './dto/get';
+import { GetActivitiesInput, GetActivityInput } from './dto/get';
+
+const activitySelect = {
+  id: true,
+  title: true,
+  date: true,
+  time: true,
+  duration: true,
+  type: true,
+  createdAt: true,
+  updatedAt: true,
+  teamId: true,
+  attendees: {
+    select: {
+      id: true,
+      activityId: true,
+      memberId: true,
+      attendanceStatus: true,
+      reason: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  },
+  game: {
+    select: {
+      activityId: true,
+      location: true,
+      opponentStatlines: {
+        select: {
+          gameId: true,
+          name: true,
+          fieldGoalsMade: true,
+          threePointersMade: true,
+          freeThrowsMade: true,
+        },
+      },
+    },
+  },
+  practice: {
+    select: {
+      activityId: true,
+      facility: true,
+      practicetype: true,
+    },
+  },
+} as const;
+
+type ActivityWithRelations = Prisma.ActivityGetPayload<{
+  select: typeof activitySelect;
+}>;
 
 @Injectable()
 export class ActivityService {
@@ -78,7 +128,82 @@ export class ActivityService {
     input: GetActivityInput,
     userId: string,
   ): Promise<ActivityModel> {
-    const teamShortId = this.extractTeamShortId(input.teamRef);
+    const team = await this.resolveTeamByRef(input.teamRef);
+    await this.assertActiveMembership(team.id, userId);
+
+    const activity = await this.prisma.activity.findFirst({
+      where: {
+        id: input.activityId,
+        teamId: team.id,
+        type: ActivityType.GAME,
+      },
+      select: activitySelect,
+    });
+
+    if (!activity) {
+      throw new NotFoundException('Activity not found.');
+    }
+
+    return this.mapActivity(activity);
+  }
+
+  async getGames(
+    input: GetActivitiesInput,
+    userId: string,
+  ): Promise<ActivityModel[]> {
+    const team = await this.resolveTeamByRef(input.teamRef);
+    await this.assertActiveMembership(team.id, userId);
+    const startOfToday = this.getStartOfToday();
+
+    const activities = await this.prisma.activity.findMany({
+      where: {
+        teamId: team.id,
+        type: ActivityType.GAME,
+        date: { gte: startOfToday },
+      },
+      orderBy: { date: 'asc' },
+      select: activitySelect,
+    });
+
+    return activities.map((activity) => this.mapActivity(activity));
+  }
+
+  async getPractices(
+    input: GetActivitiesInput,
+    userId: string,
+  ): Promise<ActivityModel[]> {
+    const team = await this.resolveTeamByRef(input.teamRef);
+    await this.assertActiveMembership(team.id, userId);
+    const startOfToday = this.getStartOfToday();
+
+    const activities = await this.prisma.activity.findMany({
+      where: {
+        teamId: team.id,
+        type: ActivityType.PRACTICE,
+        date: { gte: startOfToday },
+      },
+      orderBy: { date: 'asc' },
+      select: activitySelect,
+    });
+
+    return activities.map((activity) => this.mapActivity(activity));
+  }
+
+  private extractTeamShortId(teamRef: string): string {
+    const normalizedTeamRef = teamRef.trim().toLowerCase();
+    const segments = normalizedTeamRef.split('-');
+    const possibleShortId = segments.at(-1) ?? normalizedTeamRef;
+    const validShortIdPattern = /^[a-z0-9]{6,12}$/;
+
+    if (!validShortIdPattern.test(possibleShortId)) {
+      throw new BadRequestException('Invalid team reference');
+    }
+
+    return possibleShortId;
+  }
+
+  private async resolveTeamByRef(teamRef: string): Promise<{ id: string }> {
+    const teamShortId = this.extractTeamShortId(teamRef);
 
     const team = await this.prisma.team.findUnique({
       where: { shortId: teamShortId },
@@ -89,9 +214,16 @@ export class ActivityService {
       throw new NotFoundException('Team not found.');
     }
 
+    return team;
+  }
+
+  private async assertActiveMembership(
+    teamId: string,
+    userId: string,
+  ): Promise<void> {
     const membership = await this.prisma.member.findFirst({
       where: {
-        teamId: team.id,
+        teamId,
         userId,
         status: Status.ACTIVE,
       },
@@ -101,60 +233,23 @@ export class ActivityService {
     if (!membership) {
       throw new ForbiddenException('Not a member of this team.');
     }
+  }
 
-    const activity = await this.prisma.activity.findFirst({
-      where: {
-        id: input.activityId,
-        teamId: team.id,
-        type: ActivityType.GAME,
-      },
-      select: {
-        id: true,
-        title: true,
-        date: true,
-        time: true,
-        duration: true,
-        type: true,
-        createdAt: true,
-        updatedAt: true,
-        teamId: true,
-        attendees: {
-          select: {
-            id: true,
-            activityId: true,
-            memberId: true,
-            attendanceStatus: true,
-            reason: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
-        game: {
-          select: {
-            activityId: true,
-            location: true,
-            opponentStatlines: {
-              select: {
-                gameId: true,
-                name: true,
-                fieldGoalsMade: true,
-                threePointersMade: true,
-                freeThrowsMade: true,
-              },
-            },
-          },
-        },
-      },
-    });
+  private getStartOfToday(): Date {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return now;
+  }
 
-    if (!activity) {
-      throw new NotFoundException('Activity not found.');
-    }
-
+  private mapActivity(activity: ActivityWithRelations): ActivityModel {
     return {
       ...activity,
       game: activity.game
         ? {
+            id: activity.id,
+            title: activity.title,
+            date: activity.date,
+            time: activity.time,
             activityId: activity.game.activityId,
             location: activity.game.location,
             opponentStatline: activity.game.opponentStatlines
@@ -171,19 +266,17 @@ export class ActivityService {
               : undefined,
           }
         : undefined,
+      practice: activity.practice
+        ? {
+            id: activity.id,
+            title: activity.title,
+            date: activity.date,
+            time: activity.time,
+            activityId: activity.practice.activityId,
+            facility: activity.practice.facility,
+            practicetype: activity.practice.practicetype,
+          }
+        : undefined,
     };
-  }
-
-  private extractTeamShortId(teamRef: string): string {
-    const normalizedTeamRef = teamRef.trim().toLowerCase();
-    const segments = normalizedTeamRef.split('-');
-    const possibleShortId = segments.at(-1) ?? normalizedTeamRef;
-    const validShortIdPattern = /^[a-z0-9]{6,12}$/;
-
-    if (!validShortIdPattern.test(possibleShortId)) {
-      throw new BadRequestException('Invalid team reference');
-    }
-
-    return possibleShortId;
   }
 }

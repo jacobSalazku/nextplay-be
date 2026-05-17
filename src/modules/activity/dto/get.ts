@@ -13,3 +13,11 @@ export class GetActivityInput {
   @MinLength(1)
   activityId: string;
 }
+
+@InputType()
+export class GetActivitiesInput {
+  @Field()
+  @IsString()
+  @MinLength(1)
+  teamRef: string;
+}

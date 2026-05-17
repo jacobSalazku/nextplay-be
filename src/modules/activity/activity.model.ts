@@ -22,6 +22,18 @@ export class OpponentStatline {
 
 @ObjectType()
 export class Game {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  title: string;
+
+  @Field()
+  date: Date;
+
+  @Field()
+  time: string;
+
   @Field()
   activityId: string;
 
@@ -34,6 +46,18 @@ export class Game {
 
 @ObjectType()
 export class Practice {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  title: string;
+
+  @Field()
+  date: Date;
+
+  @Field()
+  time: string;
+
   @Field()
   activityId: string;
 
