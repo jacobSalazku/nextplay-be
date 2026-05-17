@@ -7,7 +7,7 @@ export class Play {
   id: string;
 
   @Field()
-  teamRef: string;
+  routeKey: string;
 
   @Field()
   name: string;

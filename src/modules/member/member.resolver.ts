@@ -28,13 +28,13 @@ export class MemberResolver {
   @UseGuards(GqlJwtAuthGuard)
   @Query(() => [MemberWithAttendances])
   async getMembers(@Args('input') input: MembersInput) {
-    return await this.member.getActiveMembers(input.teamRef);
+    return await this.member.getActiveMembers(input.routeKey);
   }
 
   @UseGuards(GqlJwtAuthGuard, CoachGuard)
   @Query(() => [PendingMember])
   async getPendingMembers(@Args('input') input: MembersInput) {
-    return await this.member.getPendingMembers(input.teamRef);
+    return await this.member.getPendingMembers(input.routeKey);
   }
 
   @UseGuards(GqlJwtAuthGuard, CoachGuard)

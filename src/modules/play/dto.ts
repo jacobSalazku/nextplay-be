@@ -4,7 +4,7 @@ import { Category } from '@prisma/client';
 @InputType()
 export class GetPlaysInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 }
 
 @InputType()
@@ -16,13 +16,13 @@ export class GetPlayInput {
 @InputType()
 export class DeletePlayInput extends GetPlayInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 }
 
 @InputType()
 export class CreatePlayInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 
   @Field()
   name: string;

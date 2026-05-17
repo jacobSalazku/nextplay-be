@@ -3,7 +3,7 @@ import { Field, InputType } from '@nestjs/graphql';
 @InputType()
 export class CreateGamePlanInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 
   @Field()
   name: string;
@@ -24,13 +24,13 @@ export class CreateGamePlanInput {
 @InputType()
 export class GetGamePlansInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 }
 
 @InputType()
 export class GetGamePlanByIdInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 
   @Field()
   id: string;
@@ -39,7 +39,7 @@ export class GetGamePlanByIdInput {
 @InputType()
 export class DeleteGamePlanInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 
   @Field()
   gamePlanId: string;

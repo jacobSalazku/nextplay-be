@@ -29,7 +29,7 @@ type PlayWithTeam = Prisma.PlayGetPayload<{
 
 type PlayResponse = {
   id: string;
-  teamRef: string;
+  routeKey: string;
   name: string;
   category: Category;
   description: string;
@@ -42,8 +42,8 @@ type PlayResponse = {
 export class PlayService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getPlays(teamRef: string): Promise<PlayResponse[]> {
-    const team = await this.resolveTeam(teamRef);
+  async getPlays(routeKey: string): Promise<PlayResponse[]> {
+    const team = await this.resolveTeam(routeKey);
 
     const plays = await this.prisma.play.findMany({
       where: {
@@ -72,7 +72,7 @@ export class PlayService {
   }
 
   async createPlay(input: CreatePlayInput): Promise<PlayResponse> {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
 
     const play = await this.prisma.play.create({
       data: {
@@ -89,7 +89,7 @@ export class PlayService {
   }
 
   async deletePlay(input: DeletePlayInput): Promise<boolean> {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
 
     const deleted = await this.prisma.play.deleteMany({
       where: {
@@ -101,20 +101,20 @@ export class PlayService {
     return deleted.count > 0;
   }
 
-  private async resolveTeam(teamRef: string): Promise<{ id: string }> {
-    const normalizedTeamRef = teamRef.trim();
+  private async resolveTeam(routeKey: string): Promise<{ id: string }> {
+    const normalizedRouteKey = routeKey.trim();
 
-    if (!normalizedTeamRef) {
+    if (!normalizedRouteKey) {
       throw new BadRequestException('Team reference is required');
     }
 
-    const lowerRef = normalizedTeamRef.toLowerCase();
+    const lowerRef = normalizedRouteKey.toLowerCase();
     const shortIdFromRoute = lowerRef.split('-').at(-1) ?? lowerRef;
 
     const team = await this.prisma.team.findFirst({
       where: {
         OR: [
-          { routeKey: normalizedTeamRef },
+          { routeKey: normalizedRouteKey },
           { routeKey: lowerRef },
           { shortId: lowerRef },
           { shortId: shortIdFromRoute },
@@ -133,7 +133,7 @@ export class PlayService {
   private mapPlay(play: PlayWithTeam): PlayResponse {
     return {
       id: play.id,
-      teamRef: play.team.routeKey ?? play.team.shortId,
+      routeKey: play.team.routeKey ?? play.team.shortId,
       name: play.name,
       category: play.category,
       description: play.description,

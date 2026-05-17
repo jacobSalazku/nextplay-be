@@ -19,7 +19,7 @@ export class StatlineService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getStatlineAverages(input: TeamStatlineInput, userId: string) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
 
     const startOfTomorrow = this.getStartOfTomorrow();
@@ -176,7 +176,7 @@ export class StatlineService {
   }
 
   async getWeeklyTeamAverages(input: TeamStatlineInput, userId: string) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
 
     const startOfTomorrow = this.getStartOfTomorrow();
@@ -293,7 +293,7 @@ export class StatlineService {
   }
 
   async getTeamStats(input: TeamStatlineInput, userId: string) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
 
     const startOfTomorrow = this.getStartOfTomorrow();
@@ -469,7 +469,7 @@ export class StatlineService {
   }
 
   async getStatsPerGame(input: StatsPerGameInput, userId: string) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
 
     const targetMember = await this.prisma.member.findFirst({
@@ -560,7 +560,7 @@ export class StatlineService {
   }
 
   async getGamesWithBoxScores(input: TeamStatlineInput, userId: string) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
 
     const opponentStatlines = await this.prisma.opponentStatline.findMany({
@@ -784,10 +784,10 @@ export class StatlineService {
 
   async submitStatlines(input: SubmitStatlinesInput, userId: string) {
     this.logger.log(
-      `submitStatlines received: teamRef=${input.teamRef}, userId=${userId}, players=${input.players.length}, opponentStatline=${Boolean(input.opponentStatline)}`,
+      `submitStatlines received: routeKey=${input.routeKey}, userId=${userId}, players=${input.players.length}, opponentStatline=${Boolean(input.opponentStatline)}`,
     );
 
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId, Role.COACH);
 
     const requestedActivityIds = [
@@ -1095,8 +1095,8 @@ export class StatlineService {
     };
   }
 
-  private async resolveTeam(teamRef: string) {
-    const normalizedRef = teamRef.trim();
+  private async resolveTeam(routeKey: string) {
+    const normalizedRef = routeKey.trim();
 
     if (!normalizedRef) {
       throw new NotFoundException('Team not found');

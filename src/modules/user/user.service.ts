@@ -172,10 +172,10 @@ export class UserService {
     return [...new Set([...targetFields, ...constraintFields])];
   }
 
-  private extractTeamShortId(teamRef: string): string {
-    const normalizedTeamRef = teamRef.trim().toLowerCase();
-    const segments = normalizedTeamRef.split('-');
-    const possibleShortId = segments.at(-1) ?? normalizedTeamRef;
+  private extractTeamShortId(routeKey: string): string {
+    const normalizedRouteKey = routeKey.trim().toLowerCase();
+    const segments = normalizedRouteKey.split('-');
+    const possibleShortId = segments.at(-1) ?? normalizedRouteKey;
     const validShortIdPattern = /^[a-z0-9]{6,12}$/;
 
     if (!validShortIdPattern.test(possibleShortId)) {

@@ -17,7 +17,7 @@ export class TeamStatlineInput {
   @Field()
   @IsString()
   @MinLength(1)
-  teamRef: string;
+  routeKey: string;
 }
 
 @InputType()

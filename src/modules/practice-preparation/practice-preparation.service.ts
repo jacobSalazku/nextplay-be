@@ -54,7 +54,7 @@ export class PracticePreparationService {
     input: CreatePracticePreparationInput,
     userId: string,
   ) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId, Role.COACH);
 
     const activity = await this.prisma.activity.findFirst({
@@ -106,7 +106,7 @@ export class PracticePreparationService {
     input: GetPracticePreparationsInput,
     userId: string,
   ) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
 
     const preparations = await this.prisma.practicePreparation.findMany({
@@ -124,7 +124,7 @@ export class PracticePreparationService {
     input: GetPracticePreparationByIdInput,
     userId: string,
   ) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
 
     const preparation = await this.prisma.practicePreparation.findFirst({
@@ -146,7 +146,7 @@ export class PracticePreparationService {
     input: DeletePracticePreparationInput,
     userId: string,
   ) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId, Role.COACH);
 
     const existing = await this.prisma.practicePreparation.findFirst({
@@ -168,16 +168,16 @@ export class PracticePreparationService {
     return this.mapPracticePreparation(existing);
   }
 
-  private async resolveTeam(teamRef: string): Promise<{ id: string }> {
-    const normalizedTeamRef = teamRef.trim();
-    const lowerRef = normalizedTeamRef.toLowerCase();
+  private async resolveTeam(routeKey: string): Promise<{ id: string }> {
+    const normalizedRouteKey = routeKey.trim();
+    const lowerRef = normalizedRouteKey.toLowerCase();
     const shortIdFromRoute = lowerRef.split('-').at(-1) ?? lowerRef;
 
     const team = await this.prisma.team.findFirst({
       where: {
         OR: [
-          { id: normalizedTeamRef },
-          { routeKey: normalizedTeamRef },
+          { id: normalizedRouteKey },
+          { routeKey: normalizedRouteKey },
           { shortId: lowerRef },
           { shortId: shortIdFromRoute },
         ],

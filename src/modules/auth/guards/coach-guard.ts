@@ -23,10 +23,10 @@ export type GqlTeamContext = {
 type ArgsType = {
   input?: {
     teamId?: string;
-    teamRef?: string;
+    routeKey?: string;
   };
   teamId?: string;
-  teamRef?: string;
+  routeKey?: string;
 };
 
 @Injectable()
@@ -45,20 +45,20 @@ export class CoachGuard implements CanActivate {
 
     const args = ctx.getArgs<ArgsType>();
 
-    const rawTeamRef =
-      args.input?.teamId ?? args.teamId ?? args.input?.teamRef ?? args.teamRef;
+    const rawRouteKey =
+      args.input?.teamId ?? args.teamId ?? args.input?.routeKey ?? args.routeKey;
 
-    if (!rawTeamRef) {
+    if (!rawRouteKey) {
       throw new ForbiddenException('Team ID is required');
     }
 
     const team = await this.prisma.team.findFirst({
       where: {
         OR: [
-          { id: rawTeamRef },
-          { shortId: rawTeamRef },
-          { routeKey: rawTeamRef },
-          { slug: rawTeamRef },
+          { id: rawRouteKey },
+          { shortId: rawRouteKey },
+          { routeKey: rawRouteKey },
+          { slug: rawRouteKey },
         ],
       },
       select: { id: true },

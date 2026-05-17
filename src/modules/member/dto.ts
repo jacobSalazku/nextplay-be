@@ -5,7 +5,7 @@ import { UserDetail } from './member.model';
 @InputType()
 export class MembersInput {
   @Field()
-  teamRef: string;
+  routeKey: string;
 }
 
 @InputType()
@@ -19,7 +19,7 @@ export class ActiveAttendedMembersInput {
   @Field()
   @IsString()
   @MinLength(1)
-  teamRef: string;
+  routeKey: string;
 
   @Field()
   @IsString()

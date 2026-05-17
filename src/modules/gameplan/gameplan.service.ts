@@ -51,7 +51,7 @@ export class GameplanService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createGamePlan(input: CreateGamePlanInput, userId: string) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId, Role.COACH);
 
     const activity = await this.prisma.activity.findFirst({
@@ -99,7 +99,7 @@ export class GameplanService {
   }
 
   async getGameplan(input: GetGamePlansInput, userId: string) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
 
     const gameplans = await this.prisma.gamePlan.findMany({
@@ -112,7 +112,7 @@ export class GameplanService {
   }
 
   async getGameplanById(input: GetGamePlanByIdInput, userId: string) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId);
 
     const gamePlan = await this.prisma.gamePlan.findFirst({
@@ -131,7 +131,7 @@ export class GameplanService {
   }
 
   async deleteGamePlan(input: DeleteGamePlanInput, userId: string) {
-    const team = await this.resolveTeam(input.teamRef);
+    const team = await this.resolveTeam(input.routeKey);
     await this.assertActiveMembership(team.id, userId, Role.COACH);
 
     const existing = await this.prisma.gamePlan.findFirst({
@@ -153,16 +153,16 @@ export class GameplanService {
     return this.mapGamePlan(existing);
   }
 
-  private async resolveTeam(teamRef: string) {
-    const normalizedTeamRef = teamRef.trim();
-    const lowerRef = normalizedTeamRef.toLowerCase();
+  private async resolveTeam(routeKey: string) {
+    const normalizedRouteKey = routeKey.trim();
+    const lowerRef = normalizedRouteKey.toLowerCase();
     const shortIdFromRoute = lowerRef.split('-').at(-1) ?? lowerRef;
 
     const team = await this.prisma.team.findFirst({
       where: {
         OR: [
-          { id: normalizedTeamRef },
-          { routeKey: normalizedTeamRef },
+          { id: normalizedRouteKey },
+          { routeKey: normalizedRouteKey },
           { shortId: lowerRef },
           { shortId: shortIdFromRoute },
         ],
