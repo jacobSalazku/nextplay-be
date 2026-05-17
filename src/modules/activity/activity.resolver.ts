@@ -1,7 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
-import { CoachGuard } from '../auth/guards/coach-guard';
 import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
 import { Activity } from './activity.model';
 import { ActivityService } from './activity.service';
@@ -13,7 +12,7 @@ import {
   CreatePracticeInput,
 } from './dto/create';
 import { DeleteActivity } from './dto/delete';
-import { GetActivityInput } from './dto/get';
+import { GetActivitiesInput, GetActivityInput } from './dto/get';
 import {
   UpdateFeedbackInput,
   UpdateFilmInput,
@@ -40,8 +39,24 @@ export class ActivityResolver {
   ): Promise<Activity> {
     return await this.activity.getActivity(input, user.userId);
   }
+  @UseGuards(GqlJwtAuthGuard)
+  @Query(() => [Activity])
+  async getGames(
+    @Args('input') input: GetActivitiesInput,
+    @CurrentUser() user: { userId: string },
+  ): Promise<Activity[]> {
+    return await this.activity.getGames(input, user.userId);
+  }
 
-  @UseGuards(GqlJwtAuthGuard, CoachGuard)
+  @UseGuards(GqlJwtAuthGuard)
+  @Query(() => [Activity])
+  async getPractices(
+    @Args('input') input: GetActivitiesInput,
+    @CurrentUser() user: { userId: string },
+  ): Promise<Activity[]> {
+    return await this.activity.getPractices(input, user.userId);
+  }
+
   @Mutation(() => Activity)
   async deleteActivity(@Args('input') input: DeleteActivity) {
     return await this.activity.deleteActivity(input.id);

@@ -2,6 +2,7 @@ import { registerEnumType } from '@nestjs/graphql';
 import {
   ActivityType,
   AttendanceStatus,
+  Category,
   Location,
   PracticeType,
   Role,
@@ -19,3 +20,5 @@ registerEnumType(AttendanceStatus, { name: 'AttendanceStatus' });
 registerEnumType(Role, { name: 'Role' });
 
 registerEnumType(Status, { name: 'Status' });
+
+registerEnumType(Category, { name: 'Category' });

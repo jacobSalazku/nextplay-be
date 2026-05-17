@@ -156,6 +156,10 @@ type OpponentStatline {
 }
 
 type Game {
+  id: ID!
+  title: String!
+  date: DateTime!
+  time: String!
   activityId: String!
   location: Location!
   opponentStatline: OpponentStatline
@@ -167,6 +171,10 @@ enum Location {
 }
 
 type Practice {
+  id: ID!
+  title: String!
+  date: DateTime!
+  time: String!
   activityId: String!
   facility: String!
   practicetype: String!
@@ -214,6 +222,38 @@ enum ActivityType {
   MEETING
 }
 
+type GamePlanActivity {
+  id: ID!
+  title: String!
+  date: DateTime!
+  time: String!
+}
+
+type GamePlanPlay {
+  id: ID!
+  name: String!
+  category: Category!
+}
+
+enum Category {
+  OFFENSIVE
+  DEFENSIVE
+  SPECIAL
+}
+
+type GamePlan {
+  id: ID!
+  name: String!
+  opponent: String
+  notes: String
+  activityId: String!
+  teamId: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  activity: GamePlanActivity
+  plays: [GamePlanPlay!]!
+}
+
 type TeamMemberInfo {
   id: ID!
   name: String
@@ -222,6 +262,43 @@ type TeamMemberInfo {
   position: String
   teamId: String!
   user: UserDetail!
+}
+
+type Play {
+  id: ID!
+  teamRef: String!
+  name: String!
+  category: Category!
+  description: String!
+  canvas: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PracticePreparationActivity {
+  id: ID!
+  title: String!
+  date: DateTime!
+  time: String!
+}
+
+type PracticePreparationPlay {
+  id: ID!
+  name: String!
+  category: Category!
+}
+
+type PracticePreparation {
+  id: ID!
+  name: String!
+  focus: String
+  notes: String
+  activityId: String
+  teamId: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  activity: PracticePreparationActivity
+  plays: [PracticePreparationPlay!]!
 }
 
 type PlayerStatlineAverageValues {
@@ -458,11 +535,19 @@ type Query {
   _ping: Boolean!
   getActivities(teamShortId: String!): [Activity!]!
   getActivity(input: GetActivityInput!): Activity!
+  getGames(input: GetActivitiesInput!): [Activity!]!
+  getPractices(input: GetActivitiesInput!): [Activity!]!
   me: User!
+  getGameplan(input: GetGamePlansInput!): [GamePlan!]!
+  getGameplanById(input: GetGamePlanByIdInput!): GamePlan
   getMemberProfile(input: GetMemberProfileInput!): MemberWithAttendances!
   getMembers(input: MembersInput!): [MemberWithAttendances!]!
   getPendingMembers(input: MembersInput!): [PendingMember!]!
   getActiveAttendedMembers(input: ActiveAttendedMembersInput!): [MemberWithStatlines!]!
+  getPlays(input: GetPlaysInput!): [Play!]!
+  getPlay(input: GetPlayInput!): Play
+  getPracticePreparations(input: GetPracticePreparationsInput!): [PracticePreparation!]!
+  getPracticePreparationById(input: GetPracticePreparationByIdInput!): PracticePreparation
   getStatlineAverages(input: TeamStatlineInput!): [PlayerStatlineAverage!]!
   getWeeklyTeamAverages(input: TeamStatlineInput!): [WeeklyTeamAverage!]!
   getTeamStats(input: TeamStatlineInput!): TeamStats!
@@ -479,6 +564,19 @@ input GetActivityInput {
   activityId: String!
 }
 
+input GetActivitiesInput {
+  teamRef: String!
+}
+
+input GetGamePlansInput {
+  teamRef: String!
+}
+
+input GetGamePlanByIdInput {
+  teamRef: String!
+  id: String!
+}
+
 input GetMemberProfileInput {
   id: String!
   teamShortId: String!
@@ -491,6 +589,23 @@ input MembersInput {
 input ActiveAttendedMembersInput {
   teamRef: String!
   activityId: String!
+}
+
+input GetPlaysInput {
+  teamRef: String!
+}
+
+input GetPlayInput {
+  id: String!
+}
+
+input GetPracticePreparationsInput {
+  teamRef: String!
+}
+
+input GetPracticePreparationByIdInput {
+  teamRef: String!
+  id: String!
 }
 
 input TeamStatlineInput {
@@ -525,7 +640,13 @@ type Mutation {
   logout: Boolean!
   getAttendanceByActivities(input: GetAttendanceByActivitiesInput!): PlayerActivityAttendance!
   submitAttendance(input: PlayerActivityAttendanceInput!): PlayerActivityAttendance!
+  createGamePlan(input: CreateGamePlanInput!): GamePlan!
+  deleteGamePlan(input: DeleteGamePlanInput!): GamePlan!
   deleteMember(input: DeleteMemberInput!): Boolean!
+  createPlay(input: CreatePlayInput!): Play!
+  deletePlay(input: DeletePlayInput!): Boolean!
+  createPracticePreparation(input: CreatePracticePreparationInput!): PracticePreparation!
+  deletePracticePreparation(input: DeletePracticePreparationInput!): PracticePreparation!
   submitStatlines(input: SubmitStatlinesInput!): SubmitStatlinesResult!
   createTeam(input: CreateTeamInput!): Team!
   joinTeam(input: JoinTeamInput!): JoinTeamResponse!
@@ -631,8 +752,49 @@ input PlayerActivityAttendanceInput {
   attendanceStatus: AttendanceStatus!
 }
 
+input CreateGamePlanInput {
+  teamRef: String!
+  name: String!
+  opponent: String
+  notes: String
+  activityId: String!
+  playsId: [String!]!
+}
+
+input DeleteGamePlanInput {
+  teamRef: String!
+  gamePlanId: String!
+}
+
 input DeleteMemberInput {
   id: String!
+}
+
+input CreatePlayInput {
+  teamRef: String!
+  name: String!
+  description: String!
+  category: Category!
+  canvas: String!
+}
+
+input DeletePlayInput {
+  id: String!
+  teamRef: String!
+}
+
+input CreatePracticePreparationInput {
+  teamRef: String!
+  name: String!
+  focus: String
+  notes: String
+  activityId: String!
+  playsId: [String!]!
+}
+
+input DeletePracticePreparationInput {
+  teamRef: String!
+  practicePreparationId: String!
 }
 
 input SubmitStatlinesInput {
