@@ -93,8 +93,4 @@ On startup, Nest generates:
 - schema: `graphql/schema.graphql`
 - type definitions: `graphql/generated/types.ts`
 
-## Scripts
 
-```bash
-
-```
