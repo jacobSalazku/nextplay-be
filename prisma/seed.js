@@ -397,12 +397,13 @@ async function main() {
 
     const activities = [];
     const games = [];
+    const practices = [];
     const pastGameIds = [];
 
     const practiceSeed = [
       {
         title: 'Ball Handling + Transition',
-        dayOffset: -6,
+        dayOffset: -96,
         time: '18:30',
         hour: 18,
         minute: 30,
@@ -412,7 +413,7 @@ async function main() {
       },
       {
         title: 'Physical Conditioning Block',
-        dayOffset: -5,
+        dayOffset: -88,
         time: '19:00',
         hour: 19,
         minute: 0,
@@ -422,7 +423,7 @@ async function main() {
       },
       {
         title: 'Set Plays + Shooting',
-        dayOffset: -3,
+        dayOffset: -80,
         time: '19:00',
         hour: 19,
         minute: 0,
@@ -432,7 +433,7 @@ async function main() {
       },
       {
         title: 'Guard Skill Development',
-        dayOffset: -2,
+        dayOffset: -73,
         time: '18:45',
         hour: 18,
         minute: 45,
@@ -442,7 +443,7 @@ async function main() {
       },
       {
         title: 'Team Defense Rotations',
-        dayOffset: 0,
+        dayOffset: -66,
         time: '19:15',
         hour: 19,
         minute: 15,
@@ -452,7 +453,7 @@ async function main() {
       },
       {
         title: 'Finishing + Free Throws',
-        dayOffset: 2,
+        dayOffset: -59,
         time: '18:40',
         hour: 18,
         minute: 40,
@@ -462,7 +463,7 @@ async function main() {
       },
       {
         title: 'Explosive Movement Session',
-        dayOffset: 5,
+        dayOffset: -52,
         time: '19:10',
         hour: 19,
         minute: 10,
@@ -472,13 +473,173 @@ async function main() {
       },
       {
         title: 'Bigs Post Footwork Lab',
-        dayOffset: 9,
+        dayOffset: -45,
         time: '18:50',
         hour: 18,
         minute: 50,
         duration: 1.25,
         facility: 'Skills Gym',
         practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Closeout + Rebound Concepts',
+        dayOffset: -38,
+        time: '19:05',
+        hour: 19,
+        minute: 5,
+        duration: 1.5,
+        facility: 'Main Court',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Read & React Shooting',
+        dayOffset: -31,
+        time: '18:35',
+        hour: 18,
+        minute: 35,
+        duration: 1.5,
+        facility: 'North Hall',
+        practiceType: PracticeType.SHOOTING,
+      },
+      {
+        title: 'Acceleration + Core Session',
+        dayOffset: -24,
+        time: '19:20',
+        hour: 19,
+        minute: 20,
+        duration: 1.25,
+        facility: 'Performance Lab',
+        practiceType: PracticeType.PHYSICAL,
+      },
+      {
+        title: 'Wing Decision-Making Series',
+        dayOffset: -18,
+        time: '18:55',
+        hour: 18,
+        minute: 55,
+        duration: 1.5,
+        facility: 'Skills Gym',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Passing Tempo + Vision',
+        dayOffset: -12,
+        time: '19:00',
+        hour: 19,
+        minute: 0,
+        duration: 1.5,
+        facility: 'North Hall',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Pick & Roll Decision Lab',
+        dayOffset: -7,
+        time: '18:50',
+        hour: 18,
+        minute: 50,
+        duration: 1.5,
+        facility: 'Main Court',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Scrimmage Install Night',
+        dayOffset: -3,
+        time: '19:10',
+        hour: 19,
+        minute: 10,
+        duration: 1.75,
+        facility: 'East Gym',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Game Day Activation',
+        dayOffset: 0,
+        time: '17:30',
+        hour: 17,
+        minute: 30,
+        duration: 1.25,
+        facility: 'Performance Lab',
+        practiceType: PracticeType.PHYSICAL,
+      },
+      {
+        title: 'Recovery + Shooting Touch',
+        dayOffset: 3,
+        time: '18:40',
+        hour: 18,
+        minute: 40,
+        duration: 1.25,
+        facility: 'North Hall',
+        practiceType: PracticeType.SHOOTING,
+      },
+      {
+        title: 'Halfcourt Offensive Sets',
+        dayOffset: 8,
+        time: '19:00',
+        hour: 19,
+        minute: 0,
+        duration: 1.5,
+        facility: 'Main Court',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Late-Game Situations',
+        dayOffset: 14,
+        time: '19:20',
+        hour: 19,
+        minute: 20,
+        duration: 1.5,
+        facility: 'East Gym',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Transition Defense Emphasis',
+        dayOffset: 21,
+        time: '18:45',
+        hour: 18,
+        minute: 45,
+        duration: 1.5,
+        facility: 'Skills Gym',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Mid-Range + Paint Finishing',
+        dayOffset: 30,
+        time: '18:35',
+        hour: 18,
+        minute: 35,
+        duration: 1.5,
+        facility: 'Main Court',
+        practiceType: PracticeType.SHOOTING,
+      },
+      {
+        title: 'Strength Rebuild Circuit',
+        dayOffset: 42,
+        time: '19:10',
+        hour: 19,
+        minute: 10,
+        duration: 1.25,
+        facility: 'Strength Room',
+        practiceType: PracticeType.PHYSICAL,
+      },
+      {
+        title: 'Ball Screen Coverage Clinic',
+        dayOffset: 56,
+        time: '19:05',
+        hour: 19,
+        minute: 5,
+        duration: 1.5,
+        facility: 'North Hall',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Summer Team Build Session',
+        dayOffset: 72,
+        time: '18:55',
+        hour: 18,
+        minute: 55,
+        duration: 1.5,
+        facility: 'Main Court',
+        practiceType: PracticeType.TEAM,
       },
     ];
 
@@ -501,13 +662,18 @@ async function main() {
         include: { practice: true },
       });
       activities.push(createdPractice);
+      practices.push({
+        id: createdPractice.id,
+        dayOffset: practice.dayOffset,
+        title: practice.title,
+      });
     }
 
     const gameSeed = [
       {
         title: 'vs River Hawks',
         opponent: 'River Hawks',
-        dayOffset: -4,
+        dayOffset: -94,
         time: '20:00',
         hour: 20,
         minute: 0,
@@ -516,16 +682,25 @@ async function main() {
       {
         title: 'at Downtown Bulls',
         opponent: 'Downtown Bulls',
-        dayOffset: -1,
+        dayOffset: -85,
         time: '19:45',
         hour: 19,
         minute: 45,
         location: Location.AWAY,
       },
       {
+        title: 'vs Highland Storm',
+        opponent: 'Highland Storm',
+        dayOffset: -76,
+        time: '19:30',
+        hour: 19,
+        minute: 30,
+        location: Location.HOME,
+      },
+      {
         title: 'at City Lions',
         opponent: 'City Lions',
-        dayOffset: 4,
+        dayOffset: -67,
         time: '19:30',
         hour: 19,
         minute: 30,
@@ -534,20 +709,146 @@ async function main() {
       {
         title: 'vs Metro Giants',
         opponent: 'Metro Giants',
-        dayOffset: 8,
+        dayOffset: -58,
         time: '20:15',
         hour: 20,
         minute: 15,
         location: Location.HOME,
       },
       {
+        title: 'at North Raiders',
+        opponent: 'North Raiders',
+        dayOffset: -49,
+        time: '20:00',
+        hour: 20,
+        minute: 0,
+        location: Location.AWAY,
+      },
+      {
         title: 'vs Harbor Kings',
         opponent: 'Harbor Kings',
-        dayOffset: 12,
+        dayOffset: -40,
         time: '18:30',
         hour: 18,
         minute: 30,
         location: Location.HOME,
+      },
+      {
+        title: 'at West Falcons',
+        opponent: 'West Falcons',
+        dayOffset: -32,
+        time: '19:20',
+        hour: 19,
+        minute: 20,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Valley Titans',
+        opponent: 'Valley Titans',
+        dayOffset: -25,
+        time: '19:10',
+        hour: 19,
+        minute: 10,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Pine Rockets',
+        opponent: 'Pine Rockets',
+        dayOffset: -18,
+        time: '19:50',
+        hour: 19,
+        minute: 50,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Steel Comets',
+        opponent: 'Steel Comets',
+        dayOffset: -11,
+        time: '20:05',
+        hour: 20,
+        minute: 5,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Lakeside Knights',
+        opponent: 'Lakeside Knights',
+        dayOffset: -4,
+        time: '18:30',
+        hour: 18,
+        minute: 30,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Central Cobras',
+        opponent: 'Central Cobras',
+        dayOffset: 0,
+        time: '19:40',
+        hour: 19,
+        minute: 40,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Blue Sharks',
+        opponent: 'Blue Sharks',
+        dayOffset: 6,
+        time: '19:45',
+        hour: 19,
+        minute: 45,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs East Panthers',
+        opponent: 'East Panthers',
+        dayOffset: 13,
+        time: '20:10',
+        hour: 20,
+        minute: 10,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Iron Wolves',
+        opponent: 'Iron Wolves',
+        dayOffset: 20,
+        time: '19:35',
+        hour: 19,
+        minute: 35,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Golden Falcons',
+        opponent: 'Golden Falcons',
+        dayOffset: 34,
+        time: '18:50',
+        hour: 18,
+        minute: 50,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Red Vipers',
+        opponent: 'Red Vipers',
+        dayOffset: 48,
+        time: '19:40',
+        hour: 19,
+        minute: 40,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Black Foxes',
+        opponent: 'Black Foxes',
+        dayOffset: 63,
+        time: '20:00',
+        hour: 20,
+        minute: 0,
+        location: Location.HOME,
+      },
+      {
+        title: 'at White Eagles',
+        opponent: 'White Eagles',
+        dayOffset: 79,
+        time: '19:25',
+        hour: 19,
+        minute: 25,
+        location: Location.AWAY,
       },
     ];
 
@@ -572,14 +873,15 @@ async function main() {
       games.push({
         id: createdGame.id,
         opponent: game.opponent,
+        dayOffset: game.dayOffset,
         isFuture: game.dayOffset > 0,
       });
 
-      if (game.dayOffset <= 0) {
+      if (game.dayOffset < 0) {
         pastGameIds.push(createdGame.id);
       }
 
-      const opponentBaseline = buildOpponentBaseline(i, game.dayOffset > 0);
+      const opponentBaseline = buildOpponentBaseline(i, game.dayOffset >= 0);
       await prisma.opponentStatline.create({
         data: {
           gameId: createdGame.id,
@@ -708,66 +1010,112 @@ async function main() {
       plays.push(createdPlay);
     }
 
-    if (games.length >= 3) {
+    const upcomingGames = games.filter((game) => game.dayOffset >= 0);
+    const gamePlanTemplates = [
+      {
+        titlePrefix: 'Match Plan',
+        notes: 'Target early paint touches and protect defensive rebounds.',
+        playSlice: [0, 4],
+      },
+      {
+        titlePrefix: 'Tactical Prep',
+        notes: 'Mix zone looks and attack weak-side closeouts.',
+        playSlice: [3, 7],
+      },
+      {
+        titlePrefix: 'Scouting Focus',
+        notes: 'Emphasize transition defense and weak-side tag discipline.',
+        playSlice: [1, 5],
+      },
+      {
+        titlePrefix: 'Execution Sheet',
+        notes: 'Late-clock actions and high-ball screen counters.',
+        playSlice: [2, 6],
+      },
+      {
+        titlePrefix: 'Final Details',
+        notes: 'Opening set package and matchup-based coverages.',
+        playSlice: [0, 3],
+      },
+    ];
+
+    for (
+      let planIndex = 0;
+      planIndex < Math.min(upcomingGames.length, gamePlanTemplates.length);
+      planIndex += 1
+    ) {
+      const game = upcomingGames[planIndex];
+      const template = gamePlanTemplates[planIndex];
       await prisma.gamePlan.create({
         data: {
           teamId: team.id,
-          gameID: games[2].id,
-          title: `${games[2].opponent} Match Plan`,
-          opponent: games[2].opponent,
-          notes: 'Target early paint touches and protect defensive rebounds.',
+          gameID: game.id,
+          title: `${game.opponent} ${template.titlePrefix}`,
+          opponent: game.opponent,
+          notes: template.notes,
           plays: {
-            connect: plays.slice(0, 4).map((play) => ({ id: play.id })),
+            connect: plays
+              .slice(template.playSlice[0], template.playSlice[1])
+              .map((play) => ({ id: play.id })),
           },
         },
       });
     }
 
-    if (games.length >= 4) {
-      await prisma.gamePlan.create({
-        data: {
-          teamId: team.id,
-          gameID: games[3].id,
-          title: `${games[3].opponent} Tactical Prep`,
-          opponent: games[3].opponent,
-          notes: 'Mix zone looks and attack weak-side closeouts.',
-          plays: {
-            connect: plays.slice(3, 7).map((play) => ({ id: play.id })),
-          },
-        },
-      });
-    }
-
-    const futurePractices = activities.filter(
-      (activity) =>
-        activity.type === ActivityType.PRACTICE && activity.date > new Date(),
+    const upcomingPractices = practices.filter(
+      (practice) => practice.dayOffset >= 0,
     );
+    const preparationTemplates = [
+      {
+        name: 'Defensive Focus Session',
+        focus: 'Closeouts + help-side tagging',
+        notes: '30 mins shell drill, then 5v5 situational.',
+        playSlice: [4, 8],
+      },
+      {
+        name: 'Offensive Timing Session',
+        focus: 'Secondary break decisions and spacing',
+        notes: 'Add quick-hitter installs and late-clock options.',
+        playSlice: [0, 3],
+      },
+      {
+        name: 'Ball Screen Solutions',
+        focus: 'Reads vs hedge, drop, and switch coverages',
+        notes: 'Progression from guided reps into constrained scrimmage.',
+        playSlice: [1, 5],
+      },
+      {
+        name: 'Pressure Break Package',
+        focus: 'Inbound spacing and middle flash timing',
+        notes: 'Short-clock pressure reps and turnover response drills.',
+        playSlice: [3, 7],
+      },
+      {
+        name: 'Finishing Under Contact',
+        focus: 'Paint finishing and weak-hand confidence',
+        notes: 'Layer contested finishing after advantage creation actions.',
+        playSlice: [2, 6],
+      },
+    ];
 
-    if (futurePractices[0]) {
+    for (
+      let prepIndex = 0;
+      prepIndex < Math.min(upcomingPractices.length, preparationTemplates.length);
+      prepIndex += 1
+    ) {
+      const practice = upcomingPractices[prepIndex];
+      const template = preparationTemplates[prepIndex];
       await prisma.practicePreparation.create({
         data: {
           teamId: team.id,
-          practiceId: futurePractices[0].id,
-          name: 'Defensive Focus Session',
-          focus: 'Closeouts + help-side tagging',
-          notes: '30 mins shell drill, then 5v5 situational.',
+          practiceId: practice.id,
+          name: template.name,
+          focus: template.focus,
+          notes: template.notes,
           plays: {
-            connect: plays.slice(4, 8).map((play) => ({ id: play.id })),
-          },
-        },
-      });
-    }
-
-    if (futurePractices[1]) {
-      await prisma.practicePreparation.create({
-        data: {
-          teamId: team.id,
-          practiceId: futurePractices[1].id,
-          name: 'Offensive Timing Session',
-          focus: 'Secondary break decisions and spacing',
-          notes: 'Add quick-hitter installs and late-clock options.',
-          plays: {
-            connect: plays.slice(0, 3).map((play) => ({ id: play.id })),
+            connect: plays
+              .slice(template.playSlice[0], template.playSlice[1])
+              .map((play) => ({ id: play.id })),
           },
         },
       });
