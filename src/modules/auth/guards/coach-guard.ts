@@ -46,7 +46,10 @@ export class CoachGuard implements CanActivate {
     const args = ctx.getArgs<ArgsType>();
 
     const rawRouteKey =
-      args.input?.teamId ?? args.teamId ?? args.input?.routeKey ?? args.routeKey;
+      args.input?.teamId ??
+      args.teamId ??
+      args.input?.routeKey ??
+      args.routeKey;
 
     if (!rawRouteKey) {
       throw new ForbiddenException('Team ID is required');

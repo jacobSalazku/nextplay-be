@@ -483,6 +483,33 @@ type JoinTeamResponse {
   number: String!
 }
 
+type TeamInviteResponse {
+  id: ID!
+  token: String!
+  inviteLink: String!
+  teamId: ID!
+  expiresAt: DateTime!
+  maxUses: Int!
+  usedCount: Int!
+  revokedAt: DateTime
+  createdBy: ID!
+}
+
+type AcceptTeamInviteResponse {
+  status: AcceptTeamInviteStatus!
+  teamId: ID
+  routeKey: String
+  memberId: ID
+}
+
+enum AcceptTeamInviteStatus {
+  SUCCESS
+  ALREADY_JOINED
+  EXPIRED
+  REVOKED
+  USED
+}
+
 type MemberId {
   id: String!
 }
@@ -651,6 +678,8 @@ type Mutation {
   submitStatlines(input: SubmitStatlinesInput!): SubmitStatlinesResult!
   createTeam(input: CreateTeamInput!): Team!
   joinTeam(input: JoinTeamInput!): JoinTeamResponse!
+  createTeamInvite(input: CreateTeamInviteInput!): TeamInviteResponse!
+  acceptTeamInvite(input: AcceptTeamInviteInput!): AcceptTeamInviteResponse!
   acceptTeamRequest(input: AcceptTeamRequestInput!): ModerateJoinRequestResult!
   rejectJoinRequest(input: TeamRequestInput!): ModerateJoinRequestResult!
   updateUser(input: UpdateUserInput!): User!
@@ -843,6 +872,15 @@ input JoinTeamInput {
   teamCode: String!
   position: String!
   number: String!
+}
+
+input CreateTeamInviteInput {
+  routeKey: String!
+  expiresAt: DateTime
+}
+
+input AcceptTeamInviteInput {
+  token: String!
 }
 
 input AcceptTeamRequestInput {

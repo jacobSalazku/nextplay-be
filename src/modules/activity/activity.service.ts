@@ -80,6 +80,8 @@ export class ActivityService {
   }
 
   async updateActivity(input: UpdateActivityTypes): Promise<PrismaActivity> {
+    await this.assertGameOrPracticeIsEditable(input.id);
+
     return await this.builder.update(input.id, input);
   }
 
@@ -278,5 +280,40 @@ export class ActivityService {
           }
         : undefined,
     };
+  }
+
+  private async assertGameOrPracticeIsEditable(
+    activityId: string,
+  ): Promise<void> {
+    const activity = await this.prisma.activity.findUnique({
+      where: { id: activityId },
+      select: {
+        date: true,
+        type: true,
+      },
+    });
+
+    if (!activity) {
+      throw new NotFoundException('Activity not found.');
+    }
+
+    if (
+      activity.type !== ActivityType.GAME &&
+      activity.type !== ActivityType.PRACTICE
+    ) {
+      return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const activityDay = new Date(activity.date);
+    activityDay.setHours(0, 0, 0, 0);
+
+    if (activityDay < today) {
+      throw new ForbiddenException(
+        'Past games and practices cannot be edited.',
+      );
+    }
   }
 }

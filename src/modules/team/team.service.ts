@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -7,7 +8,15 @@ import {
 import { Role, Status } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateTeamInput, JoinTeamInput, TeamRequestInput } from './dto';
+import {
+  AcceptTeamInviteInput,
+  AcceptTeamInviteResponse,
+  AcceptTeamInviteStatus,
+  CreateTeamInput,
+  CreateTeamInviteInput,
+  JoinTeamInput,
+  TeamRequestInput,
+} from './dto';
 import { TeamGateway } from './team.gateway';
 
 @Injectable()
@@ -284,89 +293,257 @@ export class TeamService {
     };
   }
 
-  async requestToJoinTeam(input: JoinTeamInput, userId: string) {
-    const team = await this.prisma.team.findUnique({
-      where: { code: input.teamCode },
-      select: { id: true, code: true },
+  async createTeamInvite(input: CreateTeamInviteInput, userId: string) {
+    const rawRouteKey = input.routeKey.trim();
+    const routeKey = rawRouteKey.toLowerCase();
+
+    // Accept the public routeKey first, but keep id/shortId/slug support so
+    // older internal callers do not break while the frontend migrates.
+    const team = await this.prisma.team.findFirst({
+      where: {
+        OR: [
+          { id: rawRouteKey },
+          { routeKey },
+          { shortId: routeKey },
+          { slug: routeKey },
+        ],
+      },
+      select: {
+        id: true,
+      },
     });
 
     if (!team) {
-      throw new NotFoundException('Invalid teamCode');
+      throw new NotFoundException('Team not found.');
     }
 
-    const existing = await this.prisma.member.findUnique({
-      where: {
-        userId_teamId: {
-          userId,
-          teamId: team.id,
-        },
+    const membership = await this.getMembership(userId, team.id);
+
+    // The guard protects the resolver, but the service owns the business rule:
+    // only an active coach of this exact team may create an invite.
+    if (
+      !membership ||
+      membership.status !== Status.ACTIVE ||
+      membership.role !== Role.COACH
+    ) {
+      throw new ForbiddenException(
+        'Only an active coach can create team invites.',
+      );
+    }
+
+    const expiresAt = input.expiresAt
+      ? new Date(input.expiresAt)
+      : this.getDefaultInviteExpiry();
+
+    // Avoid creating invites that are already invalid or impossible to compare.
+    if (Number.isNaN(expiresAt.getTime()) || expiresAt <= new Date()) {
+      throw new BadRequestException('Invite expiry must be in the future.');
+    }
+
+    const token = await this.generateUniqueInviteToken();
+    const invite = await this.prisma.teamInvite.create({
+      data: {
+        token,
+        teamId: team.id,
+        expiresAt,
+        maxUses: 1,
+        createdBy: userId,
       },
-      select: { id: true, status: true },
-    });
-
-    if (existing?.status === Status.ACTIVE) {
-      throw new ConflictException('You are already part of this team.');
-    }
-
-    if (existing?.status === Status.PENDING) {
-      throw new ConflictException('Join request already pending.');
-    }
-
-    // Reuse an existing inactive membership instead of creating a duplicate
-    // because Member has a unique [userId, teamId] constraint.
-    const member =
-      existing?.status === Status.INACTIVE
-        ? await this.prisma.member.update({
-            where: { id: existing.id },
-            data: {
-              role: Role.PLAYER,
-              status: Status.PENDING,
-              number: input.number,
-              position: input.position,
-            },
-            select: {
-              id: true,
-              number: true,
-              position: true,
-            },
-          })
-        : await this.prisma.member.create({
-            data: {
-              userId,
-              teamId: team.id,
-              role: Role.PLAYER,
-              status: Status.PENDING,
-              number: input.number,
-              position: input.position,
-            },
-            select: {
-              id: true,
-              number: true,
-              position: true,
-            },
-          });
-
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { hasOnBoarded: true },
-    });
-
-    // Notify all subscribed coach clients for this team in realtime.
-    this.teamSocket.emitJoinRequest(team.id, {
-      teamId: team.id,
-      teamCode: team.code,
-      userId,
-      memberId: member.id,
-      number: member.number,
-      position: member.position,
-      requestedAt: new Date().toISOString(),
+      select: {
+        id: true,
+        token: true,
+        teamId: true,
+        expiresAt: true,
+        maxUses: true,
+        usedCount: true,
+        revokedAt: true,
+        createdBy: true,
+      },
     });
 
     return {
-      teamCode: team.code,
-      position: member.position ?? undefined,
-      number: member.number,
+      ...invite,
+      inviteLink: this.buildInviteLink(invite.token),
     };
+  }
+
+  async acceptTeamInvite(
+    input: AcceptTeamInviteInput,
+    userId: string,
+  ): Promise<AcceptTeamInviteResponse> {
+    const token = input.token.trim();
+
+    if (!token) {
+      throw new NotFoundException('Invite not found.');
+    }
+
+    return this.prisma.$transaction(async (prisma) => {
+      const invite = await prisma.teamInvite.findUnique({
+        where: { token },
+        select: {
+          id: true,
+          teamId: true,
+          expiresAt: true,
+          maxUses: true,
+          usedCount: true,
+          revokedAt: true,
+          team: {
+            select: {
+              routeKey: true,
+            },
+          },
+        },
+      });
+
+      if (!invite) {
+        throw new NotFoundException('Invite not found.');
+      }
+
+      const existingMembership = await prisma.member.findUnique({
+        where: {
+          userId_teamId: {
+            userId,
+            teamId: invite.teamId,
+          },
+        },
+        select: {
+          id: true,
+          status: true,
+        },
+      });
+
+      const baseResponse = {
+        teamId: invite.teamId,
+        routeKey: invite.team.routeKey,
+        memberId: existingMembership?.id,
+      };
+
+      // If the user is already active, do not consume the invite again.
+      if (existingMembership?.status === Status.ACTIVE) {
+        return {
+          ...baseResponse,
+          status: AcceptTeamInviteStatus.ALREADY_JOINED,
+        };
+      }
+
+      const now = new Date();
+
+      if (invite.revokedAt) {
+        return {
+          ...baseResponse,
+          status: AcceptTeamInviteStatus.REVOKED,
+        };
+      }
+
+      if (invite.expiresAt <= now) {
+        return {
+          ...baseResponse,
+          status: AcceptTeamInviteStatus.EXPIRED,
+        };
+      }
+
+      if (invite.usedCount >= invite.maxUses) {
+        return {
+          ...baseResponse,
+          status: AcceptTeamInviteStatus.USED,
+        };
+      }
+
+      // Claim the invite and guard against race conditions where two requests
+      // try to consume the same single-use invite at the same time.
+      const claimedInvite = await prisma.teamInvite.updateMany({
+        where: {
+          id: invite.id,
+          revokedAt: null,
+          expiresAt: {
+            gt: now,
+          },
+          usedCount: {
+            lt: invite.maxUses,
+          },
+        },
+        data: {
+          usedCount: {
+            increment: 1,
+          },
+        },
+      });
+
+      if (claimedInvite.count === 0) {
+        const latestInvite = await prisma.teamInvite.findUnique({
+          where: { id: invite.id },
+          select: {
+            expiresAt: true,
+            revokedAt: true,
+          },
+        });
+
+        if (latestInvite?.revokedAt) {
+          return {
+            ...baseResponse,
+            status: AcceptTeamInviteStatus.REVOKED,
+          };
+        }
+
+        if (!latestInvite || latestInvite.expiresAt <= new Date()) {
+          return {
+            ...baseResponse,
+            status: AcceptTeamInviteStatus.EXPIRED,
+          };
+        }
+
+        return {
+          ...baseResponse,
+          status: AcceptTeamInviteStatus.USED,
+        };
+      }
+
+      const member = existingMembership
+        ? await prisma.member.update({
+            where: {
+              id: existingMembership.id,
+            },
+            data: {
+              role: Role.PLAYER,
+              status: Status.ACTIVE,
+            },
+            select: {
+              id: true,
+            },
+          })
+        : await prisma.member.create({
+            data: {
+              userId,
+              teamId: invite.teamId,
+              role: Role.PLAYER,
+              status: Status.ACTIVE,
+            },
+            select: {
+              id: true,
+            },
+          });
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { hasOnBoarded: true },
+      });
+
+      return {
+        teamId: invite.teamId,
+        routeKey: invite.team.routeKey,
+        memberId: member.id,
+        status: AcceptTeamInviteStatus.SUCCESS,
+      };
+    });
+  }
+
+  requestToJoinTeam(input: JoinTeamInput, userId: string) {
+    void input;
+    void userId;
+
+    throw new ForbiddenException(
+      'Team code joining is disabled. Ask your coach for an invite link.',
+    );
   }
 
   async acceptTeamRequest(input: TeamRequestInput, teamId: string) {
@@ -513,5 +690,45 @@ export class TeamService {
     }
 
     throw new Error('Unable to generate a unique team shortId');
+  }
+
+  private getDefaultInviteExpiry(): Date {
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+    return expiresAt;
+  }
+
+  private generateInviteToken(byteLength = 32): string {
+    return randomBytes(byteLength).toString('base64url');
+  }
+
+  private async generateUniqueInviteToken(): Promise<string> {
+    // Token collisions are extremely unlikely, but we still verify uniqueness
+    // because the token is the only thing users receive in the invite link.
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      const token = this.generateInviteToken();
+      const existingInvite = await this.prisma.teamInvite.findUnique({
+        where: { token },
+        select: { id: true },
+      });
+
+      if (!existingInvite) {
+        return token;
+      }
+    }
+
+    throw new Error('Unable to generate a unique invite token');
+  }
+
+  private buildInviteLink(token: string): string {
+    // Keep the backend environment-driven so local, preview and production
+    // deployments can all return a complete frontend URL.
+    const baseUrl = (
+      process.env.FRONTEND_URL ??
+      process.env.NEXT_PUBLIC_APP_URL ??
+      'http://localhost:3000'
+    ).replace(/\/+$/, '');
+
+    return `${baseUrl}/join-team?invite=${encodeURIComponent(token)}`;
   }
 }

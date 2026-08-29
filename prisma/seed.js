@@ -176,6 +176,18 @@ function daysFromNow(days, hour = 19, minute = 30) {
   return date;
 }
 
+function hoursFromNow(hours) {
+  const date = new Date();
+  date.setHours(date.getHours() + hours, 0, 0, 0);
+  return date;
+}
+
+function formatActivityTime(date) {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(
+    date.getMinutes(),
+  ).padStart(2, '0')}`;
+}
+
 function createDateOfBirth(index) {
   const month = String((index % 9) + 1).padStart(2, '0');
   const day = String((index % 19) + 10).padStart(2, '0');
@@ -206,19 +218,11 @@ function getAttendanceReason(status, activityType) {
   return 'School exam / family event';
 }
 
-function buildOpponentBaseline(index, isFuture) {
-  if (isFuture) {
-    return {
-      fieldGoalsMade: 0,
-      threePointersMade: 0,
-      freeThrowsMade: 0,
-    };
-  }
-
+function buildOpponentBaseline(index) {
   return {
-    fieldGoalsMade: 18 + index * 3,
-    threePointersMade: 5 + (index % 4),
-    freeThrowsMade: 7 + (index % 5),
+    fieldGoalsMade: 20 + (index % 9),
+    threePointersMade: 4 + (index % 6),
+    freeThrowsMade: 8 + (index % 8),
   };
 }
 
@@ -398,7 +402,8 @@ async function main() {
     const activities = [];
     const games = [];
     const practices = [];
-    const pastGameIds = [];
+    const boxScoreGameIds = [];
+    const fullAttendanceActivityIds = new Set();
 
     const practiceSeed = [
       {
@@ -522,6 +527,16 @@ async function main() {
         practiceType: PracticeType.SPECIALISATION,
       },
       {
+        title: 'Press Break Rehearsal',
+        dayOffset: -16,
+        time: '19:05',
+        hour: 19,
+        minute: 5,
+        duration: 1.5,
+        facility: 'Main Court',
+        practiceType: PracticeType.TEAM,
+      },
+      {
         title: 'Passing Tempo + Vision',
         dayOffset: -12,
         time: '19:00',
@@ -530,6 +545,16 @@ async function main() {
         duration: 1.5,
         facility: 'North Hall',
         practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Shot Quality Review',
+        dayOffset: -10,
+        time: '18:45',
+        hour: 18,
+        minute: 45,
+        duration: 1.25,
+        facility: 'Video Room',
+        practiceType: PracticeType.SHOOTING,
       },
       {
         title: 'Pick & Roll Decision Lab',
@@ -542,6 +567,26 @@ async function main() {
         practiceType: PracticeType.SPECIALISATION,
       },
       {
+        title: 'Defensive Shell Reset',
+        dayOffset: -6,
+        time: '19:15',
+        hour: 19,
+        minute: 15,
+        duration: 1.5,
+        facility: 'East Gym',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Free Throw Pressure Ladder',
+        dayOffset: -5,
+        time: '18:35',
+        hour: 18,
+        minute: 35,
+        duration: 1.25,
+        facility: 'North Hall',
+        practiceType: PracticeType.SHOOTING,
+      },
+      {
         title: 'Scrimmage Install Night',
         dayOffset: -3,
         time: '19:10',
@@ -549,6 +594,26 @@ async function main() {
         minute: 10,
         duration: 1.75,
         facility: 'East Gym',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Opponent Scout Walkthrough',
+        dayOffset: -2,
+        time: '18:25',
+        hour: 18,
+        minute: 25,
+        duration: 1,
+        facility: 'Video Room',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Film Review + Walkthrough',
+        dayOffset: -1,
+        time: '18:30',
+        hour: 18,
+        minute: 30,
+        duration: 1,
+        facility: 'Video Room',
         practiceType: PracticeType.TEAM,
       },
       {
@@ -562,6 +627,46 @@ async function main() {
         practiceType: PracticeType.PHYSICAL,
       },
       {
+        title: 'Tomorrow Shooting Tune-Up',
+        dayOffset: 1,
+        time: '18:15',
+        hour: 18,
+        minute: 15,
+        duration: 1.25,
+        facility: 'North Hall',
+        practiceType: PracticeType.SHOOTING,
+      },
+      {
+        title: 'Scout Prep: Zone Looks',
+        dayOffset: 2,
+        time: '19:05',
+        hour: 19,
+        minute: 5,
+        duration: 1.5,
+        facility: 'Main Court',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Box-Out Battles',
+        dayOffset: 4,
+        time: '18:55',
+        hour: 18,
+        minute: 55,
+        duration: 1.5,
+        facility: 'East Gym',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'BLOB/SLOB Special Teams',
+        dayOffset: 6,
+        time: '19:20',
+        hour: 19,
+        minute: 20,
+        duration: 1.25,
+        facility: 'Main Court',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
         title: 'Recovery + Shooting Touch',
         dayOffset: 3,
         time: '18:40',
@@ -570,6 +675,16 @@ async function main() {
         duration: 1.25,
         facility: 'North Hall',
         practiceType: PracticeType.SHOOTING,
+      },
+      {
+        title: 'Tempo Scrimmage',
+        dayOffset: 5,
+        time: '19:00',
+        hour: 19,
+        minute: 0,
+        duration: 1.75,
+        facility: 'Main Court',
+        practiceType: PracticeType.TEAM,
       },
       {
         title: 'Halfcourt Offensive Sets',
@@ -582,6 +697,26 @@ async function main() {
         practiceType: PracticeType.TEAM,
       },
       {
+        title: 'Weak-Side Help Clinic',
+        dayOffset: 10,
+        time: '18:50',
+        hour: 18,
+        minute: 50,
+        duration: 1.5,
+        facility: 'Skills Gym',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Advantage Creation Shooting',
+        dayOffset: 12,
+        time: '19:05',
+        hour: 19,
+        minute: 5,
+        duration: 1.5,
+        facility: 'North Hall',
+        practiceType: PracticeType.SHOOTING,
+      },
+      {
         title: 'Late-Game Situations',
         dayOffset: 14,
         time: '19:20',
@@ -592,6 +727,16 @@ async function main() {
         practiceType: PracticeType.SPECIALISATION,
       },
       {
+        title: 'Transition Offense Sprint',
+        dayOffset: 17,
+        time: '18:45',
+        hour: 18,
+        minute: 45,
+        duration: 1.5,
+        facility: 'Main Court',
+        practiceType: PracticeType.TEAM,
+      },
+      {
         title: 'Transition Defense Emphasis',
         dayOffset: 21,
         time: '18:45',
@@ -600,6 +745,16 @@ async function main() {
         duration: 1.5,
         facility: 'Skills Gym',
         practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'End-of-Month Skills Combine',
+        dayOffset: 24,
+        time: '19:00',
+        hour: 19,
+        minute: 0,
+        duration: 1.5,
+        facility: 'Performance Lab',
+        practiceType: PracticeType.PHYSICAL,
       },
       {
         title: 'Mid-Range + Paint Finishing',
@@ -761,12 +916,58 @@ async function main() {
         location: Location.AWAY,
       },
       {
+        title: 'vs Namur Hawks',
+        opponent: 'Namur Hawks',
+        dayOffset: -16,
+        time: '18:40',
+        hour: 18,
+        minute: 40,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Aalst Giants',
+        opponent: 'Aalst Giants',
+        dayOffset: -14,
+        time: '19:25',
+        hour: 19,
+        minute: 25,
+        location: Location.AWAY,
+      },
+      {
         title: 'vs Steel Comets',
         opponent: 'Steel Comets',
         dayOffset: -11,
         time: '20:05',
         hour: 20,
         minute: 5,
+        location: Location.HOME,
+      },
+      {
+        title: 'vs Hasselt Heat',
+        opponent: 'Hasselt Heat',
+        dayOffset: -9,
+        time: '18:55',
+        hour: 18,
+        minute: 55,
+        fullAttendance: true,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Bruges Royals',
+        opponent: 'Bruges Royals',
+        dayOffset: -7,
+        time: '19:45',
+        hour: 19,
+        minute: 45,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Mons Miners',
+        opponent: 'Mons Miners',
+        dayOffset: -5,
+        time: '20:10',
+        hour: 20,
+        minute: 10,
         location: Location.HOME,
       },
       {
@@ -779,13 +980,107 @@ async function main() {
         location: Location.AWAY,
       },
       {
+        title: 'at Liege Panthers',
+        opponent: 'Liege Panthers',
+        dayOffset: -3,
+        time: '19:15',
+        hour: 19,
+        minute: 15,
+        fullAttendance: true,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Antwerp Aces',
+        opponent: 'Antwerp Aces',
+        dayOffset: -2,
+        time: '19:35',
+        hour: 19,
+        minute: 35,
+        fullAttendance: true,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Mechelen Eagles',
+        opponent: 'Mechelen Eagles',
+        dayOffset: -1,
+        time: '18:55',
+        hour: 18,
+        minute: 55,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Brussels Falcons',
+        opponent: 'Brussels Falcons',
+        relativeHours: -2,
+        fullAttendance: true,
+        location: Location.HOME,
+      },
+      {
+        title: 'vs Belgian Lions Select',
+        opponent: 'Belgian Lions Select',
+        relativeHours: 1,
+        mixedAttendance: true,
+        location: Location.HOME,
+      },
+      {
         title: 'vs Central Cobras',
         opponent: 'Central Cobras',
-        dayOffset: 0,
-        time: '19:40',
-        hour: 19,
-        minute: 40,
+        relativeHours: 4,
         location: Location.HOME,
+      },
+      {
+        title: 'vs Charleroi Tigers',
+        opponent: 'Charleroi Tigers',
+        dayOffset: 1,
+        time: '17:45',
+        hour: 17,
+        minute: 45,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Leuven Bears',
+        opponent: 'Leuven Bears',
+        dayOffset: 1,
+        time: '19:30',
+        hour: 19,
+        minute: 30,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Ghent Wolves',
+        opponent: 'Ghent Wolves',
+        dayOffset: 2,
+        time: '18:45',
+        hour: 18,
+        minute: 45,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Limburg United',
+        opponent: 'Limburg United',
+        dayOffset: 3,
+        time: '20:00',
+        hour: 20,
+        minute: 0,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Kortrijk Spurs',
+        opponent: 'Kortrijk Spurs',
+        dayOffset: 4,
+        time: '19:15',
+        hour: 19,
+        minute: 15,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Ostend Waves',
+        opponent: 'Ostend Waves',
+        dayOffset: 5,
+        time: '18:35',
+        hour: 18,
+        minute: 35,
+        location: Location.AWAY,
       },
       {
         title: 'at Blue Sharks',
@@ -797,12 +1092,57 @@ async function main() {
         location: Location.AWAY,
       },
       {
+        title: 'vs Academy Select',
+        opponent: 'Academy Select',
+        dayOffset: 8,
+        time: '20:00',
+        hour: 20,
+        minute: 0,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Genk Blazers',
+        opponent: 'Genk Blazers',
+        dayOffset: 10,
+        time: '19:20',
+        hour: 19,
+        minute: 20,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Waterloo Knights',
+        opponent: 'Waterloo Knights',
+        dayOffset: 12,
+        time: '18:50',
+        hour: 18,
+        minute: 50,
+        location: Location.HOME,
+      },
+      {
         title: 'vs East Panthers',
         opponent: 'East Panthers',
         dayOffset: 13,
         time: '20:10',
         hour: 20,
         minute: 10,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Liege Academy',
+        opponent: 'Liege Academy',
+        dayOffset: 15,
+        time: '19:55',
+        hour: 19,
+        minute: 55,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Belgian Prospects',
+        opponent: 'Belgian Prospects',
+        dayOffset: 18,
+        time: '18:45',
+        hour: 18,
+        minute: 45,
         location: Location.HOME,
       },
       {
@@ -854,13 +1194,19 @@ async function main() {
 
     for (let i = 0; i < gameSeed.length; i += 1) {
       const game = gameSeed[i];
+      const gameDate =
+        typeof game.relativeHours === 'number'
+          ? hoursFromNow(game.relativeHours)
+          : daysFromNow(game.dayOffset, game.hour, game.minute);
+      const isFutureGame = gameDate > new Date();
+
       const createdGame = await prisma.activity.create({
         data: {
           teamId: team.id,
           type: ActivityType.GAME,
           title: game.title,
-          date: daysFromNow(game.dayOffset, game.hour, game.minute),
-          time: game.time,
+          date: gameDate,
+          time: game.time ?? formatActivityTime(gameDate),
           duration: 2,
           game: {
             create: { location: game.location },
@@ -870,18 +1216,19 @@ async function main() {
       });
 
       activities.push(createdGame);
+      if (!game.mixedAttendance) {
+        fullAttendanceActivityIds.add(createdGame.id);
+      }
+      boxScoreGameIds.push(createdGame.id);
+
       games.push({
         id: createdGame.id,
         opponent: game.opponent,
-        dayOffset: game.dayOffset,
-        isFuture: game.dayOffset > 0,
+        dayOffset: game.dayOffset ?? 0,
+        isFuture: isFutureGame,
       });
 
-      if (game.dayOffset < 0) {
-        pastGameIds.push(createdGame.id);
-      }
-
-      const opponentBaseline = buildOpponentBaseline(i, game.dayOffset >= 0);
+      const opponentBaseline = buildOpponentBaseline(i);
       await prisma.opponentStatline.create({
         data: {
           gameId: createdGame.id,
@@ -903,11 +1250,9 @@ async function main() {
         memberIndex += 1
       ) {
         const member = playerMembers[memberIndex];
-        const status = pickAttendanceStatus(
-          memberIndex,
-          activityIndex,
-          activity.type,
-        );
+        const status = fullAttendanceActivityIds.has(activity.id)
+          ? AttendanceStatus.ATTENDING
+          : pickAttendanceStatus(memberIndex, activityIndex, activity.type);
 
         await prisma.playerActivityAttendance.create({
           data: {
@@ -920,8 +1265,12 @@ async function main() {
       }
     }
 
-    for (let gameIndex = 0; gameIndex < pastGameIds.length; gameIndex += 1) {
-      const gameId = pastGameIds[gameIndex];
+    for (
+      let gameIndex = 0;
+      gameIndex < boxScoreGameIds.length;
+      gameIndex += 1
+    ) {
+      const gameId = boxScoreGameIds[gameIndex];
 
       for (
         let memberIndex = 0;
@@ -956,44 +1305,112 @@ async function main() {
     const plays = [];
     const playSeed = [
       {
-        name: 'Horns Entry',
+        name: 'Horns Flare Punch',
         category: Category.OFFENSIVE,
-        description: 'Two high posts, wing cut and kick-out read.',
+        description:
+          'Start in horns, hit the elbow, flare the weak-side guard, then punish the help with a post seal or corner three.',
       },
       {
         name: 'Spain Pick & Roll',
         category: Category.OFFENSIVE,
-        description: 'Ball screen plus back-screen on the roller.',
+        description:
+          'High ball screen with a back-screen on the roller. First read is the roller, second read is the popping screener.',
       },
       {
-        name: 'Elbow Split Action',
+        name: 'Pistol Keep Action',
         category: Category.OFFENSIVE,
-        description: 'Elbow touch then split for weak-side flare.',
+        description:
+          'Guard-to-wing pitch, quick handoff keep, and a rim run behind the defense before the weak side can load up.',
       },
       {
-        name: '2-3 Matchup Press Break',
-        category: Category.SPECIAL,
-        description: 'Middle flash, reverse and baseline release.',
+        name: '5-Out Delay Split',
+        category: Category.OFFENSIVE,
+        description:
+          'Center catches at the top, guards split around the ball, and wings stay lifted for catch-and-drive reads.',
       },
       {
-        name: 'Baseline Out Of Bounds 21',
+        name: 'Double Drag Early',
+        category: Category.OFFENSIVE,
+        description:
+          'Two transition screens above the break. First screener rolls hard, second screener pops for spacing.',
+      },
+      {
+        name: 'Ram Spain Counter',
+        category: Category.OFFENSIVE,
+        description:
+          'A ram screen frees the ball screener before flowing into Spain pick-and-roll when teams start switching.',
+      },
+      {
+        name: 'UCLA Rip Seal',
+        category: Category.OFFENSIVE,
+        description:
+          'UCLA cut into a weak-side rip screen. Look for the layup first, then the duck-in seal on the block.',
+      },
+      {
+        name: 'Diamond BLOB Shooter',
         category: Category.SPECIAL,
-        description: 'Stack cut to corner then high-low seal.',
+        description:
+          'Diamond alignment under the rim with a zipper cut into a corner screen-the-screener look for your best shooter.',
+      },
+      {
+        name: 'Box Elevator BLOB',
+        category: Category.SPECIAL,
+        description:
+          'Box set with elevator doors at the nail. Use it after timeouts when the defense is denying the first option.',
+      },
+      {
+        name: 'Sideline Stack 4',
+        category: Category.SPECIAL,
+        description:
+          'Stack sideline inbound, pop the first cutter, then slip the back screener if the defense switches early.',
+      },
+      {
+        name: '1-4 Press Break Flash',
+        category: Category.SPECIAL,
+        description:
+          'Four-across press break with a middle flash, deep safety, and reverse-pass trigger against traps.',
+      },
+      {
+        name: 'Late Clock Ghost',
+        category: Category.SPECIAL,
+        description:
+          'Six-second sideline package: ghost screen into a flare while the big dives to occupy the low help.',
       },
       {
         name: 'ICE Side Pick Coverage',
         category: Category.DEFENSIVE,
-        description: 'Force to sideline and keep screen defender deep.',
+        description:
+          'Force side pick-and-rolls toward the sideline, keep the big in a contain stance, and tag from the low man.',
       },
       {
-        name: 'Switch + Scram Coverage',
+        name: 'Switch Red + Scram',
         category: Category.DEFENSIVE,
-        description: 'Switch early then scram mismatch from the post.',
+        description:
+          'Switch the first action, then scram the small out of the post before the offense can enter the ball.',
+      },
+      {
+        name: 'Pack Line Shell',
+        category: Category.DEFENSIVE,
+        description:
+          'Shrink gaps, show early help, and recover on the pass. Emphasize talk, ball pressure, and rebound finish.',
+      },
+      {
+        name: '2-3 Zone Bump Rules',
+        category: Category.DEFENSIVE,
+        description:
+          'Wing bumps the corner, top guard takes first pass, and the middle owns high-post catches and cutters.',
+      },
+      {
+        name: '1-2-2 Contain Press',
+        category: Category.DEFENSIVE,
+        description:
+          'Soft three-quarter press to burn clock, angle the ball to the sideline, and trap only after the first reversal.',
       },
       {
         name: 'Zone Overload Set',
         category: Category.SPECIAL,
-        description: 'Overload one side with short-corner read.',
+        description:
+          'Overload one side of a zone with a short-corner touch, high-post flash, and weak-side skip option.',
       },
     ];
 
@@ -1004,38 +1421,91 @@ async function main() {
           name: play.name,
           category: play.category,
           description: play.description,
-          canvas: '{"version":"1.0","objects":[]}',
+          canvas: '/placeholder.png',
         },
       });
       plays.push(createdPlay);
     }
 
-    const upcomingGames = games.filter((game) => game.dayOffset >= 0);
+    const connectPlayIndexes = (indexes) =>
+      indexes
+        .map((index) => plays[index])
+        .filter(Boolean)
+        .map((play) => ({ id: play.id }));
+
+    const upcomingGames = games.filter((game) => game.isFuture);
     const gamePlanTemplates = [
       {
-        titlePrefix: 'Match Plan',
-        notes: 'Target early paint touches and protect defensive rebounds.',
-        playSlice: [0, 4],
+        titlePrefix: 'Game Model',
+        notes:
+          'Open with pace, get an early paint touch, then flow into horns if transition is stopped. Defensive priority: finish every possession with five bodies rebounding.',
+        playIndexes: [4, 0, 12, 14],
       },
       {
-        titlePrefix: 'Tactical Prep',
-        notes: 'Mix zone looks and attack weak-side closeouts.',
-        playSlice: [3, 7],
+        titlePrefix: 'Switch Attack Plan',
+        notes:
+          'Expect switching on ball screens. Use ghost and Spain counters, then punish mismatches with the rip seal.',
+        playIndexes: [1, 5, 6, 13],
       },
       {
-        titlePrefix: 'Scouting Focus',
-        notes: 'Emphasize transition defense and weak-side tag discipline.',
-        playSlice: [1, 5],
+        titlePrefix: 'Pressure Prep',
+        notes:
+          'Opponent likes to trap after dead balls. Keep the middle flash available and organize sideline inbound spacing before the whistle.',
+        playIndexes: [10, 9, 16, 11],
       },
       {
-        titlePrefix: 'Execution Sheet',
-        notes: 'Late-clock actions and high-ball screen counters.',
-        playSlice: [2, 6],
+        titlePrefix: 'Zone Break Sheet',
+        notes:
+          'Attack gaps first, then use short-corner overloads. Do not settle for first-pass threes unless feet are set.',
+        playIndexes: [17, 15, 3, 8],
       },
       {
-        titlePrefix: 'Final Details',
-        notes: 'Opening set package and matchup-based coverages.',
-        playSlice: [0, 3],
+        titlePrefix: 'Late-Game Card',
+        notes:
+          'Use late-clock ghost when the score is tight. Defensively, switch late actions and scram the mismatch before the post touch.',
+        playIndexes: [11, 2, 13, 7],
+      },
+      {
+        titlePrefix: 'Tempo Plan',
+        notes:
+          'Push after misses, run double drag early, and sprint to corners. If the first wave stops, flow into delay split.',
+        playIndexes: [4, 3, 2, 14],
+      },
+      {
+        titlePrefix: 'Pressure Package',
+        notes:
+          'Show the 1-2-2 contain press after made free throws and use box elevator after opponent scoring runs.',
+        playIndexes: [16, 8, 10, 12],
+      },
+      {
+        titlePrefix: 'Matchup Notes',
+        notes:
+          'Attack their smaller guards with horns punch and protect the paint with early pack-line help.',
+        playIndexes: [0, 6, 14, 12],
+      },
+      {
+        titlePrefix: 'Coach Card',
+        notes:
+          'Bench calls: Orange for Spain, Blue for ICE, Fist for late-clock ghost. Keep timeout plays simple and loud.',
+        playIndexes: [1, 12, 11, 7],
+      },
+      {
+        titlePrefix: 'Scout Board',
+        notes:
+          'Opponent loads strong side and gives up weak-side skips. Keep spacing wide and crash from the opposite wing.',
+        playIndexes: [3, 17, 5, 15],
+      },
+      {
+        titlePrefix: 'Special Teams Plan',
+        notes:
+          'Win the possession after timeouts: diamond for shooters, sideline stack for pressure, and contain press after makes.',
+        playIndexes: [7, 9, 16, 8],
+      },
+      {
+        titlePrefix: 'Defensive Identity',
+        notes:
+          'Make the first option hard, shrink the floor on drives, and communicate scram switches before the ball arrives.',
+        playIndexes: [14, 13, 12, 15],
       },
     ];
 
@@ -1054,53 +1524,106 @@ async function main() {
           opponent: game.opponent,
           notes: template.notes,
           plays: {
-            connect: plays
-              .slice(template.playSlice[0], template.playSlice[1])
-              .map((play) => ({ id: play.id })),
+            connect: connectPlayIndexes(template.playIndexes),
           },
         },
       });
     }
 
-    const upcomingPractices = practices.filter(
-      (practice) => practice.dayOffset >= 0,
-    );
+    const upcomingPractices = practices
+      .filter((practice) => practice.dayOffset >= 0)
+      .sort((a, b) => a.dayOffset - b.dayOffset);
     const preparationTemplates = [
       {
         name: 'Defensive Focus Session',
         focus: 'Closeouts + help-side tagging',
-        notes: '30 mins shell drill, then 5v5 situational.',
-        playSlice: [4, 8],
+        notes:
+          'Start with shell drill, add low-man tags, then finish with 5v5 where stops only count after a rebound.',
+        playIndexes: [14, 12, 15, 13],
       },
       {
         name: 'Offensive Timing Session',
         focus: 'Secondary break decisions and spacing',
-        notes: 'Add quick-hitter installs and late-clock options.',
-        playSlice: [0, 3],
+        notes:
+          'Install double drag into delay split. Track whether players sprint to corners before the first pass.',
+        playIndexes: [4, 3, 2, 0],
       },
       {
         name: 'Ball Screen Solutions',
         focus: 'Reads vs hedge, drop, and switch coverages',
-        notes: 'Progression from guided reps into constrained scrimmage.',
-        playSlice: [1, 5],
+        notes:
+          'Progress from guided Spain reads into live 3v3. Finish with switch counters and weak-side spacing.',
+        playIndexes: [1, 5, 6, 13],
       },
       {
         name: 'Pressure Break Package',
         focus: 'Inbound spacing and middle flash timing',
-        notes: 'Short-clock pressure reps and turnover response drills.',
-        playSlice: [3, 7],
+        notes:
+          'Run 1-4 press break reps from makes and dead balls. Add sideline stack if the ball gets trapped.',
+        playIndexes: [10, 9, 16, 11],
       },
       {
         name: 'Finishing Under Contact',
         focus: 'Paint finishing and weak-hand confidence',
-        notes: 'Layer contested finishing after advantage creation actions.',
-        playSlice: [2, 6],
+        notes:
+          'Create advantage with pistol and UCLA cuts, then finish through pads before rotating to free throws.',
+        playIndexes: [2, 6, 3, 4],
+      },
+      {
+        name: 'Special Teams Install',
+        focus: 'BLOB/SLOB reads and baseline spacing',
+        notes:
+          'Walk through first, then run pressure reps with clock constraints.',
+        playIndexes: [7, 8, 9, 11],
+      },
+      {
+        name: 'Tempo Scrimmage Prep',
+        focus: 'Early offense and transition decision-making',
+        notes:
+          'Score only after paint touch or advantage pass to reward spacing.',
+        playIndexes: [4, 0, 3, 2],
+      },
+      {
+        name: 'Weak-Side Rotation Lab',
+        focus: 'Low-man help, tag timing, and second effort rebounding',
+        notes:
+          'Use shell drill variations before controlled 5v5. Reward early tags and clean defensive rebounds.',
+        playIndexes: [12, 14, 15, 13],
+      },
+      {
+        name: 'Shooting Confidence Block',
+        focus: 'Game-speed spot-ups and relocation threes',
+        notes:
+          'Use horns flare and diamond BLOB reads to create game-speed catch-and-shoot reps.',
+        playIndexes: [0, 7, 8, 3],
+      },
+      {
+        name: 'Late-Game Execution Prep',
+        focus: 'Timeout sets, foul game, and final possession spacing',
+        notes:
+          'Run down 2/up 1 situations with sideline stack, late-clock ghost, and defensive switch calls.',
+        playIndexes: [9, 11, 13, 16],
+      },
+      {
+        name: 'Zone Attack Walkthrough',
+        focus: 'Short-corner touches and high-post decision making',
+        notes:
+          'Rep zone overload, then let players call skips, cuts, or short-corner seals based on the weak-side defender.',
+        playIndexes: [17, 15, 3, 0],
+      },
+      {
+        name: 'Defensive Pressure Day',
+        focus: 'Contain press rhythm and trap discipline',
+        notes:
+          'Teach when not to trap. Goal is clock pressure, sideline angles, and no middle catches.',
+        playIndexes: [16, 12, 14, 10],
       },
     ];
 
     for (
       let prepIndex = 0;
-      prepIndex < Math.min(upcomingPractices.length, preparationTemplates.length);
+      prepIndex <
+      Math.min(upcomingPractices.length, preparationTemplates.length);
       prepIndex += 1
     ) {
       const practice = upcomingPractices[prepIndex];
@@ -1113,9 +1636,7 @@ async function main() {
           focus: template.focus,
           notes: template.notes,
           plays: {
-            connect: plays
-              .slice(template.playSlice[0], template.playSlice[1])
-              .map((play) => ({ id: play.id })),
+            connect: connectPlayIndexes(template.playIndexes),
           },
         },
       });

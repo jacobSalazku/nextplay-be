@@ -7,24 +7,25 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  dateOfBirth   DateTime?
-  phone         String?   @unique
-  height        Float?
-  weight        Float?
-  dominantHand  String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  hasOnBoarded  Boolean   @default(false)
-  isBlocked     Boolean   @default(false)
-  tokenVersion  Int       @default(1)
-  refreshToken  String?
-  members       Member[]
-  teams         Team[]    @relation("TeamCreator")
+  id                 String       @id @default(cuid())
+  name               String?
+  email              String       @unique
+  emailVerified      DateTime?
+  image              String?
+  dateOfBirth        DateTime?
+  phone              String?      @unique
+  height             Float?
+  weight             Float?
+  dominantHand       String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  hasOnBoarded       Boolean      @default(false)
+  isBlocked          Boolean      @default(false)
+  tokenVersion       Int          @default(1)
+  refreshToken       String?
+  createdTeamInvites TeamInvite[] @relation("TeamInviteCreator")
+  members            Member[]
+  teams              Team[]       @relation("TeamCreator")
 }
 
 model VerificationToken {
@@ -42,7 +43,7 @@ model Team {
   slug                 String
   shortId              String                @unique
   routeKey             String?               @unique
-  ageGroup             String?  
+  ageGroup             String?
   image                String?
   creatorId            String
   createdAt            DateTime              @default(now())
@@ -52,6 +53,7 @@ model Team {
   members              Member[]
   plays                Play[]
   practicePreparations PracticePreparation[]
+  invites              TeamInvite[]
   creator              User                  @relation("TeamCreator", fields: [creatorId], references: [id])
 
   @@index([creatorId])
@@ -60,7 +62,7 @@ model Team {
 
 model Member {
   id          String                     @id @default(cuid())
-  userId      String  
+  userId      String
   teamId      String
   role        Role
   status      Status
@@ -70,11 +72,30 @@ model Member {
   user        User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
   attendances PlayerActivityAttendance[]
   statlines   Statline[]
-  createdAt DateTime                   @default(now())
-  updatedAt DateTime                   @default(now()) @updatedAt
+  createdAt   DateTime                   @default(now())
+  updatedAt   DateTime                   @default(now()) @updatedAt
 
   @@unique([userId, teamId])
   @@index([teamId])
+}
+
+model TeamInvite {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  teamId    String
+  expiresAt DateTime
+  maxUses   Int       @default(1)
+  usedCount Int       @default(0)
+  revokedAt DateTime?
+  createdBy String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  creator   User      @relation("TeamInviteCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([createdBy])
+  @@index([expiresAt])
 }
 
 model Activity {
@@ -165,7 +186,7 @@ model PlayerActivityAttendance {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   activity         Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  member           Member           @relation(fields: [memberId], references: [id],onDelete: Cascade)
+  member           Member           @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@unique([activityId, memberId])
   @@index([activityId])
@@ -193,7 +214,7 @@ model Play {
   canvas      String
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @updatedAt
-  team        Team                  @relation(fields: [teamId], references: [id], onDelete: Cascade )
+  team        Team                  @relation(fields: [teamId], references: [id], onDelete: Cascade)
   gamePlans   GamePlan[]            @relation("GamePlanPlays")
   practices   PracticePreparation[] @relation("PracticePlays")
 

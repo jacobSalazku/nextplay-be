@@ -44,6 +44,14 @@ export enum Category {
     SPECIAL = "SPECIAL"
 }
 
+export enum AcceptTeamInviteStatus {
+    SUCCESS = "SUCCESS",
+    ALREADY_JOINED = "ALREADY_JOINED",
+    EXPIRED = "EXPIRED",
+    REVOKED = "REVOKED",
+    USED = "USED"
+}
+
 export enum PracticeType {
     TEAM = "TEAM",
     SPECIALISATION = "SPECIALISATION",
@@ -295,6 +303,15 @@ export class JoinTeamInput {
     teamCode: string;
     position: string;
     number: string;
+}
+
+export class CreateTeamInviteInput {
+    routeKey: string;
+    expiresAt?: Nullable<DateTime>;
+}
+
+export class AcceptTeamInviteInput {
+    token: string;
 }
 
 export class AcceptTeamRequestInput {
@@ -755,6 +772,25 @@ export class JoinTeamResponse {
     number: string;
 }
 
+export class TeamInviteResponse {
+    id: string;
+    token: string;
+    inviteLink: string;
+    teamId: string;
+    expiresAt: DateTime;
+    maxUses: number;
+    usedCount: number;
+    revokedAt?: Nullable<DateTime>;
+    createdBy: string;
+}
+
+export class AcceptTeamInviteResponse {
+    status: AcceptTeamInviteStatus;
+    teamId?: Nullable<string>;
+    routeKey?: Nullable<string>;
+    memberId?: Nullable<string>;
+}
+
 export class MemberId {
     id: string;
 }
@@ -909,6 +945,10 @@ export abstract class IMutation {
     abstract createTeam(input: CreateTeamInput): Team | Promise<Team>;
 
     abstract joinTeam(input: JoinTeamInput): JoinTeamResponse | Promise<JoinTeamResponse>;
+
+    abstract createTeamInvite(input: CreateTeamInviteInput): TeamInviteResponse | Promise<TeamInviteResponse>;
+
+    abstract acceptTeamInvite(input: AcceptTeamInviteInput): AcceptTeamInviteResponse | Promise<AcceptTeamInviteResponse>;
 
     abstract acceptTeamRequest(input: AcceptTeamRequestInput): ModerateJoinRequestResult | Promise<ModerateJoinRequestResult>;
 
