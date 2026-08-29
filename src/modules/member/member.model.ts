@@ -140,14 +140,3 @@ export class MemberWithStatlines extends Member {
   statlines: MemberStatline[];
 }
 
-@ObjectType()
-export class PendingMember {
-  @Field(() => ID)
-  id: string;
-
-  @Field({ nullable: true })
-  name?: string;
-
-  @Field({ nullable: true })
-  email?: string;
-}

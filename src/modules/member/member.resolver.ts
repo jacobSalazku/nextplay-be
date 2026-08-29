@@ -11,7 +11,6 @@ import {
 import {
   MemberWithAttendances,
   MemberWithStatlines,
-  PendingMember,
 } from './member.model';
 import { MemberService } from './member.service';
 
@@ -29,12 +28,6 @@ export class MemberResolver {
   @Query(() => [MemberWithAttendances])
   async getMembers(@Args('input') input: MembersInput) {
     return await this.member.getActiveMembers(input.routeKey);
-  }
-
-  @UseGuards(GqlJwtAuthGuard, CoachGuard)
-  @Query(() => [PendingMember])
-  async getPendingMembers(@Args('input') input: MembersInput) {
-    return await this.member.getPendingMembers(input.routeKey);
   }
 
   @UseGuards(GqlJwtAuthGuard, CoachGuard)

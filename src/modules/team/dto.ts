@@ -6,7 +6,6 @@ import {
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { Status } from '@prisma/client';
 import { IsOptional, IsString, MinLength } from 'class-validator';
 import { TeamMemberInfo } from '../member/dto';
 
@@ -79,48 +78,6 @@ export class CreateTeamInput {
 }
 
 @InputType()
-export class JoinTeamInput {
-  @Field()
-  @IsString()
-  @MinLength(1)
-  teamCode: string;
-
-  @Field()
-  @IsString()
-  @MinLength(1)
-  position: string;
-
-  @Field()
-  @IsString()
-  @MinLength(1)
-  number: string;
-}
-
-@ObjectType()
-export class ModerateJoinRequestResult {
-  @Field()
-  memberId: string;
-
-  @Field()
-  teamId: string;
-
-  @Field(() => Status)
-  status: Status;
-}
-
-@ObjectType()
-export class JoinTeamResponse {
-  @Field()
-  teamCode: string;
-
-  @Field()
-  position: string;
-
-  @Field()
-  number: string;
-}
-
-@InputType()
 export class CreateTeamInviteInput {
   @Field()
   @IsString()
@@ -183,24 +140,6 @@ export class AcceptTeamInviteResponse {
 
   @Field(() => ID, { nullable: true })
   memberId?: string;
-}
-
-@InputType()
-export class TeamRequestInput {
-  @Field()
-  memberId: string;
-}
-
-@InputType()
-export class AcceptTeamRequestInput extends TeamRequestInput {
-  @Field()
-  routeKey: string;
-}
-
-@InputType()
-export class RejectJoinRequestInput {
-  @Field()
-  memberId: string;
 }
 
 @InputType()
