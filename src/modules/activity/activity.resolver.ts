@@ -1,7 +1,12 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CurrentTeam } from '../auth/decorator/current-team.decorator';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
-import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
+import type { TeamAccess } from '../auth/team-access.service';
+import {
+  TeamCoachGuard,
+  TeamMemberGuard,
+} from '../auth/guards/team-access.guard';
 import { Activity } from './activity.model';
 import { ActivityService } from './activity.service';
 import {
@@ -25,13 +30,13 @@ import {
 export class ActivityResolver {
   constructor(private readonly activity: ActivityService) {}
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Query(() => [Activity])
   async getActivities(@Args('teamShortId') teamShortId: string) {
     return await this.activity.getActivities(teamShortId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Query(() => Activity)
   async getActivity(
     @Args('input') input: GetActivityInput,
@@ -39,7 +44,8 @@ export class ActivityResolver {
   ): Promise<Activity> {
     return await this.activity.getActivity(input, user.userId);
   }
-  @UseGuards(GqlJwtAuthGuard)
+
+  @UseGuards(TeamMemberGuard)
   @Query(() => [Activity])
   async getGames(
     @Args('input') input: GetActivitiesInput,
@@ -48,7 +54,7 @@ export class ActivityResolver {
     return await this.activity.getGames(input, user.userId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Query(() => [Activity])
   async getPractices(
     @Args('input') input: GetActivitiesInput,
@@ -57,72 +63,107 @@ export class ActivityResolver {
     return await this.activity.getPractices(input, user.userId);
   }
 
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Activity)
-  async deleteActivity(@Args('input') input: DeleteActivity) {
-    return await this.activity.deleteActivity(input.id);
+  async deleteActivity(
+    @Args('input') input: DeleteActivity,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return await this.activity.deleteActivity(input.id, team.teamId);
   }
 
   //GAME
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Activity)
-  async createGame(@Args('input') input: CreateGameInput) {
-    return await this.activity.createActivity(input);
+  async createGame(
+    @Args('input') input: CreateGameInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return await this.activity.createActivity(input, team.teamId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Activity)
-  async updateGame(@Args('input') input: UpdateGameInput) {
-    return await this.activity.updateActivity(input);
+  async updateGame(
+    @Args('input') input: UpdateGameInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return await this.activity.updateActivity(input, team.teamId);
   }
 
   //PRACTICE
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Activity)
-  async createPractice(@Args('input') input: CreatePracticeInput) {
-    return await this.activity.createActivity(input);
+  async createPractice(
+    @Args('input') input: CreatePracticeInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return await this.activity.createActivity(input, team.teamId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Activity)
-  async updatePractice(@Args('input') input: UpdatePracticeInput) {
-    return await this.activity.updateActivity(input);
+  async updatePractice(
+    @Args('input') input: UpdatePracticeInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return await this.activity.updateActivity(input, team.teamId);
   }
 
   //MEETING
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Activity)
-  async createMeeting(@Args('input') input: CreateMeetingInput) {
-    return this.activity.createActivity(input);
+  async createMeeting(
+    @Args('input') input: CreateMeetingInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return this.activity.createActivity(input, team.teamId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Activity)
-  async updateMeeting(@Args('input') input: UpdateMeetingInput) {
-    return await this.activity.updateActivity(input);
+  async updateMeeting(
+    @Args('input') input: UpdateMeetingInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return await this.activity.updateActivity(input, team.teamId);
   }
 
   //FILM
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Activity)
-  async createFilm(@Args('input') input: CreateFilmInput) {
-    return this.activity.createActivity(input);
+  async createFilm(
+    @Args('input') input: CreateFilmInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return this.activity.createActivity(input, team.teamId);
   }
-  @UseGuards(GqlJwtAuthGuard)
+
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Activity)
-  async updateFilm(@Args('input') input: UpdateFilmInput) {
-    return await this.activity.updateActivity(input);
+  async updateFilm(
+    @Args('input') input: UpdateFilmInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return await this.activity.updateActivity(input, team.teamId);
   }
 
   //FEEDBACK
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Activity)
-  async createFeedback(@Args('input') input: CreateFeedbackInput) {
-    return this.activity.createActivity(input);
+  async createFeedback(
+    @Args('input') input: CreateFeedbackInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return this.activity.createActivity(input, team.teamId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Activity)
-  async updateFeedback(@Args('input') input: UpdateFeedbackInput) {
-    return await this.activity.updateActivity(input);
+  async updateFeedback(
+    @Args('input') input: UpdateFeedbackInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return await this.activity.updateActivity(input, team.teamId);
   }
 }
