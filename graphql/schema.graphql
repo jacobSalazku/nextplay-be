@@ -780,6 +780,7 @@ input DeleteGamePlanInput {
 
 input DeleteMemberInput {
   id: String!
+  routeKey: String!
 }
 
 input CreatePlayInput {

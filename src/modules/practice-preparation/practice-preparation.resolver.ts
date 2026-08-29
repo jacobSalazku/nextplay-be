@@ -1,8 +1,10 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
-import { CoachGuard } from '../auth/guards/coach-guard';
-import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
+import {
+  TeamCoachGuard,
+  TeamMemberGuard,
+} from '../auth/guards/team-access.guard';
 import {
   CreatePracticePreparationInput,
   DeletePracticePreparationInput,
@@ -16,7 +18,7 @@ import { PracticePreparationService } from './practice-preparation.service';
 export class PracticePreparationResolver {
   constructor(private readonly preparation: PracticePreparationService) {}
 
-  @UseGuards(GqlJwtAuthGuard, CoachGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => PracticePreparation)
   async createPracticePreparation(
     @Args('input') input: CreatePracticePreparationInput,
@@ -25,7 +27,7 @@ export class PracticePreparationResolver {
     return this.preparation.createPracticePreparation(input, user.userId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Query(() => [PracticePreparation])
   async getPracticePreparations(
     @Args('input') input: GetPracticePreparationsInput,
@@ -34,7 +36,7 @@ export class PracticePreparationResolver {
     return this.preparation.getPracticePreparations(input, user.userId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Query(() => PracticePreparation, { nullable: true })
   async getPracticePreparationById(
     @Args('input') input: GetPracticePreparationByIdInput,
@@ -43,7 +45,7 @@ export class PracticePreparationResolver {
     return this.preparation.getPracticePreparationById(input, user.userId);
   }
 
-  @UseGuards(GqlJwtAuthGuard, CoachGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => PracticePreparation)
   async deletePracticePreparation(
     @Args('input') input: DeletePracticePreparationInput,

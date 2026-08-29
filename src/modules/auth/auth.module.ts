@@ -5,7 +5,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { AuthResolver } from './auth.resolver';
-import { CoachGuard } from './guards/coach-guard';
 import { GqlJwtAuthGuard } from './guards/jwt-guard';
 import { TeamCoachGuard, TeamMemberGuard } from './guards/team-access.guard';
 import { JwtStrategy } from './jwt-strategy';
@@ -53,7 +52,6 @@ import { TeamAccessService } from './team-access.service';
     JwtStrategy,
     GqlJwtAuthGuard,
     AuthResolver,
-    CoachGuard,
     TeamAccessService,
     TeamMemberGuard,
     TeamCoachGuard,
@@ -64,7 +62,6 @@ import { TeamAccessService } from './team-access.service';
   exports: [
     GqlJwtAuthGuard,
     JwtModule,
-    CoachGuard,
     TeamAccessService,
     TeamMemberGuard,
     TeamCoachGuard,
