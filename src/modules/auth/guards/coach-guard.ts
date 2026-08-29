@@ -29,6 +29,11 @@ type ArgsType = {
   routeKey?: string;
 };
 
+/**
+ * @deprecated Use `TeamCoachGuard` from `auth/guards/team-access.guard`.
+ * This guard does not check member status and never populates `req.team`.
+ * Kept only until every resolver is migrated.
+ */
 @Injectable()
 export class CoachGuard implements CanActivate {
   constructor(private prisma: PrismaService) {}
