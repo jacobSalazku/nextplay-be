@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthPayload, User } from './auth.model';
 import { CurrentUser } from './decorator/current-user.decorator';
+import { Public } from './decorator/public.decorator';
 import { GqlJwtAuthGuard } from './guards/jwt-guard';
 
 @Resolver()
@@ -30,6 +31,7 @@ export class AuthResolver {
   }
 
   // LOGIN
+  @Public()
   @Mutation(() => AuthPayload)
   async login(@Args('email') email: string) {
     let user = await this.prisma.user.findUnique({
@@ -85,6 +87,7 @@ export class AuthResolver {
   }
 
   // REFRESH
+  @Public()
   @Mutation(() => AuthPayload)
   async refresh(@Args('refreshToken') refreshToken: string) {
     const user = await this.prisma.user.findFirst({
