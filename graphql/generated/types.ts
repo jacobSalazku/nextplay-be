@@ -878,7 +878,9 @@ export abstract class IMutation {
 
     abstract updateFeedback(input: UpdateFeedbackInput): Activity | Promise<Activity>;
 
-    abstract login(email: string): AuthPayload | Promise<AuthPayload>;
+    abstract loginWithGoogle(idToken: string): AuthPayload | Promise<AuthPayload>;
+
+    abstract devLogin(email: string): AuthPayload | Promise<AuthPayload>;
 
     abstract refresh(refreshToken: string): AuthPayload | Promise<AuthPayload>;
 
