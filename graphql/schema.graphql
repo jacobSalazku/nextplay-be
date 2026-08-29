@@ -635,7 +635,8 @@ type Mutation {
   updateFilm(input: UpdateFilmInput!): Activity!
   createFeedback(input: CreateFeedbackInput!): Activity!
   updateFeedback(input: UpdateFeedbackInput!): Activity!
-  login(email: String!): AuthPayload!
+  loginWithGoogle(idToken: String!): AuthPayload!
+  devLogin(email: String!): AuthPayload!
   refresh(refreshToken: String!): AuthPayload!
   logout: Boolean!
   getAttendanceByActivities(input: GetAttendanceByActivitiesInput!): PlayerActivityAttendance!
