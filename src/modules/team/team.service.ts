@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -14,17 +13,11 @@ import {
   AcceptTeamInviteStatus,
   CreateTeamInput,
   CreateTeamInviteInput,
-  JoinTeamInput,
-  TeamRequestInput,
 } from './dto';
-import { TeamGateway } from './team.gateway';
 
 @Injectable()
 export class TeamService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly teamSocket: TeamGateway,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createTeam(input: CreateTeamInput, creatorId: string) {
     const code = await this.generateUniqueCode();
@@ -535,91 +528,6 @@ export class TeamService {
         status: AcceptTeamInviteStatus.SUCCESS,
       };
     });
-  }
-
-  requestToJoinTeam(input: JoinTeamInput, userId: string) {
-    void input;
-    void userId;
-
-    throw new ForbiddenException(
-      'Team code joining is disabled. Ask your coach for an invite link.',
-    );
-  }
-
-  async acceptTeamRequest(input: TeamRequestInput, teamId: string) {
-    const member = await this.prisma.member.findUnique({
-      where: { id: input.memberId, teamId },
-      select: { id: true, teamId: true, status: true },
-    });
-
-    if (!member) {
-      throw new NotFoundException('Join request not found.');
-    }
-
-    if (member.status !== Status.PENDING) {
-      throw new ConflictException('Only pending requests can be approved.');
-    }
-
-    const updatedStatus = await this.prisma.member.update({
-      where: { id: member.id },
-      data: { status: Status.ACTIVE },
-      select: { id: true, teamId: true, status: true },
-    });
-
-    this.teamSocket.emitJoinRequestApproved(updatedStatus.teamId, {
-      memberId: updatedStatus.id,
-      teamId: updatedStatus.teamId,
-      status: updatedStatus.status,
-    });
-
-    return {
-      memberId: updatedStatus.id,
-      teamId: updatedStatus.teamId,
-      status: updatedStatus.status,
-    };
-  }
-
-  async rejectJoinRequest(input: { memberId: string }, userId: string) {
-    const member = await this.prisma.member.findUnique({
-      where: { id: input.memberId },
-      select: { id: true, teamId: true, status: true },
-    });
-
-    if (!member) {
-      throw new NotFoundException('Join request not found.');
-    }
-
-    const coachMembership = await this.getMembership(userId, member.teamId);
-
-    if (
-      !coachMembership ||
-      coachMembership.status !== Status.ACTIVE ||
-      coachMembership.role !== Role.COACH
-    ) {
-      throw new ForbiddenException('Only an active coach can reject requests.');
-    }
-
-    if (member.status !== Status.PENDING) {
-      throw new ConflictException('Only pending requests can be rejected.');
-    }
-
-    const updated = await this.prisma.member.update({
-      where: { id: member.id },
-      data: { status: Status.INACTIVE },
-      select: { id: true, teamId: true, status: true },
-    });
-
-    this.teamSocket.emitJoinRequestRejected(updated.teamId, {
-      memberId: updated.id,
-      teamId: updated.teamId,
-      status: updated.status,
-    });
-
-    return {
-      memberId: updated.id,
-      teamId: updated.teamId,
-      status: updated.status,
-    };
   }
 
   async getMembership(userId: string, teamId: string) {

@@ -161,33 +161,6 @@ export class MemberService {
     return members;
   }
 
-  async getPendingMembers(routeKey: string) {
-    const members = await this.prisma.member.findMany({
-      where: {
-        team: {
-          routeKey: routeKey,
-        },
-        role: Role.PLAYER,
-        status: Status.PENDING,
-      },
-      select: {
-        id: true,
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
-    });
-
-    return members.map((member) => ({
-      id: member.id,
-      name: member.user.name,
-      email: member.user.email,
-    }));
-  }
-
   async getActiveAttendedMembers(input: ActiveAttendedMembersInput) {
     const teamShortId = this.extractTeamShortId(input.routeKey);
 

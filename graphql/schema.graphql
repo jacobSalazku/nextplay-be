@@ -118,12 +118,6 @@ type MemberWithStatlines {
   statlines: [MemberStatline!]!
 }
 
-type PendingMember {
-  id: ID!
-  name: String
-  email: String
-}
-
 type AuthPayload {
   accessToken: String!
   refreshToken: String!
@@ -471,18 +465,6 @@ type TeamInformation {
   members: [TeamMemberInfo!]!
 }
 
-type ModerateJoinRequestResult {
-  memberId: String!
-  teamId: String!
-  status: Status!
-}
-
-type JoinTeamResponse {
-  teamCode: String!
-  position: String!
-  number: String!
-}
-
 type TeamInviteResponse {
   id: ID!
   token: String!
@@ -569,7 +551,6 @@ type Query {
   getGameplanById(input: GetGamePlanByIdInput!): GamePlan
   getMemberProfile(input: GetMemberProfileInput!): MemberWithAttendances!
   getMembers(input: MembersInput!): [MemberWithAttendances!]!
-  getPendingMembers(input: MembersInput!): [PendingMember!]!
   getActiveAttendedMembers(input: ActiveAttendedMembersInput!): [MemberWithStatlines!]!
   getPlays(input: GetPlaysInput!): [Play!]!
   getPlay(input: GetPlayInput!): Play
@@ -677,11 +658,8 @@ type Mutation {
   deletePracticePreparation(input: DeletePracticePreparationInput!): PracticePreparation!
   submitStatlines(input: SubmitStatlinesInput!): SubmitStatlinesResult!
   createTeam(input: CreateTeamInput!): Team!
-  joinTeam(input: JoinTeamInput!): JoinTeamResponse!
   createTeamInvite(input: CreateTeamInviteInput!): TeamInviteResponse!
   acceptTeamInvite(input: AcceptTeamInviteInput!): AcceptTeamInviteResponse!
-  acceptTeamRequest(input: AcceptTeamRequestInput!): ModerateJoinRequestResult!
-  rejectJoinRequest(input: TeamRequestInput!): ModerateJoinRequestResult!
   updateUser(input: UpdateUserInput!): User!
 }
 
@@ -868,12 +846,6 @@ input CreateTeamInput {
   ageGroup: String!
 }
 
-input JoinTeamInput {
-  teamCode: String!
-  position: String!
-  number: String!
-}
-
 input CreateTeamInviteInput {
   routeKey: String!
   expiresAt: DateTime
@@ -881,15 +853,6 @@ input CreateTeamInviteInput {
 
 input AcceptTeamInviteInput {
   token: String!
-}
-
-input AcceptTeamRequestInput {
-  memberId: String!
-  routeKey: String!
-}
-
-input TeamRequestInput {
-  memberId: String!
 }
 
 input UpdateUserInput {

@@ -3,20 +3,14 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
 import { CoachGuard } from '../auth/guards/coach-guard';
 import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
-import { CurrentTeamId } from './decorator/current-team.decorator';
 import {
   AcceptTeamInviteInput,
   AcceptTeamInviteResponse,
-  AcceptTeamRequestInput,
   CreateTeamInput,
   CreateTeamInviteInput,
   GetTeamInput,
-  JoinTeamInput,
-  JoinTeamResponse,
-  ModerateJoinRequestResult,
   TeamInformation,
   TeamInviteResponse,
-  TeamRequestInput,
 } from './dto';
 import { Team, TeamDashboard } from './team.model';
 import { TeamService } from './team.service';
@@ -52,15 +46,6 @@ export class TeamResolver {
     return this.team.getTeamActivities(routeKey);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
-  @Mutation(() => JoinTeamResponse)
-  joinTeam(
-    @Args('input') input: JoinTeamInput,
-    @CurrentUser() user: { userId: string },
-  ) {
-    return this.team.requestToJoinTeam(input, user.userId);
-  }
-
   @UseGuards(GqlJwtAuthGuard, CoachGuard)
   @Mutation(() => TeamInviteResponse)
   async createTeamInvite(
@@ -77,23 +62,5 @@ export class TeamResolver {
     @CurrentUser() user: { userId: string },
   ): Promise<AcceptTeamInviteResponse> {
     return this.team.acceptTeamInvite(input, user.userId);
-  }
-
-  @UseGuards(GqlJwtAuthGuard, CoachGuard)
-  @Mutation(() => ModerateJoinRequestResult)
-  acceptTeamRequest(
-    @Args('input') input: AcceptTeamRequestInput,
-    @CurrentTeamId() taemId: string,
-  ): Promise<ModerateJoinRequestResult> {
-    return this.team.acceptTeamRequest(input, taemId);
-  }
-
-  @UseGuards(GqlJwtAuthGuard)
-  @Mutation(() => ModerateJoinRequestResult)
-  rejectJoinRequest(
-    @Args('input') input: TeamRequestInput,
-    @CurrentUser() user: { userId: string },
-  ): Promise<ModerateJoinRequestResult> {
-    return this.team.rejectJoinRequest(input, user.userId);
   }
 }

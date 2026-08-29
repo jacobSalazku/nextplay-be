@@ -299,12 +299,6 @@ export class CreateTeamInput {
     ageGroup: string;
 }
 
-export class JoinTeamInput {
-    teamCode: string;
-    position: string;
-    number: string;
-}
-
 export class CreateTeamInviteInput {
     routeKey: string;
     expiresAt?: Nullable<DateTime>;
@@ -312,15 +306,6 @@ export class CreateTeamInviteInput {
 
 export class AcceptTeamInviteInput {
     token: string;
-}
-
-export class AcceptTeamRequestInput {
-    memberId: string;
-    routeKey: string;
-}
-
-export class TeamRequestInput {
-    memberId: string;
 }
 
 export class UpdateUserInput {
@@ -424,12 +409,6 @@ export class MemberWithStatlines {
     name?: Nullable<string>;
     user?: Nullable<UserDetail>;
     statlines: MemberStatline[];
-}
-
-export class PendingMember {
-    id: string;
-    name?: Nullable<string>;
-    email?: Nullable<string>;
 }
 
 export class AuthPayload {
@@ -760,18 +739,6 @@ export class TeamInformation {
     members: TeamMemberInfo[];
 }
 
-export class ModerateJoinRequestResult {
-    memberId: string;
-    teamId: string;
-    status: Status;
-}
-
-export class JoinTeamResponse {
-    teamCode: string;
-    position: string;
-    number: string;
-}
-
 export class TeamInviteResponse {
     id: string;
     token: string;
@@ -860,8 +827,6 @@ export abstract class IQuery {
 
     abstract getMembers(input: MembersInput): MemberWithAttendances[] | Promise<MemberWithAttendances[]>;
 
-    abstract getPendingMembers(input: MembersInput): PendingMember[] | Promise<PendingMember[]>;
-
     abstract getActiveAttendedMembers(input: ActiveAttendedMembersInput): MemberWithStatlines[] | Promise<MemberWithStatlines[]>;
 
     abstract getPlays(input: GetPlaysInput): Play[] | Promise<Play[]>;
@@ -944,15 +909,9 @@ export abstract class IMutation {
 
     abstract createTeam(input: CreateTeamInput): Team | Promise<Team>;
 
-    abstract joinTeam(input: JoinTeamInput): JoinTeamResponse | Promise<JoinTeamResponse>;
-
     abstract createTeamInvite(input: CreateTeamInviteInput): TeamInviteResponse | Promise<TeamInviteResponse>;
 
     abstract acceptTeamInvite(input: AcceptTeamInviteInput): AcceptTeamInviteResponse | Promise<AcceptTeamInviteResponse>;
-
-    abstract acceptTeamRequest(input: AcceptTeamRequestInput): ModerateJoinRequestResult | Promise<ModerateJoinRequestResult>;
-
-    abstract rejectJoinRequest(input: TeamRequestInput): ModerateJoinRequestResult | Promise<ModerateJoinRequestResult>;
 
     abstract updateUser(input: UpdateUserInput): User | Promise<User>;
 }
