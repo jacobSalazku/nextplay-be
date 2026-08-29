@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -23,6 +23,15 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
     methods: ['GET', 'POST', 'OPTIONS'],
   });
+
+  // NOTE: `whitelist` / `forbidNonWhitelisted` are intentionally left off until
+  // every input DTO has validation decorators (follow-up PR) — turning them on
+  // now would strip/reject fields on the many DTOs that currently have none.
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
 
   const port = Number(process.env.PORT) || 3001;
 

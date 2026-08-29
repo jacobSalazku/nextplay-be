@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaModule } from 'src/prisma/prisma.module';
@@ -46,7 +47,15 @@ import { JwtStrategy } from './jwt-strategy';
       },
     }),
   ],
-  providers: [JwtStrategy, GqlJwtAuthGuard, AuthResolver, CoachGuard],
+  providers: [
+    JwtStrategy,
+    GqlJwtAuthGuard,
+    AuthResolver,
+    CoachGuard,
+    // Enforce authentication on every resolver by default.
+    // Opt out per handler with @Public().
+    { provide: APP_GUARD, useClass: GqlJwtAuthGuard },
+  ],
   exports: [GqlJwtAuthGuard, JwtModule, CoachGuard],
 })
 export class AuthModule {}
