@@ -7,7 +7,9 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { AuthResolver } from './auth.resolver';
 import { CoachGuard } from './guards/coach-guard';
 import { GqlJwtAuthGuard } from './guards/jwt-guard';
+import { TeamCoachGuard, TeamMemberGuard } from './guards/team-access.guard';
 import { JwtStrategy } from './jwt-strategy';
+import { TeamAccessService } from './team-access.service';
 
 @Module({
   imports: [
@@ -52,10 +54,20 @@ import { JwtStrategy } from './jwt-strategy';
     GqlJwtAuthGuard,
     AuthResolver,
     CoachGuard,
+    TeamAccessService,
+    TeamMemberGuard,
+    TeamCoachGuard,
     // Enforce authentication on every resolver by default.
     // Opt out per handler with @Public().
     { provide: APP_GUARD, useClass: GqlJwtAuthGuard },
   ],
-  exports: [GqlJwtAuthGuard, JwtModule, CoachGuard],
+  exports: [
+    GqlJwtAuthGuard,
+    JwtModule,
+    CoachGuard,
+    TeamAccessService,
+    TeamMemberGuard,
+    TeamCoachGuard,
+  ],
 })
 export class AuthModule {}
