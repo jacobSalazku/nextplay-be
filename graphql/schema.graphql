@@ -665,6 +665,7 @@ type Mutation {
 
 input DeleteActivity {
   id: ID!
+  routeKey: String!
 }
 
 input CreateGameInput {

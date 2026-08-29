@@ -46,8 +46,8 @@ function clean<T extends object>(obj: T): Partial<T> {
 export class ActivityBuilder {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(input: ActivityTypes) {
-    const base = await this.buildCreateBase(input);
+  async create(input: ActivityTypes, teamId: string) {
+    const base = this.buildCreateBase(input, teamId);
     const extra = this.buildExtra(input);
 
     return await this.prisma.activity.create({
@@ -221,22 +221,13 @@ export class ActivityBuilder {
     }
   }
 
-  private async buildCreateBase(input: ActivityTypes) {
-    const team = await this.prisma.team.findUnique({
-      where: { routeKey: input.teamId },
-      select: { id: true },
-    });
-
-    if (!team) {
-      throw new Error(`Team not found`);
-    }
-
+  private buildCreateBase(input: ActivityTypes, teamId: string) {
     return {
       title: input.title,
       time: input.time,
       date: input.date,
       duration: input.duration,
-      team: { connect: { id: team.id } },
+      team: { connect: { id: teamId } },
       type: input.type,
     };
   }

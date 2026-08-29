@@ -125,6 +125,7 @@ export class GetTeamInput {
 
 export class DeleteActivity {
     id: string;
+    routeKey: string;
 }
 
 export class CreateGameInput {

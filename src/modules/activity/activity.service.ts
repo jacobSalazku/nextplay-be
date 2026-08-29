@@ -75,21 +75,28 @@ export class ActivityService {
     private readonly builder: ActivityBuilder,
   ) {}
 
-  async createActivity(input: ActivityTypes): Promise<PrismaActivity> {
-    return await this.builder.create(input);
+  async createActivity(
+    input: ActivityTypes,
+    teamId: string,
+  ): Promise<PrismaActivity> {
+    return await this.builder.create(input, teamId);
   }
 
-  async updateActivity(input: UpdateActivityTypes): Promise<PrismaActivity> {
-    await this.assertGameOrPracticeIsEditable(input.id);
+  async updateActivity(
+    input: UpdateActivityTypes,
+    teamId: string,
+  ): Promise<PrismaActivity> {
+    await this.assertActivityIsEditable(input.id, teamId);
 
     return await this.builder.update(input.id, input);
   }
 
-  async deleteActivity(id: string): Promise<PrismaActivity> {
-    const deletedGame = await this.prisma.activity.delete({
-      where: { id: id },
+  async deleteActivity(id: string, teamId: string): Promise<PrismaActivity> {
+    await this.assertActivityInTeam(id, teamId);
+
+    return await this.prisma.activity.delete({
+      where: { id },
     });
-    return deletedGame;
   }
 
   async getActivities(teamShortId: string) {
@@ -282,11 +289,26 @@ export class ActivityService {
     };
   }
 
-  private async assertGameOrPracticeIsEditable(
+  private async assertActivityInTeam(
     activityId: string,
+    teamId: string,
   ): Promise<void> {
-    const activity = await this.prisma.activity.findUnique({
-      where: { id: activityId },
+    const activity = await this.prisma.activity.findFirst({
+      where: { id: activityId, teamId },
+      select: { id: true },
+    });
+
+    if (!activity) {
+      throw new NotFoundException('Activity not found.');
+    }
+  }
+
+  private async assertActivityIsEditable(
+    activityId: string,
+    teamId: string,
+  ): Promise<void> {
+    const activity = await this.prisma.activity.findFirst({
+      where: { id: activityId, teamId },
       select: {
         date: true,
         type: true,
