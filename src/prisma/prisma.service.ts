@@ -12,6 +12,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }
 
   async onModuleInit() {
+    // SKIP_DB_CONNECT lets `NestFactory.create` build the module graph (and
+    // generate the GraphQL schema) without a database — used by the
+    // schema-drift check in CI.
+    if (process.env.SKIP_DB_CONNECT === 'true') {
+      return;
+    }
     await this.$connect();
   }
 }

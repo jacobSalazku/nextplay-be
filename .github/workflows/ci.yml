@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # dummy values so the Nest module graph builds; no DB is touched during
+      # the schema check (SKIP_DB_CONNECT), and no tokens are signed.
+      DATABASE_URL: postgres://ci:ci@localhost:5432/ci
+      GOOGLE_CLIENT_ID: ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm prisma generate
+
+      - name: Ephemeral JWT keypair (schema check only)
+        run: |
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out /tmp/jwt.pem
+          openssl rsa -in /tmp/jwt.pem -pubout -out /tmp/jwt.pub
+          echo "JWT_PRIVATE_KEY_BASE64=$(base64 -w0 /tmp/jwt.pem)" >> "$GITHUB_ENV"
+          echo "JWT_PUBLIC_KEY_BASE64=$(base64 -w0 /tmp/jwt.pub)" >> "$GITHUB_ENV"
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm exec eslint "{src,apps,libs,test}/**/*.ts"
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: GraphQL schema is in sync with the resolvers
+        run: pnpm schema:check

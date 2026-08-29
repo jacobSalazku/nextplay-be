@@ -40,4 +40,4 @@ async function bootstrap() {
   logger.log(`Server running at http://localhost:${process.env.PORT}/graphql`);
 }
 
-bootstrap();
+void bootstrap();

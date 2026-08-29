@@ -139,4 +139,3 @@ export class MemberWithStatlines extends Member {
   @Field(() => [MemberStatline])
   statlines: MemberStatline[];
 }
-
