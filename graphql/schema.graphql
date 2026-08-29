@@ -605,6 +605,7 @@ input GetPlaysInput {
 
 input GetPlayInput {
   id: String!
+  routeKey: String!
 }
 
 input GetPracticePreparationsInput {
@@ -750,11 +751,13 @@ input UpdateFeedbackInput {
 }
 
 input GetAttendanceByActivitiesInput {
+  routeKey: String!
   activityId: String!
   memberId: String!
 }
 
 input PlayerActivityAttendanceInput {
+  routeKey: String!
   activityId: String!
   memberId: String!
   reason: String!

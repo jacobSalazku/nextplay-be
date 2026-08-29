@@ -1,6 +1,8 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
+import { CurrentTeam } from '../auth/decorator/current-team.decorator';
+import { TeamMemberGuard } from '../auth/guards/team-access.guard';
+import type { TeamAccess } from '../auth/team-access.service';
 import { PlayerActivityAttendance } from './attendance.model';
 import { AttendanceService } from './attendance.service';
 import {
@@ -12,17 +14,21 @@ import {
 export class AttendanceResolver {
   constructor(private readonly attendance: AttendanceService) {}
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Mutation(() => PlayerActivityAttendance)
   async getAttendanceByActivities(
     @Args('input') input: GetAttendanceByActivitiesInput,
+    @CurrentTeam() team: TeamAccess,
   ) {
-    return await this.attendance.getAttendance(input);
+    return await this.attendance.getAttendance(input, team.teamId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Mutation(() => PlayerActivityAttendance)
-  async submitAttendance(@Args('input') input: PlayerActivityAttendanceInput) {
-    return await this.attendance.submit(input);
+  async submitAttendance(
+    @Args('input') input: PlayerActivityAttendanceInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return await this.attendance.submit(input, team);
   }
 }

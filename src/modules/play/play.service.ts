@@ -1,11 +1,7 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Category, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreatePlayInput, DeletePlayInput } from './dto';
+import { CreatePlayInput } from './dto';
 
 const playSelect = {
   id: true,
@@ -42,41 +38,35 @@ type PlayResponse = {
 export class PlayService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getPlays(routeKey: string): Promise<PlayResponse[]> {
-    const team = await this.resolveTeam(routeKey);
-
+  async getPlays(teamId: string): Promise<PlayResponse[]> {
     const plays = await this.prisma.play.findMany({
-      where: {
-        teamId: team.id,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      where: { teamId },
+      orderBy: { createdAt: 'desc' },
       select: playSelect,
     });
 
     return plays.map((play) => this.mapPlay(play));
   }
 
-  async getPlayById(playid: string): Promise<PlayResponse | null> {
-    const play = await this.prisma.play.findUnique({
-      where: { id: playid },
+  async getPlayById(
+    playId: string,
+    teamId: string,
+  ): Promise<PlayResponse | null> {
+    const play = await this.prisma.play.findFirst({
+      where: { id: playId, teamId },
       select: playSelect,
     });
 
-    if (!play) {
-      return null;
-    }
-
-    return this.mapPlay(play);
+    return play ? this.mapPlay(play) : null;
   }
 
-  async createPlay(input: CreatePlayInput): Promise<PlayResponse> {
-    const team = await this.resolveTeam(input.routeKey);
-
+  async createPlay(
+    input: CreatePlayInput,
+    teamId: string,
+  ): Promise<PlayResponse> {
     const play = await this.prisma.play.create({
       data: {
-        teamId: team.id,
+        teamId,
         name: input.name,
         description: input.description,
         category: input.category,
@@ -88,46 +78,12 @@ export class PlayService {
     return this.mapPlay(play);
   }
 
-  async deletePlay(input: DeletePlayInput): Promise<boolean> {
-    const team = await this.resolveTeam(input.routeKey);
-
+  async deletePlay(playId: string, teamId: string): Promise<boolean> {
     const deleted = await this.prisma.play.deleteMany({
-      where: {
-        id: input.id,
-        teamId: team.id,
-      },
+      where: { id: playId, teamId },
     });
 
     return deleted.count > 0;
-  }
-
-  private async resolveTeam(routeKey: string): Promise<{ id: string }> {
-    const normalizedRouteKey = routeKey.trim();
-
-    if (!normalizedRouteKey) {
-      throw new BadRequestException('Team reference is required');
-    }
-
-    const lowerRef = normalizedRouteKey.toLowerCase();
-    const shortIdFromRoute = lowerRef.split('-').at(-1) ?? lowerRef;
-
-    const team = await this.prisma.team.findFirst({
-      where: {
-        OR: [
-          { routeKey: normalizedRouteKey },
-          { routeKey: lowerRef },
-          { shortId: lowerRef },
-          { shortId: shortIdFromRoute },
-        ],
-      },
-      select: { id: true },
-    });
-
-    if (!team) {
-      throw new NotFoundException('Team not found');
-    }
-
-    return team;
   }
 
   private mapPlay(play: PlayWithTeam): PlayResponse {

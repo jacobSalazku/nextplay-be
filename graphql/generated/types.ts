@@ -97,6 +97,7 @@ export class GetPlaysInput {
 
 export class GetPlayInput {
     id: string;
+    routeKey: string;
 }
 
 export class GetPracticePreparationsInput {
@@ -203,11 +204,13 @@ export class UpdateFeedbackInput {
 }
 
 export class GetAttendanceByActivitiesInput {
+    routeKey: string;
     activityId: string;
     memberId: string;
 }
 
 export class PlayerActivityAttendanceInput {
+    routeKey: string;
     activityId: string;
     memberId: string;
     reason: string;

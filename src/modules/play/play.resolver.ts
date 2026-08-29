@@ -1,7 +1,11 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CoachGuard } from '../auth/guards/coach-guard';
-import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
+import { CurrentTeam } from '../auth/decorator/current-team.decorator';
+import {
+  TeamCoachGuard,
+  TeamMemberGuard,
+} from '../auth/guards/team-access.guard';
+import type { TeamAccess } from '../auth/team-access.service';
 import {
   CreatePlayInput,
   DeletePlayInput,
@@ -15,27 +19,39 @@ import { PlayService } from './play.service';
 export class PlayResolver {
   constructor(private readonly play: PlayService) {}
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Query(() => [Play])
-  async getPlays(@Args('input') input: GetPlaysInput) {
-    return this.play.getPlays(input.routeKey);
+  async getPlays(
+    @Args('input') _input: GetPlaysInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return this.play.getPlays(team.teamId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Query(() => Play, { nullable: true })
-  async getPlay(@Args('input') input: GetPlayInput) {
-    return this.play.getPlayById(input.id);
+  async getPlay(
+    @Args('input') input: GetPlayInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return this.play.getPlayById(input.id, team.teamId);
   }
 
-  @UseGuards(GqlJwtAuthGuard, CoachGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Play)
-  async createPlay(@Args('input') input: CreatePlayInput) {
-    return this.play.createPlay(input);
+  async createPlay(
+    @Args('input') input: CreatePlayInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return this.play.createPlay(input, team.teamId);
   }
 
-  @UseGuards(GqlJwtAuthGuard, CoachGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => Boolean)
-  async deletePlay(@Args('input') input: DeletePlayInput) {
-    return await this.play.deletePlay(input);
+  async deletePlay(
+    @Args('input') input: DeletePlayInput,
+    @CurrentTeam() team: TeamAccess,
+  ) {
+    return await this.play.deletePlay(input.id, team.teamId);
   }
 }
