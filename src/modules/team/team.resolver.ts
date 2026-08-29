@@ -5,13 +5,17 @@ import { CoachGuard } from '../auth/guards/coach-guard';
 import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
 import { CurrentTeamId } from './decorator/current-team.decorator';
 import {
+  AcceptTeamInviteInput,
+  AcceptTeamInviteResponse,
   AcceptTeamRequestInput,
   CreateTeamInput,
+  CreateTeamInviteInput,
   GetTeamInput,
   JoinTeamInput,
   JoinTeamResponse,
   ModerateJoinRequestResult,
   TeamInformation,
+  TeamInviteResponse,
   TeamRequestInput,
 } from './dto';
 import { Team, TeamDashboard } from './team.model';
@@ -50,11 +54,29 @@ export class TeamResolver {
 
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => JoinTeamResponse)
-  async joinTeam(
+  joinTeam(
     @Args('input') input: JoinTeamInput,
     @CurrentUser() user: { userId: string },
   ) {
     return this.team.requestToJoinTeam(input, user.userId);
+  }
+
+  @UseGuards(GqlJwtAuthGuard, CoachGuard)
+  @Mutation(() => TeamInviteResponse)
+  async createTeamInvite(
+    @Args('input') input: CreateTeamInviteInput,
+    @CurrentUser() user: { userId: string },
+  ): Promise<TeamInviteResponse> {
+    return this.team.createTeamInvite(input, user.userId);
+  }
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => AcceptTeamInviteResponse)
+  async acceptTeamInvite(
+    @Args('input') input: AcceptTeamInviteInput,
+    @CurrentUser() user: { userId: string },
+  ): Promise<AcceptTeamInviteResponse> {
+    return this.team.acceptTeamInvite(input, user.userId);
   }
 
   @UseGuards(GqlJwtAuthGuard, CoachGuard)
