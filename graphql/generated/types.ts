@@ -233,6 +233,7 @@ export class DeleteGamePlanInput {
 
 export class DeleteMemberInput {
     id: string;
+    routeKey: string;
 }
 
 export class CreatePlayInput {

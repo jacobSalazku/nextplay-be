@@ -264,13 +264,22 @@ export class MemberService {
     }));
   }
 
-  async deleteMember(id: string) {
+  async deleteMember(id: string, teamId: string) {
+    const member = await this.prisma.member.findFirst({
+      where: { id, teamId },
+      select: { id: true },
+    });
+
+    if (!member) {
+      throw new NotFoundException('Member not found for this team.');
+    }
+
     await this.prisma.statline.deleteMany({
       where: { memberId: id },
     });
 
     await this.prisma.member.delete({
-      where: { id: id },
+      where: { id },
     });
 
     return true;

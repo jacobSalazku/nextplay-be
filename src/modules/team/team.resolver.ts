@@ -1,8 +1,11 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
-import { CoachGuard } from '../auth/guards/coach-guard';
 import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
+import {
+  TeamCoachGuard,
+  TeamMemberGuard,
+} from '../auth/guards/team-access.guard';
 import {
   AcceptTeamInviteInput,
   AcceptTeamInviteResponse,
@@ -19,7 +22,7 @@ import { TeamService } from './team.service';
 export class TeamResolver {
   constructor(private readonly team: TeamService) {}
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Query(() => TeamInformation)
   async getTeam(@Args('input') input: GetTeamInput) {
     return this.team.getTeam(input.routeKey);
@@ -40,13 +43,13 @@ export class TeamResolver {
     return this.team.getTeamsForDashboard(user.userId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Query(() => Team)
   async getTeamActivities(@Args('routeKey') routeKey: string) {
     return this.team.getTeamActivities(routeKey);
   }
 
-  @UseGuards(GqlJwtAuthGuard, CoachGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => TeamInviteResponse)
   async createTeamInvite(
     @Args('input') input: CreateTeamInviteInput,

@@ -1,8 +1,10 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
-import { CoachGuard } from '../auth/guards/coach-guard';
-import { GqlJwtAuthGuard } from '../auth/guards/jwt-guard';
+import {
+  TeamCoachGuard,
+  TeamMemberGuard,
+} from '../auth/guards/team-access.guard';
 import {
   CreateGamePlanInput,
   DeleteGamePlanInput,
@@ -16,7 +18,7 @@ import { GameplanService } from './gameplan.service';
 export class GameplanResolver {
   constructor(private readonly gameplan: GameplanService) {}
 
-  @UseGuards(GqlJwtAuthGuard, CoachGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => GamePlan)
   async createGamePlan(
     @Args('input') input: CreateGamePlanInput,
@@ -25,7 +27,7 @@ export class GameplanResolver {
     return this.gameplan.createGamePlan(input, user.userId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Query(() => [GamePlan])
   async getGameplan(
     @Args('input') input: GetGamePlansInput,
@@ -34,7 +36,7 @@ export class GameplanResolver {
     return this.gameplan.getGameplan(input, user.userId);
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(TeamMemberGuard)
   @Query(() => GamePlan, { nullable: true })
   async getGameplanById(
     @Args('input') input: GetGamePlanByIdInput,
@@ -43,7 +45,7 @@ export class GameplanResolver {
     return this.gameplan.getGameplanById(input, user.userId);
   }
 
-  @UseGuards(GqlJwtAuthGuard, CoachGuard)
+  @UseGuards(TeamCoachGuard)
   @Mutation(() => GamePlan)
   async deleteGamePlan(
     @Args('input') input: DeleteGamePlanInput,

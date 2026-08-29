@@ -11,7 +11,14 @@ export class MembersInput {
 @InputType()
 export class DeleteMemberInput {
   @Field()
+  @IsString()
+  @MinLength(1)
   id: string;
+
+  @Field()
+  @IsString()
+  @MinLength(1)
+  routeKey: string;
 }
 
 @InputType()
