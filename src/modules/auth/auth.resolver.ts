@@ -32,8 +32,8 @@ export class AuthResolver {
 
   @UseGuards(GqlJwtAuthGuard)
   @Query(() => User)
-  async me(@CurrentUser() user: { userId: string }) {
-    return await this.prisma.user.findUnique({
+  async me(@CurrentUser() user: { userId: string }): Promise<User> {
+    return await this.prisma.user.findUniqueOrThrow({
       where: { id: user.userId },
       select: {
         id: true,
@@ -54,7 +54,9 @@ export class AuthResolver {
    */
   @Public()
   @Mutation(() => AuthPayload)
-  async loginWithGoogle(@Args('idToken') idToken: string) {
+  async loginWithGoogle(
+    @Args('idToken') idToken: string,
+  ): Promise<AuthPayload> {
     const clientId = this.config.get<string>('GOOGLE_CLIENT_ID');
     if (!clientId) {
       throw new InternalServerErrorException('Google login is not configured');
@@ -85,7 +87,7 @@ export class AuthResolver {
    */
   @Public()
   @Mutation(() => AuthPayload)
-  async devLogin(@Args('email') email: string) {
+  async devLogin(@Args('email') email: string): Promise<AuthPayload> {
     if (
       process.env.NODE_ENV === 'production' ||
       process.env.DEV_AUTH_ENABLED !== 'true'
@@ -100,7 +102,9 @@ export class AuthResolver {
   // REFRESH
   @Public()
   @Mutation(() => AuthPayload)
-  async refresh(@Args('refreshToken') refreshToken: string) {
+  async refresh(
+    @Args('refreshToken') refreshToken: string,
+  ): Promise<AuthPayload> {
     const user = await this.prisma.user.findFirst({
       where: { refreshToken },
       select: {
@@ -120,7 +124,7 @@ export class AuthResolver {
 
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Boolean)
-  async logout(@CurrentUser() user: { userId: string }) {
+  async logout(@CurrentUser() user: { userId: string }): Promise<boolean> {
     await this.prisma.user.update({
       where: { id: user.userId },
       data: {

@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
 import { Role, Status } from '@prisma/client';
 import { PlayerActivityAttendance } from '../attendance/attendance.model';
 
@@ -7,29 +7,29 @@ export class UserDetail {
   @Field()
   id: string;
 
-  @Field({ nullable: true })
-  name?: string;
+  @Field(() => String, { nullable: true })
+  name?: string | null;
 
   @Field({ nullable: true })
   email: string;
 
-  @Field({ nullable: true })
-  image?: string;
+  @Field(() => String, { nullable: true })
+  image?: string | null;
 
-  @Field({ nullable: true })
-  dateOfBirth?: Date;
+  @Field(() => Date, { nullable: true })
+  dateOfBirth?: Date | null;
 
-  @Field({ nullable: true })
-  phone?: string;
+  @Field(() => String, { nullable: true })
+  phone?: string | null;
 
-  @Field({ nullable: true })
-  height?: number;
+  @Field(() => Float, { nullable: true })
+  height?: number | null;
 
-  @Field({ nullable: true })
-  weight?: number;
+  @Field(() => Float, { nullable: true })
+  weight?: number | null;
 
-  @Field({ nullable: true })
-  dominantHand?: string;
+  @Field(() => String, { nullable: true })
+  dominantHand?: string | null;
 
   @Field()
   hasOnBoarded: boolean;
@@ -46,11 +46,11 @@ export class TeamMemberUser {
   @Field()
   teamId: string;
 
-  @Field({ nullable: true })
-  name?: string;
+  @Field(() => String, { nullable: true })
+  name?: string | null;
 
-  @Field({ nullable: true })
-  image?: string;
+  @Field(() => String, { nullable: true })
+  image?: string | null;
 }
 
 @ObjectType()
@@ -70,14 +70,14 @@ export class Member {
   @Field(() => Status)
   status: Status;
 
-  @Field({ nullable: true })
-  number?: string;
+  @Field(() => String, { nullable: true })
+  number?: string | null;
 
-  @Field({ nullable: true })
-  position?: string;
+  @Field(() => String, { nullable: true })
+  position?: string | null;
 
-  @Field({ nullable: true })
-  name?: string;
+  @Field(() => String, { nullable: true })
+  name?: string | null;
 
   @Field(() => UserDetail, { nullable: true })
   user?: UserDetail;
@@ -139,4 +139,3 @@ export class MemberWithStatlines extends Member {
   @Field(() => [MemberStatline])
   statlines: MemberStatline[];
 }
-

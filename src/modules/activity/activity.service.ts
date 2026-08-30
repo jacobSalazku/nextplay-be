@@ -4,12 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  ActivityType,
-  Prisma,
-  Activity as PrismaActivity,
-  Status,
-} from '@prisma/client';
+import { ActivityType, Prisma, Status } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   ActivityBuilder,
@@ -78,25 +73,27 @@ export class ActivityService {
   async createActivity(
     input: ActivityTypes,
     teamId: string,
-  ): Promise<PrismaActivity> {
-    return await this.builder.create(input, teamId);
+  ): Promise<ActivityModel> {
+    const created = await this.builder.create(input, teamId);
+    return this.getMappedActivity(created.id);
   }
 
   async updateActivity(
     input: UpdateActivityTypes,
     teamId: string,
-  ): Promise<PrismaActivity> {
+  ): Promise<ActivityModel> {
     await this.assertActivityIsEditable(input.id, teamId);
 
-    return await this.builder.update(input.id, input);
+    const updated = await this.builder.update(input.id, input);
+    return this.getMappedActivity(updated.id);
   }
 
-  async deleteActivity(id: string, teamId: string): Promise<PrismaActivity> {
+  async deleteActivity(id: string, teamId: string): Promise<ActivityModel> {
     await this.assertActivityInTeam(id, teamId);
 
-    return await this.prisma.activity.delete({
-      where: { id },
-    });
+    const deleted = await this.prisma.activity.delete({ where: { id } });
+    // attendees are cascade-deleted with the activity
+    return { ...deleted, attendees: [] };
   }
 
   async getActivities(teamShortId: string) {
@@ -114,6 +111,7 @@ export class ActivityService {
         time: true,
         duration: true,
         type: true,
+        teamId: true,
         createdAt: true,
         updatedAt: true,
         attendees: {
@@ -131,6 +129,14 @@ export class ActivityService {
     });
 
     return activities;
+  }
+
+  private async getMappedActivity(id: string): Promise<ActivityModel> {
+    const activity = await this.prisma.activity.findUniqueOrThrow({
+      where: { id },
+      select: activitySelect,
+    });
+    return this.mapActivity(activity);
   }
 
   async getActivity(

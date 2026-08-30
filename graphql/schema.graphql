@@ -138,7 +138,7 @@ type User {
   isBlocked: Boolean!
   tokenVersion: Float!
   hasOnBoarded: Boolean!
-  members: [Member!]!
+  members: [Member!]
 }
 
 type OpponentStatline {
@@ -496,6 +496,14 @@ type MemberId {
   id: String!
 }
 
+type DashboardActivity {
+  id: ID!
+  type: ActivityType!
+  title: String!
+  date: DateTime!
+  time: String!
+}
+
 type Team {
   id: ID!
   name: String!
@@ -505,8 +513,8 @@ type Team {
   routeKey: String!
   ageGroup: String
   image: String
-  members: [TeamMemberUser!]!
-  activities: [Activity!]!
+  members: [TeamMemberUser!]
+  activities: [Activity!]
   creatorId: String
   createdAt: DateTime
   updatedAt: DateTime
@@ -520,7 +528,7 @@ type TeamDashboard {
   routeKey: String!
   ageGroup: String
   members: [MemberId!]!
-  activities: [Activity!]!
+  activities: [DashboardActivity!]!
 }
 
 type UserProfile {
@@ -648,7 +656,7 @@ type Mutation {
   devLogin(email: String!): AuthPayload!
   refresh(refreshToken: String!): AuthPayload!
   logout: Boolean!
-  getAttendanceByActivities(input: GetAttendanceByActivitiesInput!): PlayerActivityAttendance!
+  getAttendanceByActivities(input: GetAttendanceByActivitiesInput!): PlayerActivityAttendance
   submitAttendance(input: PlayerActivityAttendanceInput!): PlayerActivityAttendance!
   createGamePlan(input: CreateGamePlanInput!): GamePlan!
   deleteGamePlan(input: DeleteGamePlanInput!): GamePlan!

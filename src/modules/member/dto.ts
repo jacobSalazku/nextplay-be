@@ -39,17 +39,17 @@ export class TeamMemberInfo {
   @Field(() => ID)
   id: string;
 
-  @Field({ nullable: true })
-  name: string;
+  @Field(() => String, { nullable: true })
+  name?: string | null;
 
-  @Field({ nullable: true })
-  image?: string;
+  @Field(() => String, { nullable: true })
+  image?: string | null;
 
-  @Field({ nullable: true })
-  number: string;
+  @Field(() => String, { nullable: true })
+  number?: string | null;
 
-  @Field({ nullable: true })
-  position: string;
+  @Field(() => String, { nullable: true })
+  position?: string | null;
 
   @Field()
   teamId: string;

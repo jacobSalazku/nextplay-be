@@ -41,11 +41,11 @@ export class TeamInformation {
   @Field()
   shortId: string;
 
-  @Field({ nullable: true })
-  image?: string;
+  @Field(() => String, { nullable: true })
+  image?: string | null;
 
-  @Field({ nullable: true })
-  ageGroup?: string;
+  @Field(() => String, { nullable: true })
+  ageGroup?: string | null;
 
   @Field()
   createdAt: Date;

@@ -23,7 +23,7 @@ export class PracticePreparationResolver {
   async createPracticePreparation(
     @Args('input') input: CreatePracticePreparationInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<PracticePreparation> {
     return this.preparation.createPracticePreparation(input, user.userId);
   }
 
@@ -32,7 +32,7 @@ export class PracticePreparationResolver {
   async getPracticePreparations(
     @Args('input') input: GetPracticePreparationsInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<PracticePreparation[]> {
     return this.preparation.getPracticePreparations(input, user.userId);
   }
 
@@ -41,7 +41,7 @@ export class PracticePreparationResolver {
   async getPracticePreparationById(
     @Args('input') input: GetPracticePreparationByIdInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<PracticePreparation | null> {
     return this.preparation.getPracticePreparationById(input, user.userId);
   }
 
@@ -50,7 +50,7 @@ export class PracticePreparationResolver {
   async deletePracticePreparation(
     @Args('input') input: DeletePracticePreparationInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<PracticePreparation> {
     return this.preparation.deletePracticePreparation(input, user.userId);
   }
 }

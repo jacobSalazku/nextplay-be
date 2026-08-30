@@ -15,11 +15,11 @@ export class AttendanceResolver {
   constructor(private readonly attendance: AttendanceService) {}
 
   @UseGuards(TeamMemberGuard)
-  @Mutation(() => PlayerActivityAttendance)
+  @Mutation(() => PlayerActivityAttendance, { nullable: true })
   async getAttendanceByActivities(
     @Args('input') input: GetAttendanceByActivitiesInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<PlayerActivityAttendance | null> {
     return await this.attendance.getAttendance(input, team.teamId);
   }
 
@@ -28,7 +28,7 @@ export class AttendanceResolver {
   async submitAttendance(
     @Args('input') input: PlayerActivityAttendanceInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<PlayerActivityAttendance> {
     return await this.attendance.submit(input, team);
   }
 }

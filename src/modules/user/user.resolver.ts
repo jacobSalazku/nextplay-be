@@ -15,7 +15,7 @@ export class UserResolver {
   async getCurrentUser(
     @Args('teamShortId') teamShortId: string,
     @CurrentUser() currentUser: { userId: string },
-  ) {
+  ): Promise<GetUserResponse> {
     return this.user.getCurrentUser(currentUser.userId, teamShortId);
   }
 
@@ -24,7 +24,7 @@ export class UserResolver {
   async updateUser(
     @Args('input') input: UpdateUserInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<User> {
     return this.user.updateUser(input, user.userId);
   }
 }

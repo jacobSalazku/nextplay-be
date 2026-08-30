@@ -2,11 +2,11 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentTeam } from '../auth/decorator/current-team.decorator';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
-import type { TeamAccess } from '../auth/team-access.service';
 import {
   TeamCoachGuard,
   TeamMemberGuard,
 } from '../auth/guards/team-access.guard';
+import type { TeamAccess } from '../auth/team-access.service';
 import { Activity } from './activity.model';
 import { ActivityService } from './activity.service';
 import {
@@ -32,7 +32,9 @@ export class ActivityResolver {
 
   @UseGuards(TeamMemberGuard)
   @Query(() => [Activity])
-  async getActivities(@Args('teamShortId') teamShortId: string) {
+  async getActivities(
+    @Args('teamShortId') teamShortId: string,
+  ): Promise<Activity[]> {
     return await this.activity.getActivities(teamShortId);
   }
 
@@ -68,7 +70,7 @@ export class ActivityResolver {
   async deleteActivity(
     @Args('input') input: DeleteActivity,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Activity> {
     return await this.activity.deleteActivity(input.id, team.teamId);
   }
 
@@ -78,7 +80,7 @@ export class ActivityResolver {
   async createGame(
     @Args('input') input: CreateGameInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Activity> {
     return await this.activity.createActivity(input, team.teamId);
   }
 
@@ -87,7 +89,7 @@ export class ActivityResolver {
   async updateGame(
     @Args('input') input: UpdateGameInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Activity> {
     return await this.activity.updateActivity(input, team.teamId);
   }
 
@@ -97,7 +99,7 @@ export class ActivityResolver {
   async createPractice(
     @Args('input') input: CreatePracticeInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Activity> {
     return await this.activity.createActivity(input, team.teamId);
   }
 
@@ -106,7 +108,7 @@ export class ActivityResolver {
   async updatePractice(
     @Args('input') input: UpdatePracticeInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Activity> {
     return await this.activity.updateActivity(input, team.teamId);
   }
 
@@ -116,7 +118,7 @@ export class ActivityResolver {
   async createMeeting(
     @Args('input') input: CreateMeetingInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Activity> {
     return this.activity.createActivity(input, team.teamId);
   }
 
@@ -125,7 +127,7 @@ export class ActivityResolver {
   async updateMeeting(
     @Args('input') input: UpdateMeetingInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Activity> {
     return await this.activity.updateActivity(input, team.teamId);
   }
 
@@ -135,7 +137,7 @@ export class ActivityResolver {
   async createFilm(
     @Args('input') input: CreateFilmInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Activity> {
     return this.activity.createActivity(input, team.teamId);
   }
 
@@ -144,7 +146,7 @@ export class ActivityResolver {
   async updateFilm(
     @Args('input') input: UpdateFilmInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Activity> {
     return await this.activity.updateActivity(input, team.teamId);
   }
 
@@ -154,7 +156,7 @@ export class ActivityResolver {
   async createFeedback(
     @Args('input') input: CreateFeedbackInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Activity> {
     return this.activity.createActivity(input, team.teamId);
   }
 
@@ -163,7 +165,7 @@ export class ActivityResolver {
   async updateFeedback(
     @Args('input') input: UpdateFeedbackInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Activity> {
     return await this.activity.updateActivity(input, team.teamId);
   }
 }

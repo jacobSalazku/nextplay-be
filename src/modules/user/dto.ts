@@ -7,26 +7,26 @@ export class UserProfile {
   @Field(() => ID)
   id: string;
 
-  @Field({ nullable: true })
-  name?: string;
+  @Field(() => String, { nullable: true })
+  name?: string | null;
 
   @Field({ nullable: true })
   email: string;
 
-  @Field({ nullable: true })
-  dateOfBirth?: Date;
+  @Field(() => Date, { nullable: true })
+  dateOfBirth?: Date | null;
 
-  @Field({ nullable: true })
-  phone?: string;
-
-  @Field(() => Float, { nullable: true })
-  height?: number;
+  @Field(() => String, { nullable: true })
+  phone?: string | null;
 
   @Field(() => Float, { nullable: true })
-  weight?: number;
+  height?: number | null;
 
-  @Field({ nullable: true })
-  dominantHand?: string;
+  @Field(() => Float, { nullable: true })
+  weight?: number | null;
+
+  @Field(() => String, { nullable: true })
+  dominantHand?: string | null;
 
   @Field({ nullable: true })
   hasOnBoarded: boolean;
