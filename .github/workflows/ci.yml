@@ -1,9 +1,14 @@
 name: CI
 
+# every push on every branch, plus PRs from forks
 on:
   push:
-    branches: [main]
   pull_request:
+
+# a newer commit on the same ref cancels the in-flight run
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
