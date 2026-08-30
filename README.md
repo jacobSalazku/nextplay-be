@@ -141,9 +141,16 @@ it('rejects a non-member with 403', async () => {
 
 ### Database
 
-Guards, resolvers, and any Prisma query logic run against a **real test
-database** — `DATABASE_URL` points at `nextplay_test`, reset with
-`prisma migrate reset --force` in global setup and truncated between tests. A
-mocked Prisma cannot prove a query actually filters by membership. Pure logic
-(builders, stat math, token generation) uses plain unit tests with
-`jest-mock-extended` for injected deps — no DB.
+Guards, resolvers, and any Prisma query logic run against the **real test
+database** (`docker-compose.test.yml`, truncated between tests via
+`resetDb()`). A mocked Prisma cannot prove a query actually filters by
+membership. Pure logic (builders, stat math) is tested at the same level —
+the nested Prisma writes are the thing worth verifying.
+
+### E2E
+
+`test/*.e2e-spec.ts` boot the whole Nest app (Fastify + Apollo) with a
+throwaway RSA keypair, and drive it over HTTP with `supertest`. `auth.e2e-spec`
+covers the real flow: `devLogin` → session → a `TeamMemberGuard` query
+returns 200 for a member, 403 for a non-member, 401 with no token, and
+`devLogin` is refused unless `DEV_AUTH_ENABLED=true`.

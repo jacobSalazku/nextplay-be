@@ -133,6 +133,7 @@ describe('ActivityBuilder', () => {
 
       const updated = await builder.update(activity.id, {
         id: activity.id,
+        teamId: team.id,
         title: 'Renamed',
         time: '20:00',
         duration: 2,
@@ -153,6 +154,7 @@ describe('ActivityBuilder', () => {
       await builder.update(activity.id, {
         id: activity.id,
         ...base,
+        teamId: team.id,
         type: ActivityType.GAME,
         location: Location.AWAY,
       });
@@ -168,6 +170,7 @@ describe('ActivityBuilder', () => {
 
       await builder.update(activity.id, {
         id: activity.id,
+        teamId: team.id,
         title: 'Only the title',
         type: ActivityType.GAME,
       });
@@ -186,6 +189,7 @@ describe('ActivityBuilder', () => {
 
       await builder.update(film.id, {
         id: film.id,
+        teamId: team.id,
         title: 'New title',
         type: ActivityType.FILM,
       });
