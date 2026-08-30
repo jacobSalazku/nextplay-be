@@ -21,13 +21,17 @@ export class MemberResolver {
 
   @UseGuards(TeamMemberGuard)
   @Query(() => MemberWithAttendances)
-  async getMemberProfile(@Args('input') input: GetMemberProfileInput) {
+  async getMemberProfile(
+    @Args('input') input: GetMemberProfileInput,
+  ): Promise<MemberWithAttendances> {
     return await this.member.getMemberProfile(input);
   }
 
   @UseGuards(TeamMemberGuard)
   @Query(() => [MemberWithAttendances])
-  async getMembers(@Args('input') input: MembersInput) {
+  async getMembers(
+    @Args('input') input: MembersInput,
+  ): Promise<MemberWithAttendances[]> {
     return await this.member.getActiveMembers(input.routeKey);
   }
 
@@ -35,7 +39,7 @@ export class MemberResolver {
   @Query(() => [MemberWithStatlines])
   async getActiveAttendedMembers(
     @Args('input') input: ActiveAttendedMembersInput,
-  ) {
+  ): Promise<MemberWithStatlines[]> {
     return this.member.getActiveAttendedMembers(input);
   }
 
@@ -44,7 +48,7 @@ export class MemberResolver {
   async deleteMember(
     @Args('input') input: DeleteMemberInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<boolean> {
     return await this.member.deleteMember(input.id, team.teamId);
   }
 }

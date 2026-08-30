@@ -24,7 +24,7 @@ export class PlayResolver {
   async getPlays(
     @Args('input') _input: GetPlaysInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Play[]> {
     return this.play.getPlays(team.teamId);
   }
 
@@ -33,7 +33,7 @@ export class PlayResolver {
   async getPlay(
     @Args('input') input: GetPlayInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Play | null> {
     return this.play.getPlayById(input.id, team.teamId);
   }
 
@@ -42,7 +42,7 @@ export class PlayResolver {
   async createPlay(
     @Args('input') input: CreatePlayInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<Play> {
     return this.play.createPlay(input, team.teamId);
   }
 
@@ -51,7 +51,7 @@ export class PlayResolver {
   async deletePlay(
     @Args('input') input: DeletePlayInput,
     @CurrentTeam() team: TeamAccess,
-  ) {
+  ): Promise<boolean> {
     return await this.play.deletePlay(input.id, team.teamId);
   }
 }

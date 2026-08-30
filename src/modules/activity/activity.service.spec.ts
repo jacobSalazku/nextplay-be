@@ -10,11 +10,16 @@ type ActivityRow = { id?: string; date?: Date; type?: ActivityType } | null;
 
 const activityFindFirst = jest.fn<Promise<ActivityRow>, [FindFirstArgs]>();
 const activityDelete = jest.fn<Promise<{ id: string }>, [unknown]>();
+const activityFindUniqueOrThrow = jest.fn<Promise<unknown>, [unknown]>();
 const builderCreate = jest.fn<Promise<{ id: string }>, [unknown, string]>();
 const builderUpdate = jest.fn<Promise<{ id: string }>, [string, unknown]>();
 
 const prisma = {
-  activity: { findFirst: activityFindFirst, delete: activityDelete },
+  activity: {
+    findFirst: activityFindFirst,
+    delete: activityDelete,
+    findUniqueOrThrow: activityFindUniqueOrThrow,
+  },
 } as unknown as PrismaService;
 const builder = {
   create: builderCreate,
@@ -41,6 +46,19 @@ describe('ActivityService (team authorization)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     service = new ActivityService(prisma, builder);
+    // create/update re-read the activity through activitySelect before returning
+    activityFindUniqueOrThrow.mockResolvedValue({
+      id: 'a1',
+      title: 't',
+      date: new Date(),
+      time: '10:00',
+      duration: null,
+      type: ActivityType.GAME,
+      teamId: 't1',
+      attendees: [],
+      game: null,
+      practice: null,
+    });
   });
 
   describe('deleteActivity', () => {

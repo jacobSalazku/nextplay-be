@@ -23,7 +23,7 @@ export class GameplanResolver {
   async createGamePlan(
     @Args('input') input: CreateGamePlanInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<GamePlan> {
     return this.gameplan.createGamePlan(input, user.userId);
   }
 
@@ -32,7 +32,7 @@ export class GameplanResolver {
   async getGameplan(
     @Args('input') input: GetGamePlansInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<GamePlan[]> {
     return this.gameplan.getGameplan(input, user.userId);
   }
 
@@ -41,7 +41,7 @@ export class GameplanResolver {
   async getGameplanById(
     @Args('input') input: GetGamePlanByIdInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<GamePlan | null> {
     return this.gameplan.getGameplanById(input, user.userId);
   }
 
@@ -50,7 +50,7 @@ export class GameplanResolver {
   async deleteGamePlan(
     @Args('input') input: DeleteGamePlanInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<GamePlan> {
     return this.gameplan.deleteGamePlan(input, user.userId);
   }
 }

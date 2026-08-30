@@ -11,6 +11,7 @@ import {
   SubmitStatlinesInput,
   TeamStatlineInput,
 } from './dto';
+import { WeeklyTeamAverage } from './statline.model';
 
 @Injectable()
 export class StatlineService {
@@ -210,7 +211,7 @@ export class StatlineService {
       gamesByWeek[weekKey]?.push(game.id);
     }
 
-    const weeklyStats: Array<Record<string, unknown>> = [];
+    const weeklyStats: WeeklyTeamAverage[] = [];
 
     for (const [weekStart, gameIds] of Object.entries(gamesByWeek)) {
       const totals = await this.prisma.statline.aggregate({

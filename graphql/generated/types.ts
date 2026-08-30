@@ -436,7 +436,7 @@ export class User {
     isBlocked: boolean;
     tokenVersion: number;
     hasOnBoarded: boolean;
-    members: Member[];
+    members?: Nullable<Member[]>;
 }
 
 export class OpponentStatline {
@@ -767,6 +767,14 @@ export class MemberId {
     id: string;
 }
 
+export class DashboardActivity {
+    id: string;
+    type: ActivityType;
+    title: string;
+    date: DateTime;
+    time: string;
+}
+
 export class Team {
     id: string;
     name: string;
@@ -776,8 +784,8 @@ export class Team {
     routeKey: string;
     ageGroup?: Nullable<string>;
     image?: Nullable<string>;
-    members: TeamMemberUser[];
-    activities: Activity[];
+    members?: Nullable<TeamMemberUser[]>;
+    activities?: Nullable<Activity[]>;
     creatorId?: Nullable<string>;
     createdAt?: Nullable<DateTime>;
     updatedAt?: Nullable<DateTime>;
@@ -791,7 +799,7 @@ export class TeamDashboard {
     routeKey: string;
     ageGroup?: Nullable<string>;
     members: MemberId[];
-    activities: Activity[];
+    activities: DashboardActivity[];
 }
 
 export class UserProfile {
@@ -892,7 +900,7 @@ export abstract class IMutation {
 
     abstract logout(): boolean | Promise<boolean>;
 
-    abstract getAttendanceByActivities(input: GetAttendanceByActivitiesInput): PlayerActivityAttendance | Promise<PlayerActivityAttendance>;
+    abstract getAttendanceByActivities(input: GetAttendanceByActivitiesInput): Nullable<PlayerActivityAttendance> | Promise<Nullable<PlayerActivityAttendance>>;
 
     abstract submitAttendance(input: PlayerActivityAttendanceInput): PlayerActivityAttendance | Promise<PlayerActivityAttendance>;
 

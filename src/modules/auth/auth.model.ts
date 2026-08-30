@@ -21,29 +21,29 @@ export class User {
   @Field(() => ID)
   id: string;
 
-  @Field({ nullable: true })
-  name?: string;
+  @Field(() => String, { nullable: true })
+  name?: string | null;
 
   @Field()
   email: string;
 
-  @Field({ nullable: true })
-  emailVerified?: Date;
+  @Field(() => Date, { nullable: true })
+  emailVerified?: Date | null;
 
-  @Field({ nullable: true })
-  dateOfBirth?: Date;
+  @Field(() => Date, { nullable: true })
+  dateOfBirth?: Date | null;
 
-  @Field({ nullable: true })
-  phone?: string;
-
-  @Field(() => Float, { nullable: true })
-  height?: number;
+  @Field(() => String, { nullable: true })
+  phone?: string | null;
 
   @Field(() => Float, { nullable: true })
-  weight?: number;
+  height?: number | null;
 
-  @Field({ nullable: true })
-  dominantHand?: string;
+  @Field(() => Float, { nullable: true })
+  weight?: number | null;
+
+  @Field(() => String, { nullable: true })
+  dominantHand?: string | null;
 
   @Field()
   isBlocked: boolean;
@@ -54,6 +54,6 @@ export class User {
   @Field()
   hasOnBoarded: boolean;
 
-  @Field(() => [Member])
-  members: Member[];
+  @Field(() => [Member], { nullable: true })
+  members?: Member[];
 }

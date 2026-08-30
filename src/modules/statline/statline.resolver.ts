@@ -29,7 +29,7 @@ export class StatlineResolver {
   async getStatlineAverages(
     @Args('input') input: TeamStatlineInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<PlayerStatlineAverage[]> {
     return this.statline.getStatlineAverages(input, user.userId);
   }
 
@@ -38,7 +38,7 @@ export class StatlineResolver {
   async getWeeklyTeamAverages(
     @Args('input') input: TeamStatlineInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<WeeklyTeamAverage[]> {
     return this.statline.getWeeklyTeamAverages(input, user.userId);
   }
 
@@ -47,7 +47,7 @@ export class StatlineResolver {
   async getTeamStats(
     @Args('input') input: TeamStatlineInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<TeamStats> {
     return this.statline.getTeamStats(input, user.userId);
   }
 
@@ -56,7 +56,7 @@ export class StatlineResolver {
   async getStatsPerGame(
     @Args('input') input: StatsPerGameInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<StatsPerGame[]> {
     return this.statline.getStatsPerGame(input, user.userId);
   }
 
@@ -65,7 +65,7 @@ export class StatlineResolver {
   async getGamesWithBoxScores(
     @Args('input') input: TeamStatlineInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<GameWithBoxScore[]> {
     return this.statline.getGamesWithBoxScores(input, user.userId);
   }
 
@@ -74,7 +74,7 @@ export class StatlineResolver {
   async submitStatlines(
     @Args('input') input: SubmitStatlinesInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<SubmitStatlinesResult> {
     return this.statline.submitStatlines(input, user.userId);
   }
 }

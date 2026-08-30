@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { ActivityType } from '@prisma/client';
 import { Activity } from '../activity/activity.model';
 import { TeamMemberUser } from '../member/member.model';
 
@@ -6,6 +7,24 @@ import { TeamMemberUser } from '../member/member.model';
 class MemberId {
   @Field()
   id: string;
+}
+
+@ObjectType()
+export class DashboardActivity {
+  @Field(() => ID)
+  id: string;
+
+  @Field(() => ActivityType)
+  type: ActivityType;
+
+  @Field()
+  title: string;
+
+  @Field()
+  date: Date;
+
+  @Field()
+  time: string;
 }
 
 @ObjectType()
@@ -28,17 +47,17 @@ export class Team {
   @Field()
   routeKey: string;
 
-  @Field({ nullable: true })
-  ageGroup?: string;
+  @Field(() => String, { nullable: true })
+  ageGroup?: string | null;
 
-  @Field({ nullable: true })
-  image?: string;
+  @Field(() => String, { nullable: true })
+  image?: string | null;
 
-  @Field(() => [TeamMemberUser])
-  members: TeamMemberUser[];
+  @Field(() => [TeamMemberUser], { nullable: true })
+  members?: TeamMemberUser[];
 
-  @Field(() => [Activity])
-  activities: Activity[];
+  @Field(() => [Activity], { nullable: true })
+  activities?: Activity[];
 
   @Field({ nullable: true })
   creatorId: string;
@@ -67,14 +86,14 @@ export class TeamDashboard {
   @Field()
   routeKey: string;
 
-  @Field({ nullable: true })
-  ageGroup?: string;
+  @Field(() => String, { nullable: true })
+  ageGroup?: string | null;
 
   @Field(() => [MemberId])
-  members: MemberId;
+  members: MemberId[];
 
-  @Field(() => [Activity])
-  activities: Activity[];
+  @Field(() => [DashboardActivity])
+  activities: DashboardActivity[];
 }
 
 @ObjectType()
@@ -82,11 +101,11 @@ export class JoinTeamResult {
   @Field()
   teamCode: string;
 
-  @Field({ nullable: true })
-  position?: string;
+  @Field(() => String, { nullable: true })
+  position?: string | null;
 
-  @Field({ nullable: true })
-  number?: string;
+  @Field(() => String, { nullable: true })
+  number?: string | null;
   @Field()
   createdAt: Date;
 }

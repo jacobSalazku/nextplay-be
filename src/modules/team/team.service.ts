@@ -51,7 +51,7 @@ export class TeamService {
         data: { hasOnBoarded: true },
       });
 
-      return team;
+      return { ...team, routeKey: team.routeKey ?? routeKey };
     });
   }
 
@@ -147,7 +147,10 @@ export class TeamService {
       },
     });
 
-    return teams;
+    return teams.map((team) => ({
+      ...team,
+      routeKey: team.routeKey ?? team.shortId,
+    }));
   }
 
   async getTeam(routeKey: string) {
@@ -205,6 +208,7 @@ export class TeamService {
 
     return {
       ...team,
+      routeKey: team.routeKey ?? team.shortId,
       members: team.members.map((member) => ({
         id: member.id,
         userId: member.userId,
@@ -276,6 +280,7 @@ export class TeamService {
 
     return {
       ...team,
+      routeKey: team.routeKey ?? team.shortId,
       members: team.members.map((member) => ({
         id: member.id,
         userId: member.userId,

@@ -24,7 +24,7 @@ export class TeamResolver {
 
   @UseGuards(TeamMemberGuard)
   @Query(() => TeamInformation)
-  async getTeam(@Args('input') input: GetTeamInput) {
+  async getTeam(@Args('input') input: GetTeamInput): Promise<TeamInformation> {
     return this.team.getTeam(input.routeKey);
   }
 
@@ -33,19 +33,21 @@ export class TeamResolver {
   async createTeam(
     @Args('input') input: CreateTeamInput,
     @CurrentUser() user: { userId: string },
-  ) {
+  ): Promise<Team> {
     return await this.team.createTeam(input, user.userId);
   }
 
   @UseGuards(GqlJwtAuthGuard)
   @Query(() => [TeamDashboard])
-  async getDashboardTeams(@CurrentUser() user: { userId: string }) {
+  async getDashboardTeams(
+    @CurrentUser() user: { userId: string },
+  ): Promise<TeamDashboard[]> {
     return this.team.getTeamsForDashboard(user.userId);
   }
 
   @UseGuards(TeamMemberGuard)
   @Query(() => Team)
-  async getTeamActivities(@Args('routeKey') routeKey: string) {
+  async getTeamActivities(@Args('routeKey') routeKey: string): Promise<Team> {
     return this.team.getTeamActivities(routeKey);
   }
 
