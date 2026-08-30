@@ -1,6 +1,7 @@
 import { Field, ID, InputType } from '@nestjs/graphql';
 import { ActivityType, Location, PracticeType } from '@prisma/client';
 
+@InputType()
 export class UpdateActivityBaseInput {
   @Field(() => ID)
   id: string;
