@@ -15,7 +15,31 @@ const DEV_LOGIN = /* GraphQL */ `
   mutation ($email: String!) {
     devLogin(email: $email) {
       accessToken
+      refreshToken
       userId
+    }
+  }
+`;
+
+const REFRESH = /* GraphQL */ `
+  mutation ($token: String!) {
+    refresh(refreshToken: $token) {
+      accessToken
+      refreshToken
+    }
+  }
+`;
+
+const LOGOUT = /* GraphQL */ `
+  mutation {
+    logout
+  }
+`;
+
+const ME = /* GraphQL */ `
+  query {
+    me {
+      id
     }
   }
 `;
@@ -49,7 +73,7 @@ describe('auth + team authorization (e2e)', () => {
 
   async function devLogin(email: string) {
     const body = await post<{
-      devLogin: { accessToken: string; userId: string };
+      devLogin: { accessToken: string; refreshToken: string; userId: string };
     }>(DEV_LOGIN, { email });
     expect(body.errors).toBeUndefined();
     return body.data!.devLogin;
@@ -136,5 +160,51 @@ describe('auth + team authorization (e2e)', () => {
     } finally {
       process.env.DEV_AUTH_ENABLED = original;
     }
+  });
+
+  describe('refresh + logout', () => {
+    const meWith = (token?: string) => post(ME, undefined, token);
+
+    it('exchanges a valid refresh token for a fresh session', async () => {
+      const first = await devLogin('rotate@test.local');
+
+      const body = await post<{
+        refresh: { accessToken: string; refreshToken: string };
+      }>(REFRESH, { token: first.refreshToken });
+
+      expect(body.errors).toBeUndefined();
+      expect(body.data!.refresh.accessToken).toEqual(expect.any(String));
+      expect(body.data!.refresh.refreshToken).not.toBe(first.refreshToken);
+
+      // the new access token works
+      expect(
+        (await meWith(body.data!.refresh.accessToken)).errors,
+      ).toBeUndefined();
+    });
+
+    it('rejects an unknown / already-rotated refresh token', async () => {
+      const session = await devLogin('stale@test.local');
+      await post(REFRESH, { token: session.refreshToken }); // rotates it
+
+      const body = await post(REFRESH, { token: session.refreshToken });
+      expect(body.data).toBeFalsy();
+      expect(body.errors?.[0].message).toMatch(/unauthorized/i);
+    });
+
+    it('logout bumps tokenVersion — the old access token stops working', async () => {
+      const session = await devLogin('bye@test.local');
+      expect((await meWith(session.accessToken)).errors).toBeUndefined();
+
+      const out = await post<{ logout: boolean }>(
+        LOGOUT,
+        undefined,
+        session.accessToken,
+      );
+      expect(out.data?.logout).toBe(true);
+
+      const after = await meWith(session.accessToken);
+      expect(after.data).toBeFalsy();
+      expect(after.errors?.[0].message).toMatch(/token version|unauthorized/i);
+    });
   });
 });
