@@ -98,10 +98,16 @@ On startup, Nest generates:
 **Stack:** Jest + `@nestjs/testing` + `ts-jest`. Unit/integration specs are
 `*.spec.ts` next to the source; e2e lives in `test/`.
 
+Requires **Docker Desktop** running — `pnpm test` auto-starts a throwaway
+Postgres (`docker-compose.test.yml`, port 5433) and never touches the real
+database. A guard in `test/global-setup.ts` aborts if `DATABASE_URL` is
+anything other than a local `nextplay_test` database.
+
 ```bash
-pnpm test          # unit + integration
+pnpm test          # unit + integration (starts the test DB first)
 pnpm test:cov      # with coverage
 pnpm test:e2e      # full HTTP → GraphQL → DB
+pnpm test:db:down  # stop + delete the test DB container
 ```
 
 ### Every test is AAA — Arrange, Act, Assert

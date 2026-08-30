@@ -53,7 +53,9 @@ jobs:
         run: pnpm exec eslint "{src,apps,libs,test}/**/*.ts"
 
       - name: Unit tests
-        run: pnpm test
+        # jest directly, not `pnpm test` — the `pretest` hook spins up a local
+        # docker-compose DB, but CI already has the Postgres service container.
+        run: pnpm exec jest
 
       - name: GraphQL schema is in sync with the resolvers
         run: pnpm schema:check
