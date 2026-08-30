@@ -1,3 +1,9 @@
+const { cpus } = require('node:os');
+
+// Keep this <= the worker-DB count created in test/global-setup.ts
+// (min(cpus, 8)), so every Jest worker has a database to connect to.
+const MAX_WORKERS = Math.max(1, Math.min(cpus().length - 1, 7));
+
 // Unit + integration specs (`*.spec.ts` under src/). The e2e suite has its
 // own config at test/jest-e2e.json.
 /** @type {import('jest').Config} */
@@ -9,14 +15,9 @@ module.exports = {
   transform: { '^.+\\.(t|j)s$': 'ts-jest' },
   moduleNameMapper: { '^src/(.*)$': '<rootDir>/src/$1' },
   testEnvironment: 'node',
+  maxWorkers: MAX_WORKERS,
 
-  // The DB-backed specs share one `nextplay_test` database and each calls
-  // `resetDb()` (TRUNCATE ... CASCADE) between tests. Run spec files serially
-  // so one file's reset can't wipe rows another file is mid-test with —
-  // otherwise: FK violations, "record not found", and TRUNCATE deadlocks.
-  maxWorkers: 1,
-
-  // one-time: guard the DB url, then run migrations against the test database
+  // one-time: guard the DB url, migrate a template, clone one DB per worker
   globalSetup: '<rootDir>/test/global-setup.ts',
   // per worker: load .env.test so PrismaService sees the test DATABASE_URL
   setupFiles: ['<rootDir>/test/load-test-env.ts'],
