@@ -140,6 +140,13 @@ export class CreateGameInput {
 }
 
 export class UpdateGameInput {
+    id: string;
+    title?: Nullable<string>;
+    time?: Nullable<string>;
+    date?: Nullable<DateTime>;
+    duration?: Nullable<number>;
+    type: ActivityType;
+    teamId: string;
     location?: Nullable<Location>;
 }
 
@@ -155,6 +162,13 @@ export class CreatePracticeInput {
 }
 
 export class UpdatePracticeInput {
+    id: string;
+    title?: Nullable<string>;
+    time?: Nullable<string>;
+    date?: Nullable<DateTime>;
+    duration?: Nullable<number>;
+    type: ActivityType;
+    teamId: string;
     facility?: Nullable<string>;
     practiceType?: Nullable<PracticeType>;
 }
@@ -170,6 +184,13 @@ export class CreateMeetingInput {
 }
 
 export class UpdateMeetingInput {
+    id: string;
+    title?: Nullable<string>;
+    time?: Nullable<string>;
+    date?: Nullable<DateTime>;
+    duration?: Nullable<number>;
+    type: ActivityType;
+    teamId: string;
     notes?: Nullable<string>;
 }
 
@@ -184,6 +205,13 @@ export class CreateFilmInput {
 }
 
 export class UpdateFilmInput {
+    id: string;
+    title?: Nullable<string>;
+    time?: Nullable<string>;
+    date?: Nullable<DateTime>;
+    duration?: Nullable<number>;
+    type: ActivityType;
+    teamId: string;
     notes?: Nullable<string>;
 }
 
@@ -199,6 +227,13 @@ export class CreateFeedbackInput {
 }
 
 export class UpdateFeedbackInput {
+    id: string;
+    title?: Nullable<string>;
+    time?: Nullable<string>;
+    date?: Nullable<DateTime>;
+    duration?: Nullable<number>;
+    type: ActivityType;
+    teamId: string;
     coach?: Nullable<string>;
     notes?: Nullable<string>;
 }

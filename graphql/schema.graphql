@@ -688,6 +688,13 @@ input CreateGameInput {
 }
 
 input UpdateGameInput {
+  id: ID!
+  title: String
+  time: String
+  date: DateTime
+  duration: Float
+  type: ActivityType!
+  teamId: String!
   location: Location
 }
 
@@ -710,6 +717,13 @@ enum PracticeType {
 }
 
 input UpdatePracticeInput {
+  id: ID!
+  title: String
+  time: String
+  date: DateTime
+  duration: Float
+  type: ActivityType!
+  teamId: String!
   facility: String
   practiceType: PracticeType
 }
@@ -725,6 +739,13 @@ input CreateMeetingInput {
 }
 
 input UpdateMeetingInput {
+  id: ID!
+  title: String
+  time: String
+  date: DateTime
+  duration: Float
+  type: ActivityType!
+  teamId: String!
   notes: String
 }
 
@@ -739,6 +760,13 @@ input CreateFilmInput {
 }
 
 input UpdateFilmInput {
+  id: ID!
+  title: String
+  time: String
+  date: DateTime
+  duration: Float
+  type: ActivityType!
+  teamId: String!
   notes: String
 }
 
@@ -754,6 +782,13 @@ input CreateFeedbackInput {
 }
 
 input UpdateFeedbackInput {
+  id: ID!
+  title: String
+  time: String
+  date: DateTime
+  duration: Float
+  type: ActivityType!
+  teamId: String!
   coach: String
   notes: String
 }
