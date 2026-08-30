@@ -427,6 +427,7 @@ async function main() {
     const games = [];
     const practices = [];
     const boxScoreGameIds = [];
+    const opponentStatlineRows = [];
     const fullAttendanceActivityIds = new Set();
 
     const practiceSeed = [
@@ -979,6 +980,7 @@ async function main() {
         title: practice.title,
       });
     }
+    console.log(`  practices: ${practices.length}`);
 
     const gameSeed = [
       {
@@ -1430,16 +1432,16 @@ async function main() {
         isFuture: isFutureGame,
       });
 
-      const opponentBaseline = buildOpponentBaseline(i);
-      await prisma.opponentStatline.create({
-        data: {
-          gameId: createdGame.id,
-          name: game.opponent,
-          ...opponentBaseline,
-        },
+      opponentStatlineRows.push({
+        gameId: createdGame.id,
+        name: game.opponent,
+        ...buildOpponentBaseline(i),
       });
     }
+    await prisma.opponentStatline.createMany({ data: opponentStatlineRows });
+    console.log(`  games: ${games.length}`);
 
+    const attendanceRows = [];
     for (
       let activityIndex = 0;
       activityIndex < activities.length;
@@ -1456,17 +1458,24 @@ async function main() {
           ? AttendanceStatus.ATTENDING
           : pickAttendanceStatus(memberIndex, activityIndex, activity.type);
 
-        await prisma.playerActivityAttendance.create({
-          data: {
-            activityId: activity.id,
-            memberId: member.id,
-            attendanceStatus: status,
-            reason: getAttendanceReason(status, activity.type),
-          },
+        attendanceRows.push({
+          activityId: activity.id,
+          memberId: member.id,
+          attendanceStatus: status,
+          reason: getAttendanceReason(status, activity.type),
         });
       }
     }
+    await prisma.playerActivityAttendance.createMany({ data: attendanceRows });
+    console.log(`  attendance rows: ${attendanceRows.length}`);
 
+    const attendingPairs = new Set(
+      attendanceRows
+        .filter((row) => row.attendanceStatus === AttendanceStatus.ATTENDING)
+        .map((row) => `${row.activityId}:${row.memberId}`),
+    );
+
+    const statlineRows = [];
     for (
       let gameIndex = 0;
       gameIndex < boxScoreGameIds.length;
@@ -1480,29 +1489,19 @@ async function main() {
         memberIndex += 1
       ) {
         const member = playerMembers[memberIndex];
-        const attendance = await prisma.playerActivityAttendance.findUnique({
-          where: {
-            activityId_memberId: {
-              activityId: gameId,
-              memberId: member.id,
-            },
-          },
-          select: { attendanceStatus: true },
-        });
-
-        if (attendance?.attendanceStatus !== AttendanceStatus.ATTENDING) {
+        if (!attendingPairs.has(`${gameId}:${member.id}`)) {
           continue;
         }
 
-        await prisma.statline.create({
-          data: {
-            gameId,
-            memberId: member.id,
-            ...buildStatline(memberIndex, gameIndex),
-          },
+        statlineRows.push({
+          gameId,
+          memberId: member.id,
+          ...buildStatline(memberIndex, gameIndex),
         });
       }
     }
+    await prisma.statline.createMany({ data: statlineRows });
+    console.log(`  statlines: ${statlineRows.length}`);
 
     const plays = [];
     const playSeed = [
