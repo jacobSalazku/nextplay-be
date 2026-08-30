@@ -1,0 +1,21 @@
+# Throwaway Postgres for the test suite only. It never touches the real
+# (managed) database — tests connect to localhost:5433 and nothing else.
+#   pnpm test:db:up     start it
+#   pnpm test:db:down   stop + delete it
+services:
+  test-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: nextplay
+      POSTGRES_PASSWORD: nextplay
+      POSTGRES_DB: nextplay_test
+    ports:
+      - '5433:5432'
+    # data lives in RAM: fast, and gone the moment the container stops
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U nextplay -d nextplay_test']
+      interval: 1s
+      timeout: 3s
+      retries: 30

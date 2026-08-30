@@ -1,18 +1,38 @@
 name: CI
 
+# every push on every branch, plus PRs from forks
 on:
   push:
-    branches: [main]
   pull_request:
+
+# a newer commit on the same ref cancels the in-flight run
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
     env:
       # dummy values so the Nest module graph builds; no DB is touched during
-      # the schema check (SKIP_DB_CONNECT), and no tokens are signed.
+      # the schema check (SKIP_DB_CONNECT), and no tokens are signed. The test
+      # step overrides DATABASE_URL from .env.test (the service container below).
       DATABASE_URL: postgres://ci:ci@localhost:5432/ci
       GOOGLE_CLIENT_ID: ci
+    services:
+      # matches .env.test / docker-compose.test.yml so the global-setup guard
+      # accepts it and local + CI run identically
+      test-db:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: nextplay
+          POSTGRES_PASSWORD: nextplay
+          POSTGRES_DB: nextplay_test
+        ports:
+          - '5433:5432'
+        options: >-
+          --health-cmd "pg_isready -U nextplay -d nextplay_test"
+          --health-interval 1s --health-timeout 3s --health-retries 30
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -38,7 +58,12 @@ jobs:
         run: pnpm exec eslint "{src,apps,libs,test}/**/*.ts"
 
       - name: Unit tests
-        run: pnpm test
+        # jest directly, not `pnpm test` — the `pretest` hook spins up a local
+        # docker-compose DB, but CI already has the Postgres service container.
+        run: pnpm exec jest
 
       - name: GraphQL schema is in sync with the resolvers
         run: pnpm schema:check
+
+      - name: E2E tests
+        run: pnpm test:e2e
