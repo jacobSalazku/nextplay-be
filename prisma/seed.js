@@ -182,6 +182,30 @@ function hoursFromNow(hours) {
   return date;
 }
 
+// weekOffset: 0 = current week, 1 = next week. weekday: 0 = Monday … 6 = Sunday.
+// Anchors an activity to a real weekday slot so re-running the seed on a
+// different day keeps the two-week block lined up with the calendar. When the
+// seed runs late in the week (Fri–Sun) "week 0" rolls to the upcoming week so
+// the block stays ahead of today instead of landing entirely in the past.
+function weekdaySlot(weekOffset, weekday, hour = 19, minute = 0) {
+  const date = new Date();
+  const currentDow = (date.getDay() + 6) % 7; // shift so Monday = 0
+  const baseShift = currentDow >= 4 ? 7 - currentDow : -currentDow;
+  date.setDate(date.getDate() + baseShift + weekOffset * 7 + weekday);
+  date.setHours(hour, minute, 0, 0);
+  return date;
+}
+
+// Whole-day delta from today, used to slot weekday-anchored activities into the
+// same "upcoming" filters the dayOffset-based ones use.
+function offsetInDays(date) {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const target = new Date(date);
+  target.setHours(0, 0, 0, 0);
+  return Math.round((target - start) / 86_400_000);
+}
+
 function formatActivityTime(date) {
   return `${String(date.getHours()).padStart(2, '0')}:${String(
     date.getMinutes(),
@@ -796,16 +820,146 @@ async function main() {
         facility: 'Main Court',
         practiceType: PracticeType.TEAM,
       },
+
+      // ---- Dense two-week block: current week + next week (weekday-anchored) ----
+      {
+        title: 'Week Opener: Shell + Spacing',
+        slot: { week: 0, day: 0, hour: 18, minute: 30 },
+        duration: 1.5,
+        facility: 'Main Court',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Late Skills: Guard Package',
+        slot: { week: 0, day: 0, hour: 20, minute: 0 },
+        duration: 1,
+        facility: 'Skills Gym',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Physical: Strength Circuit',
+        slot: { week: 0, day: 1, hour: 19, minute: 0 },
+        duration: 1.25,
+        facility: 'Strength Room',
+        practiceType: PracticeType.PHYSICAL,
+      },
+      {
+        title: 'Morning Lift',
+        slot: { week: 0, day: 2, hour: 7, minute: 0 },
+        duration: 1,
+        facility: 'Strength Room',
+        practiceType: PracticeType.PHYSICAL,
+      },
+      {
+        title: 'Shooting Block: Catch + Relocate',
+        slot: { week: 0, day: 2, hour: 18, minute: 45 },
+        duration: 1.5,
+        facility: 'North Hall',
+        practiceType: PracticeType.SHOOTING,
+      },
+      {
+        title: 'Team Defense: Rotations',
+        slot: { week: 0, day: 3, hour: 19, minute: 0 },
+        duration: 1.5,
+        facility: 'East Gym',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Walkthrough: Weekend Scout',
+        slot: { week: 0, day: 4, hour: 18, minute: 30 },
+        duration: 1,
+        facility: 'Video Room',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Recovery + Film',
+        slot: { week: 0, day: 6, hour: 11, minute: 0 },
+        duration: 1,
+        facility: 'Video Room',
+        practiceType: PracticeType.PHYSICAL,
+      },
+      {
+        title: 'Install: Double Drag + Delay',
+        slot: { week: 1, day: 0, hour: 18, minute: 30 },
+        duration: 1.5,
+        facility: 'Main Court',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Physical: Explosive Movement',
+        slot: { week: 1, day: 1, hour: 19, minute: 0 },
+        duration: 1.25,
+        facility: 'Performance Lab',
+        practiceType: PracticeType.PHYSICAL,
+      },
+      {
+        title: 'Bigs Post Footwork Lab',
+        slot: { week: 1, day: 1, hour: 20, minute: 15 },
+        duration: 1,
+        facility: 'Skills Gym',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Shooting: Free Throw Pressure',
+        slot: { week: 1, day: 2, hour: 18, minute: 45 },
+        duration: 1.25,
+        facility: 'North Hall',
+        practiceType: PracticeType.SHOOTING,
+      },
+      {
+        title: 'Team Defense: Pack Line',
+        slot: { week: 1, day: 3, hour: 19, minute: 0 },
+        duration: 1.5,
+        facility: 'East Gym',
+        practiceType: PracticeType.TEAM,
+      },
+      {
+        title: 'Late-Game Situations',
+        slot: { week: 1, day: 3, hour: 20, minute: 15 },
+        duration: 1,
+        facility: 'Main Court',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Walkthrough: Zone Looks',
+        slot: { week: 1, day: 4, hour: 18, minute: 30 },
+        duration: 1,
+        facility: 'Video Room',
+        practiceType: PracticeType.SPECIALISATION,
+      },
+      {
+        title: 'Shootaround',
+        slot: { week: 1, day: 5, hour: 10, minute: 0 },
+        duration: 0.75,
+        facility: 'Main Court',
+        practiceType: PracticeType.SHOOTING,
+      },
+      {
+        title: 'Recovery + Skills Touch',
+        slot: { week: 1, day: 6, hour: 11, minute: 0 },
+        duration: 1,
+        facility: 'North Hall',
+        practiceType: PracticeType.PHYSICAL,
+      },
     ];
 
     for (const practice of practiceSeed) {
+      const practiceDate = practice.slot
+        ? weekdaySlot(
+            practice.slot.week,
+            practice.slot.day,
+            practice.slot.hour,
+            practice.slot.minute,
+          )
+        : daysFromNow(practice.dayOffset, practice.hour, practice.minute);
+
       const createdPractice = await prisma.activity.create({
         data: {
           teamId: team.id,
           type: ActivityType.PRACTICE,
           title: practice.title,
-          date: daysFromNow(practice.dayOffset, practice.hour, practice.minute),
-          time: practice.time,
+          date: practiceDate,
+          time: practice.time ?? formatActivityTime(practiceDate),
           duration: practice.duration,
           practice: {
             create: {
@@ -819,7 +973,9 @@ async function main() {
       activities.push(createdPractice);
       practices.push({
         id: createdPractice.id,
-        dayOffset: practice.dayOffset,
+        dayOffset: practice.slot
+          ? offsetInDays(practiceDate)
+          : practice.dayOffset,
         title: practice.title,
       });
     }
@@ -1190,12 +1346,58 @@ async function main() {
         minute: 25,
         location: Location.AWAY,
       },
+
+      // ---- Explicit today + tomorrow, plus one game per weekend of the block ----
+      {
+        title: 'vs City Rivals',
+        opponent: 'City Rivals',
+        relativeHours: 3,
+        mixedAttendance: true,
+        location: Location.HOME,
+      },
+      {
+        title: 'at North Stars',
+        opponent: 'North Stars',
+        dayOffset: 1,
+        time: '18:00',
+        hour: 18,
+        minute: 0,
+        mixedAttendance: true,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Parkside Wolves',
+        opponent: 'Parkside Wolves',
+        slot: { week: 0, day: 5, hour: 19, minute: 30 },
+        mixedAttendance: true,
+        location: Location.HOME,
+      },
+      {
+        title: 'at Ridge Runners',
+        opponent: 'Ridge Runners',
+        slot: { week: 1, day: 2, hour: 20, minute: 0 },
+        mixedAttendance: true,
+        location: Location.AWAY,
+      },
+      {
+        title: 'vs Summit Kings',
+        opponent: 'Summit Kings',
+        slot: { week: 1, day: 5, hour: 19, minute: 30 },
+        mixedAttendance: true,
+        location: Location.HOME,
+      },
     ];
 
     for (let i = 0; i < gameSeed.length; i += 1) {
       const game = gameSeed[i];
-      const gameDate =
-        typeof game.relativeHours === 'number'
+      const gameDate = game.slot
+        ? weekdaySlot(
+            game.slot.week,
+            game.slot.day,
+            game.slot.hour,
+            game.slot.minute,
+          )
+        : typeof game.relativeHours === 'number'
           ? hoursFromNow(game.relativeHours)
           : daysFromNow(game.dayOffset, game.hour, game.minute);
       const isFutureGame = gameDate > new Date();
@@ -1224,7 +1426,7 @@ async function main() {
       games.push({
         id: createdGame.id,
         opponent: game.opponent,
-        dayOffset: game.dayOffset ?? 0,
+        dayOffset: game.slot ? offsetInDays(gameDate) : (game.dayOffset ?? 0),
         isFuture: isFutureGame,
       });
 
