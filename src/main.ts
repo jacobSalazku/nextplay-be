@@ -5,6 +5,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
+import { parseCorsOrigins } from './config/cors';
 
 import 'reflect-metadata';
 
@@ -18,7 +19,7 @@ async function bootstrap() {
   logger.log('GraphQL schema & types will be generated on startup');
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: parseCorsOrigins(),
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
     methods: ['GET', 'POST', 'OPTIONS'],
