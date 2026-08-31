@@ -97,6 +97,22 @@ dropping a legit field). Every `@InputType` field carries at least one
 validator — add one when you add a field, matching the existing style
 (`@IsString() @MinLength(1)`, `@IsOptional()`, `@IsEnum(...)`, …).
 
+### Sessions & tokens
+
+Short-lived **access token** (RS256 JWT, `JWT_ACCESS_TOKEN_EXPIRES_IN_SECONDS`,
+default 1h) carrying `sub` + `ver`; `jwt-strategy` rejects it once the user's
+`tokenVersion` moves.
+
+**Refresh tokens** (`RefreshTokenService`, `RefreshToken` table) are stored as
+SHA-256 hashes only. Each login opens a token *family*; `refresh` rotates the
+current token and appends to the family. Reusing a rotated token (past
+`REFRESH_TOKEN_GRACE_SECONDS`, default 10 — the window that absorbs concurrent
+refreshes from multiple tabs) or a revoked one is treated as theft: the whole
+family is revoked and `tokenVersion` is bumped, so every access token dies too
+and the client must log in again. Tokens expire after `REFRESH_TOKEN_TTL_DAYS`
+(default 30); spent rows are GC'd opportunistically on refresh. `logout` revokes
+every token for the user.
+
 ## Security headers & rate limiting
 
 `@fastify/helmet` (registered in `src/app.setup.ts`) sets the standard

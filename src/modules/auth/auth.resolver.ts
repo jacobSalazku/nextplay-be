@@ -13,6 +13,7 @@ import { AuthPayload, User } from './auth.model';
 import { CurrentUser } from './decorator/current-user.decorator';
 import { Public } from './decorator/public.decorator';
 import { GqlJwtAuthGuard } from './guards/jwt-guard';
+import { RefreshTokenService } from './refresh-token.service';
 
 type SessionUser = {
   id: string;
@@ -29,6 +30,7 @@ export class AuthResolver {
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
+    private readonly refreshTokens: RefreshTokenService,
   ) {}
 
   @UseGuards(GqlJwtAuthGuard)
@@ -109,8 +111,10 @@ export class AuthResolver {
   async refresh(
     @Args('refreshToken') refreshToken: string,
   ): Promise<AuthPayload> {
-    const user = await this.prisma.user.findFirst({
-      where: { refreshToken },
+    const { userId, raw } = await this.refreshTokens.rotate(refreshToken);
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
       select: {
         id: true,
         tokenVersion: true,
@@ -119,22 +123,25 @@ export class AuthResolver {
       },
     });
 
-    if (!user) {
+    if (!user || user.isBlocked) {
       throw new UnauthorizedException();
     }
 
-    return this.issueSession(user);
+    return {
+      accessToken: this.signAccessToken(user),
+      refreshToken: raw,
+      hasOnBoarded: user.hasOnBoarded,
+      userId: user.id,
+    };
   }
 
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Boolean)
   async logout(@CurrentUser() user: { userId: string }): Promise<boolean> {
+    await this.refreshTokens.revokeAllForUser(user.userId);
     await this.prisma.user.update({
       where: { id: user.userId },
-      data: {
-        tokenVersion: { increment: 1 },
-        refreshToken: null,
-      },
+      data: { tokenVersion: { increment: 1 } },
     });
 
     return true;
@@ -170,26 +177,18 @@ export class AuthResolver {
     });
   }
 
+  private signAccessToken(user: { id: string; tokenVersion: number }): string {
+    return this.jwt.sign({ sub: user.id, ver: user.tokenVersion });
+  }
+
   private async issueSession(user: SessionUser): Promise<AuthPayload> {
     if (user.isBlocked) {
       throw new UnauthorizedException();
     }
 
-    const accessToken = this.jwt.sign({
-      sub: user.id,
-      ver: user.tokenVersion,
-    });
-
-    const refreshToken = crypto.randomUUID();
-
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { refreshToken },
-    });
-
     return {
-      accessToken,
-      refreshToken,
+      accessToken: this.signAccessToken(user),
+      refreshToken: await this.refreshTokens.issue(user.id),
       hasOnBoarded: user.hasOnBoarded,
       userId: user.id,
     };

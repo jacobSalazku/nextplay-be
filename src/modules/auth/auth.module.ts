@@ -8,6 +8,7 @@ import { AuthResolver } from './auth.resolver';
 import { GqlJwtAuthGuard } from './guards/jwt-guard';
 import { TeamCoachGuard, TeamMemberGuard } from './guards/team-access.guard';
 import { JwtStrategy } from './jwt-strategy';
+import { RefreshTokenService } from './refresh-token.service';
 import { TeamAccessService } from './team-access.service';
 
 @Module({
@@ -52,6 +53,7 @@ import { TeamAccessService } from './team-access.service';
     JwtStrategy,
     GqlJwtAuthGuard,
     AuthResolver,
+    RefreshTokenService,
     TeamAccessService,
     TeamMemberGuard,
     TeamCoachGuard,

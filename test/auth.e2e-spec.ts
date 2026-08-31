@@ -182,13 +182,24 @@ describe('auth + team authorization (e2e)', () => {
       ).toBeUndefined();
     });
 
-    it('rejects an unknown / already-rotated refresh token', async () => {
-      const session = await devLogin('stale@test.local');
-      await post(REFRESH, { token: session.refreshToken }); // rotates it
+    it('rejects an unknown refresh token', async () => {
+      const body = await post(REFRESH, { token: 'not-a-real-token' });
 
-      const body = await post(REFRESH, { token: session.refreshToken });
       expect(body.data).toBeFalsy();
       expect(body.errors?.[0].message).toMatch(/unauthorized/i);
+    });
+
+    it('tolerates re-using a token within the rotation grace window', async () => {
+      const session = await devLogin('grace@test.local');
+      await post(REFRESH, { token: session.refreshToken }); // rotates it
+
+      // a near-simultaneous second refresh (another tab) still succeeds
+      const body = await post<{ refresh: { accessToken: string } }>(REFRESH, {
+        token: session.refreshToken,
+      });
+
+      expect(body.errors).toBeUndefined();
+      expect(body.data!.refresh.accessToken).toEqual(expect.any(String));
     });
 
     it('logout bumps tokenVersion — the old access token stops working', async () => {
