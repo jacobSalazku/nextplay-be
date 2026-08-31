@@ -88,6 +88,15 @@ throw a readable list at startup. See `.env.example` for every variable.
 CORS origins come from `CORS_ORIGIN` (comma-separated); unset falls back to
 the local dev frontends. Never `*` (the API sends credentials).
 
+### Input validation
+
+A global `ValidationPipe({ transform: true })` runs `class-validator` on every
+resolver `@Args` input. Unknown fields are already rejected by the GraphQL
+schema, so `whitelist` is deliberately off (it would only risk silently
+dropping a legit field). Every `@InputType` field carries at least one
+validator — add one when you add a field, matching the existing style
+(`@IsString() @MinLength(1)`, `@IsOptional()`, `@IsEnum(...)`, …).
+
 ## Security headers & rate limiting
 
 `@fastify/helmet` (registered in `src/app.setup.ts`) sets the standard
