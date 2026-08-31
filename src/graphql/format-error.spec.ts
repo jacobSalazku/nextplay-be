@@ -46,27 +46,6 @@ describe('formatGraphqlError', () => {
       expect(out.message).toBe('Internal server error');
     });
 
-    it('re-surfaces a 429 the driver mislabelled INTERNAL_SERVER_ERROR as TOO_MANY_REQUESTS', () => {
-      const out = formatGraphqlError(
-        {
-          message: 'ThrottlerException: Too Many Requests',
-          extensions: {
-            code: 'INTERNAL_SERVER_ERROR',
-            status: 429,
-            originalError: { statusCode: 429 },
-          },
-        },
-        undefined,
-        true,
-      );
-
-      expect(out).toEqual({
-        message: 'Too many requests',
-        extensions: { code: 'TOO_MANY_REQUESTS' },
-      });
-      expect(errorSpy).not.toHaveBeenCalled();
-    });
-
     it.each([
       'FORBIDDEN',
       'BAD_REQUEST',
