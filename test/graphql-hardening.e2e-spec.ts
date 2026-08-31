@@ -1,4 +1,3 @@
-import { ValidationPipe } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
   FastifyAdapter,
@@ -9,6 +8,7 @@ import { Role, Status } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { configureApp } from '../src/app.setup';
 import { GameplanService } from '../src/modules/gameplan/gameplan.service';
 import { resetDb, testPrisma } from './db';
 import { makeTeam, makeUser } from './factories';
@@ -60,7 +60,7 @@ describe('GraphQL production hardening (e2e)', () => {
     app = moduleRef.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    await configureApp(app);
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
     jwt = app.get(JwtService);
