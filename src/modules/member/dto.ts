@@ -5,6 +5,8 @@ import { UserDetail } from './member.model';
 @InputType()
 export class MembersInput {
   @Field()
+  @IsString()
+  @MinLength(1)
   routeKey: string;
 }
 
@@ -61,6 +63,7 @@ export class TeamMemberInfo {
 @InputType()
 export class GetMemberProfileInput {
   @Field()
+  @IsString()
   @MinLength(1)
   id: string;
 
