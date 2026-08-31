@@ -88,6 +88,24 @@ throw a readable list at startup. See `.env.example` for every variable.
 CORS origins come from `CORS_ORIGIN` (comma-separated); unset falls back to
 the local dev frontends. Never `*` (the API sends credentials).
 
+## Security headers & rate limiting
+
+`@fastify/helmet` (registered in `src/app.setup.ts`) sets the standard
+hardening headers — `X-Content-Type-Options`, `X-Frame-Options`,
+`X-DNS-Prefetch-Control`, no `X-Powered-By`. CSP is left off (no server-rendered
+HTML surface).
+
+`@nestjs/throttler` rate-limits per IP per resolver via `GqlThrottlerGuard`
+(`src/modules/rate-limit/`): a coarse global default of 300 requests/min, with
+the unauthenticated auth mutations (`loginWithGoogle`, `devLogin`, `refresh`)
+tightened to 10/min. A throttled request comes back as a `TOO_MANY_REQUESTS`
+GraphQL error; `X-RateLimit-*` headers are on every response. Rate limiting is
+skipped when `NODE_ENV=test` and when `THROTTLE_DISABLED=true`.
+
+> The store is in-memory — correct for a single instance. Behind a load
+> balancer, set `trustProxy` on the Fastify adapter so `req.ip` is the client's,
+> and move to the Redis storage adapter before running more than one instance.
+
 ## Database
 
 Run migrations (if your workflow uses them):
