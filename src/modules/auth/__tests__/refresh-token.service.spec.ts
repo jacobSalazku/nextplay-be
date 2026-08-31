@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto';
 import { UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { resetDb, testPrisma } from '../../../test/db';
-import { makeUser } from '../../../test/factories';
-import { RefreshTokenService } from './refresh-token.service';
+import { resetDb, testPrisma } from '../../../../test/db';
+import { makeUser } from '../../../../test/factories';
+import { RefreshTokenService } from '../refresh-token.service';
 
 // Runs against the real test database: the point of this service is the
 // rotation / reuse-detection queries, which a mock cannot verify.
