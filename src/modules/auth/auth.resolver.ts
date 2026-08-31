@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Throttle } from '@nestjs/throttler';
 import { JwtService } from '@nestjs/jwt';
 import { OAuth2Client, type TokenPayload } from 'google-auth-library';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -53,6 +54,7 @@ export class AuthResolver {
    * caller-supplied email is never trusted.
    */
   @Public()
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Mutation(() => AuthPayload)
   async loginWithGoogle(
     @Args('idToken') idToken: string,
@@ -86,6 +88,7 @@ export class AuthResolver {
    * unless DEV_AUTH_ENABLED is explicitly set to 'true'.
    */
   @Public()
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Mutation(() => AuthPayload)
   async devLogin(@Args('email') email: string): Promise<AuthPayload> {
     if (
@@ -101,6 +104,7 @@ export class AuthResolver {
 
   // REFRESH
   @Public()
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Mutation(() => AuthPayload)
   async refresh(
     @Args('refreshToken') refreshToken: string,

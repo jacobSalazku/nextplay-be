@@ -4,6 +4,7 @@ import type { GraphQLFormattedError } from 'graphql';
 const logger = new Logger('GraphQL');
 
 const INTERNAL = 'INTERNAL_SERVER_ERROR';
+const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS';
 
 /**
  * Production error hygiene for the GraphQL layer.
@@ -17,6 +18,9 @@ const INTERNAL = 'INTERNAL_SERVER_ERROR';
  *     `NOT_FOUND`, `GRAPHQL_VALIDATION_FAILED`, …) → message kept, `extensions`
  *     trimmed to just the code (drops `originalError`, which leaks the HTTP
  *     status and Nest's internal error label).
+ *   - rate-limit rejections (HTTP 429) → the Apollo driver labels these
+ *     `INTERNAL_SERVER_ERROR`; re-surface them as `TOO_MANY_REQUESTS` so a
+ *     client can tell it's being throttled and back off.
  */
 export function formatGraphqlError(
   formatted: GraphQLFormattedError,
@@ -26,6 +30,13 @@ export function formatGraphqlError(
   if (!isProduction) return formatted;
 
   const code = formatted.extensions?.code;
+
+  if (formatted.extensions?.status === 429) {
+    return {
+      message: 'Too many requests',
+      extensions: { code: TOO_MANY_REQUESTS },
+    };
+  }
 
   if (code === undefined || code === INTERNAL) {
     logger.error(
