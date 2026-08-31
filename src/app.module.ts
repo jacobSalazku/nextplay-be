@@ -7,6 +7,7 @@ import { join } from 'path';
 import { validateEnv } from './config/env.validation';
 import './graphql/enums';
 import { formatGraphqlError } from './graphql/format-error';
+import { maxAliasesRule, maxDepthRule } from './graphql/query-limits';
 import { ActivityModule } from './modules/activity/activity.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -20,6 +21,13 @@ import { UserModule } from './modules/user/user.module';
 import { RateLimitModule } from './modules/rate-limit/rate-limit.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RootResolver } from './root.resolver';
+
+// Query-shape guards, enforced during validation (before any resolver or DB
+// work). Deepest legitimate query today is depth 4 and nothing uses more than
+// one alias. Raise the const if a real query ever legitimately exceeds a
+// limit — don't exempt per-operation.
+const MAX_QUERY_DEPTH = 8;
+const MAX_QUERY_ALIASES = 15;
 
 @Module({
   imports: [
@@ -45,6 +53,12 @@ import { RootResolver } from './root.resolver';
 
           // strip internal detail from production error responses
           formatError: formatGraphqlError,
+
+          // reject pathologically deep / alias-amplified queries up front
+          validationRules: [
+            maxDepthRule(MAX_QUERY_DEPTH),
+            maxAliasesRule(MAX_QUERY_ALIASES),
+          ],
 
           //code first schema output
           autoSchemaFile: join(process.cwd(), 'graphql/schema.graphql'),

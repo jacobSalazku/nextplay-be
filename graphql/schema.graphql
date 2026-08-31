@@ -555,6 +555,7 @@ type Query {
   getGames(input: GetActivitiesInput!): [Activity!]!
   getPractices(input: GetActivitiesInput!): [Activity!]!
   me: User!
+  getAttendanceByActivities(input: GetAttendanceByActivitiesInput!): PlayerActivityAttendance
   getGameplan(input: GetGamePlansInput!): [GamePlan!]!
   getGameplanById(input: GetGamePlanByIdInput!): GamePlan
   getMemberProfile(input: GetMemberProfileInput!): MemberWithAttendances!
@@ -582,6 +583,12 @@ input GetActivityInput {
 
 input GetActivitiesInput {
   routeKey: String!
+}
+
+input GetAttendanceByActivitiesInput {
+  routeKey: String!
+  activityId: String!
+  memberId: String!
 }
 
 input GetGamePlansInput {
@@ -656,7 +663,6 @@ type Mutation {
   devLogin(email: String!): AuthPayload!
   refresh(refreshToken: String!): AuthPayload!
   logout: Boolean!
-  getAttendanceByActivities(input: GetAttendanceByActivitiesInput!): PlayerActivityAttendance
   submitAttendance(input: PlayerActivityAttendanceInput!): PlayerActivityAttendance!
   createGamePlan(input: CreateGamePlanInput!): GamePlan!
   deleteGamePlan(input: DeleteGamePlanInput!): GamePlan!
@@ -791,12 +797,6 @@ input UpdateFeedbackInput {
   teamId: String!
   coach: String
   notes: String
-}
-
-input GetAttendanceByActivitiesInput {
-  routeKey: String!
-  activityId: String!
-  memberId: String!
 }
 
 input PlayerActivityAttendanceInput {

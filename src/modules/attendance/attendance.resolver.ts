@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentTeam } from '../auth/decorator/current-team.decorator';
 import { TeamMemberGuard } from '../auth/guards/team-access.guard';
 import type { TeamAccess } from '../auth/team-access.service';
@@ -15,7 +15,7 @@ export class AttendanceResolver {
   constructor(private readonly attendance: AttendanceService) {}
 
   @UseGuards(TeamMemberGuard)
-  @Mutation(() => PlayerActivityAttendance, { nullable: true })
+  @Query(() => PlayerActivityAttendance, { nullable: true })
   async getAttendanceByActivities(
     @Args('input') input: GetAttendanceByActivitiesInput,
     @CurrentTeam() team: TeamAccess,
