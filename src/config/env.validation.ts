@@ -31,6 +31,22 @@ class EnvironmentVariables {
   @IsPositive()
   JWT_ACCESS_TOKEN_EXPIRES_IN_SECONDS?: number;
 
+  /** Refresh-token lifetime in days (default 30). */
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  REFRESH_TOKEN_TTL_DAYS?: number;
+
+  /**
+   * Seconds a just-rotated refresh token stays usable, to absorb concurrent
+   * refreshes from multiple tabs / parallel SSR (default 10). Past this window,
+   * reusing a rotated token is treated as theft.
+   */
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  REFRESH_TOKEN_GRACE_SECONDS?: number;
+
   @IsOptional()
   @IsInt()
   @Min(1)
