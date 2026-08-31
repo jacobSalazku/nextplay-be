@@ -68,6 +68,12 @@ export class GetActivitiesInput {
     routeKey: string;
 }
 
+export class GetAttendanceByActivitiesInput {
+    routeKey: string;
+    activityId: string;
+    memberId: string;
+}
+
 export class GetGamePlansInput {
     routeKey: string;
 }
@@ -236,12 +242,6 @@ export class UpdateFeedbackInput {
     teamId: string;
     coach?: Nullable<string>;
     notes?: Nullable<string>;
-}
-
-export class GetAttendanceByActivitiesInput {
-    routeKey: string;
-    activityId: string;
-    memberId: string;
 }
 
 export class PlayerActivityAttendanceInput {
@@ -867,6 +867,8 @@ export abstract class IQuery {
 
     abstract me(): User | Promise<User>;
 
+    abstract getAttendanceByActivities(input: GetAttendanceByActivitiesInput): Nullable<PlayerActivityAttendance> | Promise<Nullable<PlayerActivityAttendance>>;
+
     abstract getGameplan(input: GetGamePlansInput): GamePlan[] | Promise<GamePlan[]>;
 
     abstract getGameplanById(input: GetGamePlanByIdInput): Nullable<GamePlan> | Promise<Nullable<GamePlan>>;
@@ -934,8 +936,6 @@ export abstract class IMutation {
     abstract refresh(refreshToken: string): AuthPayload | Promise<AuthPayload>;
 
     abstract logout(): boolean | Promise<boolean>;
-
-    abstract getAttendanceByActivities(input: GetAttendanceByActivitiesInput): Nullable<PlayerActivityAttendance> | Promise<Nullable<PlayerActivityAttendance>>;
 
     abstract submitAttendance(input: PlayerActivityAttendanceInput): PlayerActivityAttendance | Promise<PlayerActivityAttendance>;
 
