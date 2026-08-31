@@ -1,10 +1,5 @@
-import { Field, ID, InputType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { ActivityType, Location, PracticeType } from '@prisma/client';
-
-export class ActivityInput {
-  @Field(() => ID)
-  id: string;
-}
 
 @InputType()
 export class CreateActivityInput {
