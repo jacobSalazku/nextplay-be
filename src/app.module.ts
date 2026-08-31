@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { join } from 'path';
+import { validateEnv } from './config/env.validation';
 import './graphql/enums';
 import { formatGraphqlError } from './graphql/format-error';
 import { ActivityModule } from './modules/activity/activity.module';
@@ -24,6 +25,7 @@ import { RootResolver } from './root.resolver';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
+      validate: validateEnv,
     }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,

@@ -79,6 +79,15 @@ page and introspection are off, and `formatError`
 generic message (the real error is logged); errors with a real code
 (`FORBIDDEN`, `BAD_REQUEST`, validation, …) keep their message.
 
+## Configuration
+
+The environment is validated at boot (`src/config/env.validation.ts`) —
+missing `DATABASE_URL` / `JWT_*`, a bad `PORT`, an unknown `NODE_ENV` etc.
+throw a readable list at startup. See `.env.example` for every variable.
+
+CORS origins come from `CORS_ORIGIN` (comma-separated); unset falls back to
+the local dev frontends. Never `*` (the API sends credentials).
+
 ## Database
 
 Run migrations (if your workflow uses them):
