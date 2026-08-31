@@ -1,8 +1,8 @@
 import { Role, Status } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { resetDb, testPrisma } from '../../../test/db';
-import { makeUser } from '../../../test/factories';
-import { TeamService } from './team.service';
+import { resetDb, testPrisma } from '../../../../test/db';
+import { makeUser } from '../../../../test/factories';
+import { TeamService } from '../team.service';
 
 describe('TeamService.createTeam', () => {
   const service = new TeamService(testPrisma as unknown as PrismaService);

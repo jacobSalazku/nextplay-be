@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import type { GraphQLFormattedError } from 'graphql';
-import { formatGraphqlError } from './format-error';
+import { formatGraphqlError } from '../format-error';
 
 describe('formatGraphqlError', () => {
   let errorSpy: jest.SpyInstance;

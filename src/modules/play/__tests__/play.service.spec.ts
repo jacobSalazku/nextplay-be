@@ -1,6 +1,6 @@
 import { Category } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PlayService } from './play.service';
+import { PlayService } from '../play.service';
 
 type Args = { where?: Record<string, unknown> };
 

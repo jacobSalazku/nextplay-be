@@ -4,7 +4,7 @@ import type {
   ThrottlerModuleOptions,
   ThrottlerStorage,
 } from '@nestjs/throttler';
-import { GqlThrottlerGuard } from './gql-throttler.guard';
+import { GqlThrottlerGuard } from '../gql-throttler.guard';
 
 /** Minimal GraphQL ExecutionContext: only what GqlExecutionContext.create reads. */
 function gqlContext(gqlCtx: unknown): ExecutionContext {

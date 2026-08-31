@@ -5,9 +5,9 @@ import {
   type Team,
 } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { resetDb, testPrisma } from '../../../test/db';
-import { makeTeam, makeUser } from '../../../test/factories';
-import { ActivityBuilder } from './activity.builder';
+import { resetDb, testPrisma } from '../../../../test/db';
+import { makeTeam, makeUser } from '../../../../test/factories';
+import { ActivityBuilder } from '../activity.builder';
 
 const base = {
   title: 'Session',

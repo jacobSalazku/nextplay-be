@@ -1,4 +1,4 @@
-import { parseCorsOrigins } from './cors';
+import { parseCorsOrigins } from '../cors';
 
 const DEFAULTS = ['http://localhost:3000', 'http://localhost:3001'];
 

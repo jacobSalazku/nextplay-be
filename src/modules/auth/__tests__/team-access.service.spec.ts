@@ -1,9 +1,9 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Role, Status } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { resetDb, testPrisma } from '../../../test/db';
-import { makeMember, makeTeam, makeUser } from '../../../test/factories';
-import { TeamAccessService } from './team-access.service';
+import { resetDb, testPrisma } from '../../../../test/db';
+import { makeMember, makeTeam, makeUser } from '../../../../test/factories';
+import { TeamAccessService } from '../team-access.service';
 
 // Runs against the real test database (docker-compose.test.yml): the point of
 // this service is that its Prisma queries actually filter by membership and
