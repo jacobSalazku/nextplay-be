@@ -161,7 +161,8 @@ On startup, Nest generates:
 ## Testing
 
 **Stack:** Jest + `@nestjs/testing` + `ts-jest`. Unit/integration specs are
-`*.spec.ts` next to the source; e2e lives in `test/`.
+`*.spec.ts` in a `__tests__/` folder beside the code they cover; e2e lives in
+`test/`.
 
 Requires **Docker Desktop** running — `pnpm test` auto-starts a throwaway
 Postgres (`docker-compose.test.yml`, port 5433) and never touches the real

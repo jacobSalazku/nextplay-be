@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { MemberService } from './member.service';
+import { MemberService } from '../member.service';
 
 type Args = { where?: Record<string, unknown> };
 

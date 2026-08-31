@@ -1,9 +1,9 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { AttendanceStatus, Role } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import type { TeamAccess } from '../auth/team-access.service';
-import { AttendanceService } from './attendance.service';
-import type { PlayerActivityAttendanceInput } from './dto';
+import type { TeamAccess } from '../../auth/team-access.service';
+import { AttendanceService } from '../attendance.service';
+import type { PlayerActivityAttendanceInput } from '../dto';
 
 type Args = { where?: Record<string, unknown> };
 

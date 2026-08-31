@@ -6,11 +6,11 @@ import {
 import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants';
 import { Role } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { resetDb, testPrisma } from '../../../../test/db';
-import { makeMember, makeTeam, makeUser } from '../../../../test/factories';
-import { CurrentTeam } from '../decorator/current-team.decorator';
-import { TeamAccessService } from '../team-access.service';
-import { TeamCoachGuard, TeamMemberGuard } from './team-access.guard';
+import { resetDb, testPrisma } from '../../../../../test/db';
+import { makeMember, makeTeam, makeUser } from '../../../../../test/factories';
+import { CurrentTeam } from '../../decorator/current-team.decorator';
+import { TeamAccessService } from '../../team-access.service';
+import { TeamCoachGuard, TeamMemberGuard } from '../team-access.guard';
 
 type Req = { user?: { userId: string }; team?: unknown };
 

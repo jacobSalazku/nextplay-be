@@ -1,9 +1,9 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ActivityType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ActivityBuilder } from './activity.builder';
-import { ActivityService } from './activity.service';
-import type { UpdateGameInput } from './dto/update';
+import { ActivityBuilder } from '../activity.builder';
+import { ActivityService } from '../activity.service';
+import type { UpdateGameInput } from '../dto/update';
 
 type FindFirstArgs = { where?: Record<string, unknown> };
 type ActivityRow = { id?: string; date?: Date; type?: ActivityType } | null;
