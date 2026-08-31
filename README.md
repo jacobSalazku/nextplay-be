@@ -106,6 +106,12 @@ skipped when `NODE_ENV=test` and when `THROTTLE_DISABLED=true`.
 > balancer, set `trustProxy` on the Fastify adapter so `req.ip` is the client's,
 > and move to the Redis storage adapter before running more than one instance.
 
+Two `validationRules` (`src/graphql/query-limits.ts`) reject abusive query
+*shapes* during the validation phase — before any resolver, guard or DB call:
+max nesting depth **8**, max **15** aliases per document. Over-limit queries
+come back as `GRAPHQL_VALIDATION_FAILED` (HTTP 400). Limits live as consts in
+`src/app.module.ts`; raise them there if a real query ever needs it.
+
 ## Database
 
 Run migrations (if your workflow uses them):
