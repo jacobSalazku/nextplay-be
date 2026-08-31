@@ -72,6 +72,13 @@ GraphQL endpoint:
 http://localhost:3001/graphql
 ```
 
+In development the Apollo landing page is served there and schema
+introspection is on. **In production** (`NODE_ENV=production`) the landing
+page and introspection are off, and `formatError`
+(`src/graphql/format-error.ts`) replaces unhandled/internal errors with a
+generic message (the real error is logged); errors with a real code
+(`FORBIDDEN`, `BAD_REQUEST`, validation, …) keep their message.
+
 ## Database
 
 Run migrations (if your workflow uses them):
