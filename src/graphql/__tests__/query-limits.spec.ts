@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { buildSchema, parse, validate } from 'graphql';
-import { maxAliasesRule, maxDepthRule } from './query-limits';
+import { maxAliasesRule, maxDepthRule } from '../query-limits';
 
 const schema = buildSchema(
   readFileSync(join(process.cwd(), 'graphql/schema.graphql'), 'utf8'),
