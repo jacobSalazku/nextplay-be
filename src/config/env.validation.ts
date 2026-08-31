@@ -65,6 +65,11 @@ class EnvironmentVariables {
   @IsOptional()
   @IsIn(['true', 'false'])
   SKIP_DB_CONNECT?: string;
+
+  /** Escape hatch for load testing / incidents. */
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  THROTTLE_DISABLED?: string;
 }
 
 /**

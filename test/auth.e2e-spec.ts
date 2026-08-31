@@ -1,4 +1,3 @@
-import { ValidationPipe } from '@nestjs/common';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -8,6 +7,7 @@ import { Role, Status } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { configureApp } from '../src/app.setup';
 import { resetDb, testPrisma } from './db';
 import { makeTeam } from './factories';
 
@@ -87,7 +87,7 @@ describe('auth + team authorization (e2e)', () => {
     app = moduleRef.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    await configureApp(app);
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
   });

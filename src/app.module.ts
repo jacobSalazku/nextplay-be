@@ -17,6 +17,7 @@ import { PracticePreparationModule } from './modules/practice-preparation/practi
 import { StatlineModule } from './modules/statline/statline.module';
 import { TeamModule } from './modules/team/team.module';
 import { UserModule } from './modules/user/user.module';
+import { RateLimitModule } from './modules/rate-limit/rate-limit.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RootResolver } from './root.resolver';
 
@@ -47,9 +48,10 @@ import { RootResolver } from './root.resolver';
 
           //code first schema output
           autoSchemaFile: join(process.cwd(), 'graphql/schema.graphql'),
-          context: (context: { req?: unknown; request?: unknown }) => ({
-            req: context.req ?? context.request,
-          }),
+          // `@as-integrations/fastify` calls this with (request, reply). We
+          // forward `req` for the auth guards and `res` so the throttler guard
+          // can write rate-limit headers onto the reply.
+          context: (req: unknown, res: unknown) => ({ req, res }),
 
           //Generated types out of classes
           definitions: {
@@ -59,6 +61,8 @@ import { RootResolver } from './root.resolver';
         };
       },
     }),
+    // first, so its APP_GUARD runs before the auth guard
+    RateLimitModule,
     ActivityModule,
     AttendanceModule,
     AuthModule,
