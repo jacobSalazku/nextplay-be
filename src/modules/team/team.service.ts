@@ -128,6 +128,9 @@ export class TeamService {
         routeKey: true,
         ageGroup: true,
         members: {
+          where: {
+            status: Status.ACTIVE,
+          },
           select: {
             id: true,
           },
