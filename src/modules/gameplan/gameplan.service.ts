@@ -11,6 +11,7 @@ import {
   GetGamePlansInput,
 } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { sanitizeRichText } from 'src/common/sanitize-rich-text';
 
 const gamePlanSelect = {
   id: true,
@@ -85,7 +86,7 @@ export class GameplanService {
       data: {
         title: input.name,
         opponent: input.opponent,
-        notes: input.notes,
+        notes: sanitizeRichText(input.notes),
         gameID: input.activityId,
         teamId: team.id,
         plays: {

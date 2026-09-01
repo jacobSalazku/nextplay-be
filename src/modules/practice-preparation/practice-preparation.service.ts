@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { ActivityType, Prisma, Role, Status } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { sanitizeRichText } from 'src/common/sanitize-rich-text';
 import {
   CreatePracticePreparationInput,
   DeletePracticePreparationInput,
@@ -90,7 +91,7 @@ export class PracticePreparationService {
         teamId: team.id,
         name: input.name,
         focus: input.focus,
-        notes: input.notes,
+        notes: sanitizeRichText(input.notes),
         practiceId: input.activityId,
         plays: {
           connect: requestedPlayIds.map((id) => ({ id })),
