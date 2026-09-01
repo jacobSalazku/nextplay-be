@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Category, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { sanitizeRichText } from 'src/common/sanitize-rich-text';
 import { CreatePlayInput } from './dto';
 
 const playSelect = {
@@ -68,7 +69,7 @@ export class PlayService {
       data: {
         teamId,
         name: input.name,
-        description: input.description,
+        description: sanitizeRichText(input.description),
         category: input.category,
         canvas: input.canvas,
       },
