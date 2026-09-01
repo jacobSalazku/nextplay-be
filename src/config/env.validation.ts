@@ -61,6 +61,11 @@ class EnvironmentVariables {
   @IsString()
   GOOGLE_CLIENT_ID?: string;
 
+  /** Sentry DSN. Unset = error reporting is a no-op. */
+  @IsOptional()
+  @IsUrl({ require_tld: false, require_protocol: true })
+  SENTRY_DSN?: string;
+
   @IsOptional()
   @IsIn(['true', 'false'])
   DEV_AUTH_ENABLED?: string;
