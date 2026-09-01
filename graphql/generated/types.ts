@@ -22,7 +22,8 @@ export enum Role {
 export enum Status {
     ACTIVE = "ACTIVE",
     PENDING = "PENDING",
-    INACTIVE = "INACTIVE"
+    INACTIVE = "INACTIVE",
+    REMOVED = "REMOVED"
 }
 
 export enum Location {

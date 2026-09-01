@@ -1,7 +1,11 @@
 import { Role, Status } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { resetDb, testPrisma } from '../../../../test/db';
-import { makeUser } from '../../../../test/factories';
+import {
+  makeMember,
+  makeTeamWithMember,
+  makeUser,
+} from '../../../../test/factories';
 import { TeamService } from '../team.service';
 
 describe('TeamService.createTeam', () => {
@@ -76,5 +80,27 @@ describe('TeamService.createTeam', () => {
     expect(a.code).not.toBe(b.code);
     expect(a.shortId).not.toBe(b.shortId);
     expect(a.routeKey).not.toBe(b.routeKey);
+  });
+});
+
+describe('TeamService.getTeamsForDashboard', () => {
+  const service = new TeamService(testPrisma as unknown as PrismaService);
+
+  beforeEach(() => resetDb());
+  afterAll(() => testPrisma.$disconnect());
+
+  it('does not count REMOVED members in the member list', async () => {
+    const { user, team } = await makeTeamWithMember();
+    const removedPlayer = await makeUser();
+    await makeMember({
+      userId: removedPlayer.id,
+      teamId: team.id,
+      role: Role.PLAYER,
+      status: Status.REMOVED,
+    });
+
+    const [dashboardTeam] = await service.getTeamsForDashboard(user.id);
+
+    expect(dashboardTeam.members).toHaveLength(1);
   });
 });

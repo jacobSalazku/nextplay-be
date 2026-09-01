@@ -274,12 +274,13 @@ export class MemberService {
       throw new NotFoundException('Member not found for this team.');
     }
 
-    await this.prisma.statline.deleteMany({
-      where: { memberId: id },
-    });
-
-    await this.prisma.member.delete({
+    // Soft delete: mark REMOVED instead of hard-deleting so attendance and
+    // statline history stay intact for past games. Every membership check
+    // elsewhere already filters on Status.ACTIVE, so this alone revokes
+    // team access and drops the member out of rosters/averages.
+    await this.prisma.member.update({
       where: { id },
+      data: { status: Status.REMOVED },
     });
 
     return true;
