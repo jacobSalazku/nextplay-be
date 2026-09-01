@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import * as Sentry from '@sentry/nestjs';
 import type { GraphQLFormattedError } from 'graphql';
 
 const logger = new Logger('GraphQL');
@@ -12,7 +13,7 @@ const INTERNAL = 'INTERNAL_SERVER_ERROR';
  * - In production:
  *   - unhandled / internal errors (`INTERNAL_SERVER_ERROR` or no code — an
  *     unexpected `TypeError`, a Prisma constraint error, …) → generic message,
- *     the real error is logged server-side.
+ *     the real error is logged server-side and sent to Sentry.
  *   - errors with a real code (`FORBIDDEN`, `BAD_REQUEST`, `UNAUTHENTICATED`,
  *     `NOT_FOUND`, `GRAPHQL_VALIDATION_FAILED`, …) → message kept, `extensions`
  *     trimmed to just the code (drops `originalError`, which leaks the HTTP
@@ -33,6 +34,7 @@ export function formatGraphqlError(
         ? (original.stack ?? original.message)
         : String(original),
     );
+    Sentry.captureException(original);
     return { message: 'Internal server error', extensions: { code: INTERNAL } };
   }
 

@@ -1,7 +1,9 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
+import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { join } from 'path';
 import { validateEnv } from './config/env.validation';
@@ -88,7 +90,11 @@ const MAX_QUERY_ALIASES = 15;
     StatlineModule,
     TeamModule,
     UserModule,
+    SentryModule.forRoot(),
   ],
-  providers: [RootResolver],
+  providers: [
+    RootResolver,
+    { provide: APP_FILTER, useClass: SentryGlobalFilter },
+  ],
 })
 export class AppModule {}
