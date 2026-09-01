@@ -820,6 +820,7 @@ export class StatlineService {
       where: {
         id: { in: requestedMemberIds },
         teamId: team.id,
+        status: Status.ACTIVE,
       },
       select: { id: true },
     });

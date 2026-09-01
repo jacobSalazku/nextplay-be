@@ -83,6 +83,19 @@ describe('AttendanceService', () => {
       ).rejects.toBeInstanceOf(NotFoundException);
       expect(attUpsert).not.toHaveBeenCalled();
     });
+
+    it('only accepts an ACTIVE member as the target', async () => {
+      let where: Record<string, unknown> | undefined;
+      memberFindFirst.mockImplementation((args: Args) => {
+        where = args.where;
+        return Promise.resolve(null);
+      });
+
+      await expect(
+        service.submit(input(), access({ role: Role.COACH })),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(where).toMatchObject({ status: 'ACTIVE' });
+    });
   });
 
   describe('getAttendance', () => {

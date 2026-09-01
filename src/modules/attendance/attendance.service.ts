@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { Role, Status } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import type { TeamAccess } from '../auth/team-access.service';
 import {
@@ -38,7 +38,11 @@ export class AttendanceService {
         select: { id: true },
       }),
       this.prisma.member.findFirst({
-        where: { id: input.memberId, teamId: team.teamId },
+        where: {
+          id: input.memberId,
+          teamId: team.teamId,
+          status: Status.ACTIVE,
+        },
         select: { id: true },
       }),
     ]);
