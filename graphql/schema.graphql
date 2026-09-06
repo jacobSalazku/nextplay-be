@@ -267,8 +267,8 @@ type FormationPreset {
 }
 
 enum CourtType {
-  Half
-  Full
+  half
+  full
 }
 
 """
@@ -284,17 +284,17 @@ type PlayEditorConfig {
 }
 
 enum PlayActionType {
-  Dribble
-  Pass
-  Cut
-  Screen
-  Shot
-  Handoff
+  dribble
+  pass
+  cut
+  screen
+  shot
+  handoff
 }
 
 enum PlayObjectKind {
-  Offense
-  Defense
+  offense
+  defense
 }
 
 type Play {

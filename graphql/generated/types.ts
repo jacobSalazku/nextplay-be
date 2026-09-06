@@ -46,22 +46,22 @@ export enum Category {
 }
 
 export enum CourtType {
-    Half = "Half",
-    Full = "Full"
+    half = "half",
+    full = "full"
 }
 
 export enum PlayActionType {
-    Dribble = "Dribble",
-    Pass = "Pass",
-    Cut = "Cut",
-    Screen = "Screen",
-    Shot = "Shot",
-    Handoff = "Handoff"
+    dribble = "dribble",
+    pass = "pass",
+    cut = "cut",
+    screen = "screen",
+    shot = "shot",
+    handoff = "handoff"
 }
 
 export enum PlayObjectKind {
-    Offense = "Offense",
-    Defense = "Defense"
+    offense = "offense",
+    defense = "defense"
 }
 
 export enum AcceptTeamInviteStatus {

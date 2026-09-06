@@ -1,22 +1,22 @@
 import { registerEnumType } from '@nestjs/graphql';
 
 export enum PlayActionType {
-  Dribble = 'dribble',
-  Pass = 'pass',
-  Cut = 'cut',
-  Screen = 'screen',
-  Shot = 'shot',
-  Handoff = 'handoff',
+  dribble = 'dribble',
+  pass = 'pass',
+  cut = 'cut',
+  screen = 'screen',
+  shot = 'shot',
+  handoff = 'handoff',
 }
 
 export enum PlayObjectKind {
-  Offense = 'offense',
-  Defense = 'defense',
+  offense = 'offense',
+  defense = 'defense',
 }
 
 export enum CourtType {
-  Half = 'half',
-  Full = 'full',
+  half = 'half',
+  full = 'full',
 }
 
 registerEnumType(PlayActionType, { name: 'PlayActionType' });

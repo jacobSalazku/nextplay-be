@@ -10,7 +10,7 @@ export type FormationPreset = {
 
 const off = (label: string, x: number, y: number): PlacedObject => ({
   id: `o${label}`,
-  kind: PlayObjectKind.Offense,
+  kind: PlayObjectKind.offense,
   label,
   x,
   y,
@@ -20,7 +20,7 @@ export const FORMATION_PRESETS: FormationPreset[] = [
   {
     id: '5-out',
     name: '5-Out',
-    court: CourtType.Half,
+    court: CourtType.half,
     objects: [
       off('1', 50, 82),
       off('2', 16, 58),
@@ -32,7 +32,7 @@ export const FORMATION_PRESETS: FormationPreset[] = [
   {
     id: '4-out-1-in',
     name: '4-Out 1-In',
-    court: CourtType.Half,
+    court: CourtType.half,
     objects: [
       off('1', 50, 82),
       off('2', 14, 56),
@@ -44,7 +44,7 @@ export const FORMATION_PRESETS: FormationPreset[] = [
   {
     id: '1-4-low',
     name: '1-4 Low',
-    court: CourtType.Half,
+    court: CourtType.half,
     objects: [
       off('1', 50, 78),
       off('2', 12, 40),
@@ -56,7 +56,7 @@ export const FORMATION_PRESETS: FormationPreset[] = [
   {
     id: 'horns',
     name: 'Horns',
-    court: CourtType.Half,
+    court: CourtType.half,
     objects: [
       off('1', 50, 80),
       off('2', 10, 66),
@@ -68,7 +68,7 @@ export const FORMATION_PRESETS: FormationPreset[] = [
   {
     id: 'box',
     name: 'Box',
-    court: CourtType.Half,
+    court: CourtType.half,
     objects: [
       off('1', 50, 84),
       off('2', 30, 46),
