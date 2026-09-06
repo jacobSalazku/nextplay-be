@@ -1,5 +1,6 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Category } from '@prisma/client';
+import { GraphQLJSON } from 'graphql-scalars';
 
 @ObjectType()
 export class Play {
@@ -18,8 +19,11 @@ export class Play {
   @Field()
   description: string;
 
-  @Field()
-  canvas: string;
+  @Field(() => String, { nullable: true })
+  canvas?: string | null;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  diagram?: unknown;
 
   @Field()
   createdAt: Date;
