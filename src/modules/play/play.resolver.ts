@@ -11,13 +11,29 @@ import {
   DeletePlayInput,
   GetPlayInput,
   GetPlaysInput,
+  UpdatePlayInput,
 } from './dto';
+import {
+  FormationPresetModel,
+  PlayEditorConfig,
+} from './play-editor-config.model';
 import { Play } from './play.model';
 import { PlayService } from './play.service';
 
 @Resolver(() => Play)
 export class PlayResolver {
   constructor(private readonly play: PlayService) {}
+
+  @Query(() => PlayEditorConfig)
+  playEditorConfig(): PlayEditorConfig {
+    const config = this.play.getEditorConfig();
+    return {
+      actionTypes: config.actionTypes,
+      objectKinds: config.objectKinds,
+      courts: config.courts,
+      formations: config.formations as unknown as FormationPresetModel[],
+    };
+  }
 
   @UseGuards(TeamMemberGuard)
   @Query(() => [Play])
@@ -44,6 +60,15 @@ export class PlayResolver {
     @CurrentTeam() team: TeamAccess,
   ): Promise<Play> {
     return this.play.createPlay(input, team.teamId);
+  }
+
+  @UseGuards(TeamCoachGuard)
+  @Mutation(() => Play)
+  async updatePlay(
+    @Args('input') input: UpdatePlayInput,
+    @CurrentTeam() team: TeamAccess,
+  ): Promise<Play> {
+    return this.play.updatePlay(input, team.teamId);
   }
 
   @UseGuards(TeamCoachGuard)

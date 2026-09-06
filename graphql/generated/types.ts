@@ -45,6 +45,25 @@ export enum Category {
     SPECIAL = "SPECIAL"
 }
 
+export enum CourtType {
+    half = "half",
+    full = "full"
+}
+
+export enum PlayActionType {
+    dribble = "dribble",
+    pass = "pass",
+    cut = "cut",
+    screen = "screen",
+    shot = "shot",
+    handoff = "handoff"
+}
+
+export enum PlayObjectKind {
+    offense = "offense",
+    defense = "defense"
+}
+
 export enum AcceptTeamInviteStatus {
     SUCCESS = "SUCCESS",
     ALREADY_JOINED = "ALREADY_JOINED",
@@ -277,7 +296,17 @@ export class CreatePlayInput {
     name: string;
     description: string;
     category: Category;
-    canvas: string;
+    canvas?: Nullable<string>;
+    diagram?: Nullable<JSON>;
+}
+
+export class UpdatePlayInput {
+    id: string;
+    routeKey: string;
+    name?: Nullable<string>;
+    category?: Nullable<Category>;
+    description?: Nullable<string>;
+    diagram?: Nullable<JSON>;
 }
 
 export class DeletePlayInput {
@@ -573,13 +602,28 @@ export class TeamMemberInfo {
     user: UserDetail;
 }
 
+export class FormationPreset {
+    id: string;
+    name: string;
+    court: CourtType;
+    objects: JSON;
+}
+
+export class PlayEditorConfig {
+    actionTypes: PlayActionType[];
+    objectKinds: PlayObjectKind[];
+    courts: CourtType[];
+    formations: FormationPreset[];
+}
+
 export class Play {
     id: string;
     routeKey: string;
     name: string;
     category: Category;
     description: string;
-    canvas: string;
+    canvas?: Nullable<string>;
+    diagram?: Nullable<JSON>;
     createdAt: DateTime;
     updatedAt: DateTime;
 }
@@ -880,6 +924,8 @@ export abstract class IQuery {
 
     abstract getActiveAttendedMembers(input: ActiveAttendedMembersInput): MemberWithStatlines[] | Promise<MemberWithStatlines[]>;
 
+    abstract playEditorConfig(): PlayEditorConfig | Promise<PlayEditorConfig>;
+
     abstract getPlays(input: GetPlaysInput): Play[] | Promise<Play[]>;
 
     abstract getPlay(input: GetPlayInput): Nullable<Play> | Promise<Nullable<Play>>;
@@ -948,6 +994,8 @@ export abstract class IMutation {
 
     abstract createPlay(input: CreatePlayInput): Play | Promise<Play>;
 
+    abstract updatePlay(input: UpdatePlayInput): Play | Promise<Play>;
+
     abstract deletePlay(input: DeletePlayInput): boolean | Promise<boolean>;
 
     abstract createPracticePreparation(input: CreatePracticePreparationInput): PracticePreparation | Promise<PracticePreparation>;
@@ -966,4 +1014,5 @@ export abstract class IMutation {
 }
 
 export type DateTime = any;
+export type JSON = any;
 type Nullable<T> = T | null;
