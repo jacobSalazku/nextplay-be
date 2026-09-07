@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { sanitizeRichText } from 'src/common/sanitize-rich-text';
 import { CourtType, PlayActionType, PlayObjectKind } from './play.enums';
 
 const point = z.object({ x: z.number(), y: z.number() });
@@ -27,7 +28,9 @@ const action = z
 
 const phase = z.object({
   id: z.string().min(1).max(12),
-  note: z.string().trim().max(2000).optional(),
+  // rich text from the Breakdown editor — sanitised on write since a client
+  // could POST raw markup straight to the API
+  note: z.string().trim().max(4000).transform(sanitizeRichText).optional(),
   ballHolderId: z.string().optional(),
   objects: placedObject.array().max(12),
   actions: action.array().max(30),

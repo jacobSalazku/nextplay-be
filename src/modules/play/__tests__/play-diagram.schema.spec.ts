@@ -137,4 +137,34 @@ describe('playDiagramSchema', () => {
     // Assert
     expect(result.phases[0].note).toBe('drive baseline');
   });
+
+  it('sanitises a phase note, keeping the editor formatting', () => {
+    // Arrange
+    const diagram = makeDiagram({
+      phases: [
+        {
+          ...makeDiagram().phases[0],
+          note: '<p><strong>1 passes</strong></p><script>alert(1)</script><ul><li>space out</li></ul>',
+        },
+      ],
+    });
+
+    // Act
+    const result = playDiagramSchema.parse(diagram);
+
+    // Assert — the script is gone, the bold + list survive
+    expect(result.phases[0].note).not.toContain('script');
+    expect(result.phases[0].note).toContain('<strong>1 passes</strong>');
+    expect(result.phases[0].note).toContain('<li>space out</li>');
+  });
+
+  it('rejects a note over the length cap', () => {
+    // Arrange
+    const diagram = makeDiagram({
+      phases: [{ ...makeDiagram().phases[0], note: 'x'.repeat(4001) }],
+    });
+
+    // Act / Assert
+    expect(playDiagramSchema.safeParse(diagram).success).toBe(false);
+  });
 });
